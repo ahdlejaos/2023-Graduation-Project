@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="pch.hpp" />
+    <ClInclude Include="Runnable.hpp" />
     <ClInclude Include="stdafx.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
