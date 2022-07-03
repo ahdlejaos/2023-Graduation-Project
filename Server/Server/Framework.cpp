@@ -4,6 +4,9 @@
 Framework::Framework()
 {}
 
+Framework::~Framework()
+{}
+
 void Framework::Awake()
 {}
 
