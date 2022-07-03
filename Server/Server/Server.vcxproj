@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Asynchron.cpp" />
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Server.cpp" />
@@ -152,6 +153,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Asynchron.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="Runnable.hpp" />
