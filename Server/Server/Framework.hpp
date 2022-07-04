@@ -1,5 +1,8 @@
 #pragma once
 #include "Runnable.hpp"
+#include "Asynchron.hpp"
+#include "Room.hpp"
+#include "Session.hpp"
 
 class Framework : public Runnable
 {
@@ -31,5 +34,11 @@ private:
 	std::array<shared_ptr<Room>, MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, MAX_ENTITIES> everySessions;
 
+	unsigned int numberRooms;
+
 	std::priority_queue<int> timerQueue;
+
+	Protocol lastPacketType = Protocol::NONE;
+
+	std::osyncstream syncout;
 };

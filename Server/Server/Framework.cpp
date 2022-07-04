@@ -2,6 +2,8 @@
 #include "Framework.hpp"
 
 Framework::Framework()
+	: everyRooms(), everySessions()
+	, syncout(std::cout)
 {}
 
 Framework::~Framework()

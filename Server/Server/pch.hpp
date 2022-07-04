@@ -39,8 +39,6 @@ constexpr unsigned int MAX_ENTITIES = MAX_USERS + MAX_NPCS;
 // 최대 매치의 수
 constexpr unsigned int MAX_SEARCHS = 500;
 
-extern unsigned int numberRooms = 0;
-
 enum class Protocol : unsigned int
 {
 	NONE = 0,

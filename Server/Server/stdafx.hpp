@@ -1,8 +1,4 @@
 #pragma once
-#pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "MSWSock.lib")
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -26,7 +22,6 @@
 #define NOCRYPT
 #define NOMCX
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include <minwindef.h>
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 
@@ -56,6 +51,9 @@ using namespace DirectX::PackedVector;
 #include <unordered_map>
 #include <unordered_set>
 #include <queue>
+#include <array>
+#include <concurrent_priority_queue.h>
+#include <concurrent_vector.h>
 #include <stack>
 #include <tuple>
 #include <span>
@@ -126,8 +124,6 @@ constexpr auto operator+(std::pair<Ty, Ty>&& lhs, std::pair<Ty, Ty>&& rhs)
 		std::forward<Ty>(lhs.first) + std::forward<Ty>(rhs.first)
 		, std::forward<Ty>(lhs.second) + std::forward<Ty>(rhs.second));
 }
-
-extern std::osyncstream syncout{ std::cout };
 
 constexpr double PI = 3.141592653589793;
 
