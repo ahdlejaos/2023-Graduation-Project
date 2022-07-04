@@ -145,9 +145,13 @@
   <ItemGroup>
     <ClCompile Include="Asynchron.cpp" />
     <ClCompile Include="Framework.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Packet.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="PlayingSession.cpp" />
+    <ClCompile Include="Room.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="Session.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -156,9 +160,13 @@
   <ItemGroup>
     <ClInclude Include="Asynchron.hpp" />
     <ClInclude Include="Framework.hpp" />
+    <ClInclude Include="GameObject.hpp" />
     <ClInclude Include="Packet.hpp" />
     <ClInclude Include="pch.hpp" />
+    <ClInclude Include="PlayingSession.hpp" />
+    <ClInclude Include="Room.hpp" />
     <ClInclude Include="Runnable.hpp" />
+    <ClInclude Include="Session.hpp" />
     <ClInclude Include="stdafx.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
