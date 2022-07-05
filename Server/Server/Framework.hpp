@@ -22,17 +22,13 @@ public:
 	
 	void Listen();
 	void Accept();
-	void Dispose();
+	void Dispose(size_t index);
+	void Dispose(Session* session);
 
 private:
-	SOCKET serverSocket;
-	ULONG_PTR serverID;
-
-	unique_ptr<Asynchron> connectWorker;
-	DWORD connectBytes;
-	char connectBuffer[BUFSIZ];
-	atomic<SOCKET> connectNewbie;
-	std::condition_variable connectFlag;
+	SOCKET mySocket;
+	ULONG_PTR myID;
+	HANDLE myCompletionPort;
 
 	std::array<shared_ptr<Room>, MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, MAX_ENTITIES> everySessions;

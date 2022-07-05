@@ -165,6 +165,12 @@ inline constexpr T dsin(T value)
 	return std::sin(value * PI / 180);
 }
 
+[[nodiscard]]
+inline SOCKET CreateSocket()
+{
+	return WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+}
+
 class XYZWrapper
 {
 public:

@@ -85,7 +85,7 @@ enum class Operation : unsigned char
 	RECV,
 	SEND,
 
-
+	ENTITY_MOVE,
 };
 
 #endif // ! __PCH__
