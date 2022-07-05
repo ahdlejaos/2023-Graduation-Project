@@ -125,6 +125,32 @@ constexpr auto operator+(std::pair<Ty, Ty>&& lhs, std::pair<Ty, Ty>&& rhs)
 		, std::forward<Ty>(lhs.second) + std::forward<Ty>(rhs.second));
 }
 
+template <>
+struct std::default_delete<WSABUF>
+{
+	constexpr default_delete() noexcept = default;
+
+	template <class _Ty2, enable_if_t<is_convertible_v<_Ty2*, WSABUF*>, int> = 0>
+	default_delete(const default_delete<_Ty2>&) noexcept {}
+
+	void operator()(WSABUF* _Ptr) const noexcept /* strengthened */
+	{ // delete a pointer
+		static_assert(0 < sizeof(WSABUF), "can't delete an incomplete type");
+
+		delete _Ptr->buf;
+		delete _Ptr;
+	}
+};
+
+namespace std
+{
+	//template<typename Ty, typename Dx>
+	//unique_ptr(Ty, Dx)->unique_ptr<std::remove_cvref_t<Ty>, Dx>;
+
+	//template<typename Ty, typename Dx>
+	//unique_ptr(Ty[], Dx)->unique_ptr<std::remove_all_extents_t<std::remove_cvref_t<Ty>>[], Dx>;
+}
+
 constexpr double PI = 3.141592653589793;
 
 template<typename T>
@@ -152,7 +178,7 @@ public:
 
 	XYZWrapper(XMFLOAT3&& position) = delete;
 
-	inline constexpr XYZWrapper& operator=(float (&list)[3])
+	inline constexpr XYZWrapper& operator=(float(&list)[3])
 	{
 		x = list[0];
 		y = list[1];

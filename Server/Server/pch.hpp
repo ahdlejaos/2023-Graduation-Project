@@ -77,4 +77,15 @@ enum class Protocol : unsigned int
 	SC_CHAT, // 메시지 (시스템 알림, 방 대화, 대기실 대화, 1:1대화 등)
 };
 
+enum class Operation : unsigned char
+{
+	NONE = 0,
+
+	ACCEPT,
+	RECV,
+	SEND,
+
+
+};
+
 #endif // ! __PCH__

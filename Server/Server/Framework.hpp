@@ -25,6 +25,9 @@ public:
 	void Dispose();
 
 private:
+	SOCKET serverSocket;
+	ULONG_PTR serverID;
+
 	unique_ptr<Asynchron> connectWorker;
 	DWORD connectBytes;
 	char connectBuffer[BUFSIZ];
