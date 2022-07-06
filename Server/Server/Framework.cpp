@@ -2,7 +2,8 @@
 #include "Framework.hpp"
 
 Framework::Framework()
-	: everyRooms(), everySessions()
+	: myContext()
+	, everyRooms(), everySessions()
 	, syncout(std::cout)
 {}
 
@@ -19,9 +20,14 @@ void Framework::Start()
 
 }
 
-void Framework::Update(float delta_time)
+void Framework::Update()
 {
 
+
+	while (true)
+	{
+
+	}
 }
 
 void Framework::Release()

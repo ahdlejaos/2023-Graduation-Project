@@ -1,10 +1,10 @@
 #pragma once
-#include "Runnable.hpp"
+#include "AsyncContext.hpp"
 #include "Asynchron.hpp"
 #include "Room.hpp"
 #include "Session.hpp"
 
-class Framework : public Runnable
+class Framework
 {
 public:
 	Framework();
@@ -12,7 +12,7 @@ public:
 
 	void Awake() override;
 	void Start() override;
-	void Update(float delta_time) override;
+	void Update() override;
 	void Release() override;
 
 	void ProceedAsync(Asynchron*, DWORD bytes);
@@ -28,7 +28,8 @@ public:
 private:
 	SOCKET mySocket;
 	ULONG_PTR myID;
-	HANDLE myCompletionPort;
+
+	AsyncContext myContext;
 
 	std::array<shared_ptr<Room>, MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, MAX_ENTITIES> everySessions;
