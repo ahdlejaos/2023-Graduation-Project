@@ -2,7 +2,7 @@
 #include "Framework.hpp"
 
 Framework::Framework()
-	: myContext()
+	: myEntryPoint(), myAsyncProvider()
 	, everyRooms(), everySessions()
 	, syncout(std::cout)
 {
@@ -17,29 +17,22 @@ Framework::~Framework()
 
 void Framework::Awake()
 {
-	WSADATA wsadata{};
-	if (0 != WSAStartup(MAKEWORD(2, 2), &wsadata))
-	{
-		srv::RaiseSystemError(std::errc::operation_not_supported);
-	}
+	syncout << "서버 시동 중...\n";
 
-	mySocket = srv::CreateSocket();
-	if (INVALID_SOCKET == mySocket)
-	{
-		srv::RaiseSystemError(std::errc::wrong_protocol_type);
-		return;
-	}
-
+	myEntryPoint.Awake(6000);
 }
 
 void Framework::Start()
 {
+	syncout << "서버 시작하는 중...\n";
 
+	myEntryPoint.Start();
+
+	syncout << "서버 시작\n";
 }
 
 void Framework::Update()
 {
-
 
 	while (true)
 	{

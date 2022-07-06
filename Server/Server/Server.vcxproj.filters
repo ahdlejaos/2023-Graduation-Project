@@ -48,7 +48,7 @@
     <ClCompile Include="ConnectService.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="AsyncContext.cpp">
+    <ClCompile Include="AsyncService.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,7 +89,7 @@
     <ClInclude Include="ConnectService.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="AsyncContext.hpp">
+    <ClInclude Include="AsyncService.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,13 +1,13 @@
 #pragma once
 
-class AsyncContext
+class AsyncService
 {
 public:
-	constexpr AsyncContext()
+	constexpr AsyncService()
 		: completionPort(NULL)
 	{}
 
-	~AsyncContext()
+	~AsyncService()
 	{
 		CloseHandle(completionPort);
 	}
@@ -18,7 +18,7 @@ public:
 
 		if (NULL == completionPort)
 		{
-			std::cout << "AsyncContext::Awake\n";
+			std::cout << "AsyncService::Awake\n";
 			srv::RaiseSystemError(std::errc::not_enough_memory);
 		}
 	}
@@ -31,7 +31,7 @@ public:
 
 		if (NULL == handle)
 		{
-			std::cout << "AsyncContext::Link\n";
+			std::cout << "AsyncService::Link\n";
 			srv::RaiseSystemError(std::errc::not_a_socket);
 		}
 	}

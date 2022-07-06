@@ -4,8 +4,9 @@
 class ConnectService
 {
 public:
-	ConnectService()
-		: connectWorker(Operation::ACCEPT)
+	constexpr ConnectService()
+		: serverSocket(NULL), serverEndPoint()
+		, connectWorker(Operation::ACCEPT)
 		, connectBytes(), connectBuffer()
 		, connectNewbie(NULL)
 		, connectSize(sizeof(SOCKADDR_IN) + 16)
@@ -27,29 +28,52 @@ public:
 		connectNewbie.store(NULL, std::memory_order_release);
 	};
 
-	void Awake(SOCKET listener, HANDLE iocp)
+	inline void Awake(unsigned short server_port)
 	{
-		serverSocket = listener;
-		serverCompletionPort = iocp;
+		WSADATA wsadata{};
+		if (0 != WSAStartup(MAKEWORD(2, 2), &wsadata))
+		{
+			srv::RaiseSystemError(std::errc::operation_not_supported);
+		}
+
+		serverSocket = srv::CreateSocket();
+		if (INVALID_SOCKET == serverSocket)
+		{
+			srv::RaiseSystemError(std::errc::wrong_protocol_type);
+			return;
+		}
+
+		constexpr int szAddress = sizeof(serverEndPoint);
+		ZeroMemory(&serverEndPoint, szAddress);
+
+		serverEndPoint.sin_family = AF_INET;
+		serverEndPoint.sin_addr.s_addr = htonl(INADDR_ANY);
+		serverEndPoint.sin_port = htons(server_port);
+
+		if (SOCKET_ERROR == bind(serverSocket, (SOCKADDR*)(&serverEndPoint), szAddress))
+		{
+			srv::RaiseSystemError(std::errc::bad_address);
+		}
 	}
 
-	void Start()
+	inline void Start()
 	{
+
 		auto newbie = connectNewbie.load(std::memory_order_relaxed);
 
 		Accept(newbie);
 	}
 
-	void Update()
+	inline void Update()
 	{
-		const auto new_sock = CreateSocket();
+		const auto new_sock = srv::CreateSocket();
 		connectNewbie.store(new_sock);
 
 		Accept(new_sock);
 	}
 
 	SOCKET serverSocket;
-	HANDLE serverCompletionPort;
+	SOCKADDR_IN serverEndPoint;
 
 	Asynchron connectWorker;
 	DWORD connectBytes;
@@ -57,7 +81,6 @@ public:
 	const int connectSize;
 
 	atomic<SOCKET> connectNewbie;
-	std::condition_variable connectFlag;
 
 private:
 	void Accept(SOCKET target)

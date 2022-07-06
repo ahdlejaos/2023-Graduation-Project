@@ -5,6 +5,9 @@
 #include "stdafx.hpp"
 
 class Framework;
+class ConnectService;
+class AsyncService;
+
 class Session;
 class PlayingSession;
 class Room;

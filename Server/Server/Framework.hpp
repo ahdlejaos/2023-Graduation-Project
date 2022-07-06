@@ -1,5 +1,6 @@
 #pragma once
-#include "AsyncContext.hpp"
+#include "AsyncService.hpp"
+#include "ConnectService.hpp"
 #include "Asynchron.hpp"
 #include "Room.hpp"
 #include "Session.hpp"
@@ -29,7 +30,8 @@ private:
 	SOCKET mySocket;
 	ULONG_PTR myID;
 
-	AsyncContext myContext;
+	ConnectService myEntryPoint;
+	AsyncService myAsyncProvider;
 
 	std::array<shared_ptr<Room>, MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, MAX_ENTITIES> everySessions;
