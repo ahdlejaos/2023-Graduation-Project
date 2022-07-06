@@ -10,15 +10,15 @@ public:
 	Framework();
 	~Framework();
 
-	void Awake() override;
-	void Start() override;
-	void Update() override;
-	void Release() override;
+	void Awake();
+	void Start();
+	void Update();
+	void Release();
 
-	void ProceedAsync(Asynchron*, DWORD bytes);
-	void ProceedConnect(Asynchron*);
-	void ProceedSent(Asynchron*);
-	void ProceedRecv(Asynchron*);
+	void ProceedAsync(Asynchron* context, int bytes);
+	void ProceedConnect(Asynchron* context);
+	void ProceedSent(Asynchron* context);
+	void ProceedRecv(Asynchron* context);
 	
 	void Listen();
 	void Accept();
