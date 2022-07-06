@@ -36,6 +36,7 @@ using namespace DirectX::PackedVector;
 #include <syncstream>
 #include <fstream>
 #include <memory>
+#include <exception>
 #include <filesystem>
 #include <concepts>
 #include <random>
@@ -165,10 +166,27 @@ inline constexpr T dsin(T value)
 	return std::sin(value * PI / 180);
 }
 
-[[nodiscard]]
-inline SOCKET CreateSocket()
-{
-	return WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+namespace srv {
+	[[nodiscard]]
+	inline SOCKET CreateSocket()
+	{
+		return WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+	}
+
+	inline void RaisePlainError(const std::string_view& description) noexcept(false)
+	{
+		throw std::exception(description.data());
+	}
+
+	inline void RaiseRuntimeError(const std::string_view& description) noexcept(false)
+	{
+		throw std::runtime_error(description.data());
+	}
+
+	inline void RaiseSystemError(std::errc code) noexcept(false)
+	{
+		throw std::system_error(std::make_error_code(code));
+	}
 }
 
 class XYZWrapper

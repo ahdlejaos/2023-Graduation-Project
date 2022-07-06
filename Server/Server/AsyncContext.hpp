@@ -19,7 +19,7 @@ public:
 		if (NULL == completionPort)
 		{
 			std::cout << "AsyncContext::Awake\n";
-			throw std::system_error(std::make_error_code(std::errc::not_enough_memory));
+			srv::RaiseSystemError(std::errc::not_enough_memory);
 		}
 	}
 
@@ -32,7 +32,7 @@ public:
 		if (NULL == handle)
 		{
 			std::cout << "AsyncContext::Link\n";
-			throw std::system_error(std::make_error_code(std::errc::not_a_socket));
+			srv::RaiseSystemError(std::errc::not_a_socket);
 		}
 	}
 
