@@ -1,5 +1,5 @@
 #pragma once
-#include "AsyncService.hpp"
+#include "AsyncPoolService.hpp"
 #include "ConnectService.hpp"
 #include "Asynchron.hpp"
 #include "Room.hpp"
@@ -21,6 +21,8 @@ public:
 	void ProceedSent(Asynchron* context, int bytes);
 	void ProceedRecv(Asynchron* context, int bytes);
 	
+	friend void Worker(Framework& me);
+
 	void Listen();
 	void Accept();
 	void Dispose(size_t index);
@@ -30,7 +32,7 @@ private:
 	ULONG_PTR myID;
 
 	ConnectService myEntryPoint;
-	AsyncService myAsyncProvider;
+	AsyncPoolService myAsyncProvider;
 
 	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, srv::MAX_ENTITIES> everySessions;

@@ -99,3 +99,8 @@ void Framework::ProceedRecv(Asynchron* context, int bytes)
 {
 
 }
+
+void Worker(Framework&)
+{
+
+}

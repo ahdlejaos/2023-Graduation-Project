@@ -6,7 +6,7 @@
 
 class Framework;
 class ConnectService;
-class AsyncService;
+class AsyncPoolService;
 
 class Session;
 class PlayingSession;

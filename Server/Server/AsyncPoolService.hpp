@@ -1,13 +1,13 @@
 #pragma once
 
-class AsyncService
+class AsyncPoolService
 {
 public:
-	constexpr AsyncService()
+	constexpr AsyncPoolService()
 		: completionPort(NULL)
 	{}
 
-	~AsyncService()
+	~AsyncPoolService()
 	{
 		CloseHandle(completionPort);
 	}
@@ -18,7 +18,7 @@ public:
 
 		if (NULL == completionPort)
 		{
-			std::cout << "AsyncService::Awake\n";
+			std::cout << "AsyncPoolService::Awake\n";
 			srv::RaiseSystemError(std::errc::not_enough_memory);
 		}
 	}
@@ -31,9 +31,14 @@ public:
 
 		if (NULL == handle)
 		{
-			std::cout << "AsyncService::Link\n";
+			std::cout << "AsyncPoolService::Link\n";
 			srv::RaiseSystemError(std::errc::not_a_socket);
 		}
+	}
+
+	inline BOOL Async(LPDWORD bytes, PULONG_PTR key, LPOVERLAPPED* overlapped, DWORD time = INFINITE)
+	{
+		return GetQueuedCompletionStatus(completionPort, bytes, key, overlapped, time);
 	}
 
 	inline constexpr HANDLE GetCompletionPort() const noexcept
