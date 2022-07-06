@@ -6,7 +6,7 @@ class ConnectService
 public:
 	constexpr ConnectService()
 		: serverSocket(NULL), serverEndPoint()
-		, connectWorker(Operation::ACCEPT)
+		, connectWorker(srv::Operations::ACCEPT)
 		, connectBytes(), connectBuffer()
 		, connectNewbie(NULL)
 		, connectSize(sizeof(SOCKADDR_IN) + 16)

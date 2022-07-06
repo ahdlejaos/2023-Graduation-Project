@@ -27,20 +27,19 @@ public:
 	void Dispose(Session* session);
 
 private:
-	SOCKET mySocket;
 	ULONG_PTR myID;
 
 	ConnectService myEntryPoint;
 	AsyncService myAsyncProvider;
 
-	std::array<shared_ptr<Room>, MAX_ROOMS> everyRooms;
-	std::array<shared_ptr<Session>, MAX_ENTITIES> everySessions;
+	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
+	std::array<shared_ptr<Session>, srv::MAX_ENTITIES> everySessions;
 
 	unsigned int numberRooms;
 
 	std::priority_queue<int> timerQueue;
 
-	Protocol lastPacketType = Protocol::NONE;
+	srv::Protocol lastPacketType;
 
 	std::osyncstream syncout;
 };

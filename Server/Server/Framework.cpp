@@ -2,8 +2,10 @@
 #include "Framework.hpp"
 
 Framework::Framework()
-	: myEntryPoint(), myAsyncProvider()
+	: myID(srv::SERVER_ID)
+	, myEntryPoint(), myAsyncProvider()
 	, everyRooms(), everySessions()
+	, lastPacketType(srv::Protocol::NONE)
 	, syncout(std::cout)
 {
 	setlocale(LC_ALL, "KOREAN");

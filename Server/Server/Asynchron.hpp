@@ -3,9 +3,19 @@
 class Asynchron : public WSAOVERLAPPED
 {
 public:
-	constexpr Asynchron(const Operation& service)
+	constexpr Asynchron(const srv::Operations& service)
 		: myService(service)
 		, myBuffer()
+	{}
+
+	constexpr Asynchron(const srv::Operations& service, const WSABUF& wbuffer)
+		: myService(service)
+		, myBuffer(wbuffer)
+	{}
+
+	constexpr Asynchron(const srv::Operations& service, WSABUF&& wbuffer)
+		: myService(service)
+		, myBuffer(std::forward<WSABUF>(wbuffer))
 	{}
 
 	~Asynchron()
@@ -55,6 +65,6 @@ public:
 		ZeroMemory(this, sizeof(WSAOVERLAPPED));
 	}
 
-	const Operation myService;
+	const srv::Operations myService;
 	WSABUF myBuffer;
 };
