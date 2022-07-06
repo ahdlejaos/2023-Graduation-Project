@@ -58,6 +58,18 @@ public:
 
 	inline void Start()
 	{
+		BOOL option = TRUE;
+		if (SOCKET_ERROR == setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR
+			, reinterpret_cast<char*>(&option), sizeof(option)))
+		{
+			srv::RaiseSystemError(std::errc::operation_not_permitted);
+		}
+
+		if (SOCKET_ERROR == listen(serverSocket, srv::MAX_USERS))
+		{
+			srv::RaiseSystemError(std::errc::network_unreachable);
+			return;
+		}
 
 		auto newbie = connectNewbie.load(std::memory_order_relaxed);
 

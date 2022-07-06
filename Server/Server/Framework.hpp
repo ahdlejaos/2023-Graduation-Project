@@ -18,8 +18,8 @@ public:
 
 	void ProceedAsync(Asynchron* context, int bytes);
 	void ProceedConnect(Asynchron* context);
-	void ProceedSent(Asynchron* context);
-	void ProceedRecv(Asynchron* context);
+	void ProceedSent(Asynchron* context, int bytes);
+	void ProceedRecv(Asynchron* context, int bytes);
 	
 	void Listen();
 	void Accept();
@@ -34,7 +34,6 @@ private:
 
 	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, srv::MAX_ENTITIES> everySessions;
-
 	unsigned int numberRooms;
 
 	std::priority_queue<int> timerQueue;
