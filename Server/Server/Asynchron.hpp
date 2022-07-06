@@ -13,17 +13,17 @@ public:
 		Release();
 	}
 
-	constexpr void SetBuffer(const WSABUF& wbuffer) noexcept
+	inline constexpr void SetBuffer(const WSABUF& wbuffer) noexcept
 	{
 		myBuffer = wbuffer;
 	}
 
-	constexpr void SetBuffer(WSABUF&& wbuffer) noexcept
+	inline constexpr void SetBuffer(WSABUF&& wbuffer) noexcept
 	{
 		myBuffer = std::forward<WSABUF>(wbuffer);
 	}
 
-	constexpr void SetBuffer(char*& buffer, size_t length) noexcept
+	inline constexpr void SetBuffer(char*& buffer, size_t length) noexcept
 	{
 		myBuffer.buf = buffer;
 		myBuffer.len = static_cast<ULONG>(length);
