@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AsyncContext.cpp" />
     <ClCompile Include="Asynchron.cpp" />
     <ClCompile Include="ConnectService.cpp" />
     <ClCompile Include="Framework.cpp" />
@@ -159,6 +160,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AsyncContext.hpp" />
     <ClInclude Include="Asynchron.hpp" />
     <ClInclude Include="ConnectService.hpp" />
     <ClInclude Include="Framework.hpp" />
