@@ -21,7 +21,7 @@ public:
 	void ProceedSent(Asynchron* context, int bytes);
 	void ProceedRecv(Asynchron* context, int bytes);
 	
-	friend void Worker(Framework& me);
+	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 
 	void Listen();
 	void Accept();
@@ -33,6 +33,7 @@ private:
 
 	ConnectService myEntryPoint;
 	AsyncPoolService myAsyncProvider;
+	std::vector<std::jthread> myWorkers;
 
 	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, srv::MAX_ENTITIES> everySessions;
@@ -42,5 +43,6 @@ private:
 
 	srv::Protocol lastPacketType;
 
+	std::stop_source myPipelineBreaker;
 	std::osyncstream syncout;
 };
