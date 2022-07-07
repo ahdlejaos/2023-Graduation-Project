@@ -3,7 +3,7 @@
 
 Framework::Framework()
 	: myID(srv::SERVER_ID)
-	, myEntryPoint(), myAsyncProvider(), myWorkers()
+	, myEntryPoint(), myAsyncProvider(), concurrentsNumber(0), myWorkers()
 	, everyRooms(), everySessions()
 	, numberRooms(0)
 	, lastPacketType(srv::Protocol::NONE)
@@ -19,12 +19,14 @@ Framework::~Framework()
 	WSACleanup();
 }
 
-void Framework::Awake()
+void Framework::Awake(unsigned int concurrent_hint, unsigned short port_tcp)
 {
 	std::cout << "서버 시동 중...\n";
 
-	myAsyncProvider.Awake(6);
-	myEntryPoint.Awake(6000);
+	concurrentsNumber = concurrent_hint;
+
+	myAsyncProvider.Awake(concurrentsNumber);
+	myEntryPoint.Awake(port_tcp);
 }
 
 void Framework::Start()
@@ -34,7 +36,13 @@ void Framework::Start()
 	myAsyncProvider.Link(myEntryPoint.serverSocket, myID);
 	myEntryPoint.Start();
 
-
+	for (unsigned i = 0; i < concurrentsNumber; i++)
+	{
+		myWorkers.emplace_back(myPipelineBreaker, *this, myAsyncProvider);
+	}
+	
+	std::begin(myWorkers);
+	std::end(myWorkers);
 
 	std::cout << "서버 시작\n";
 }
@@ -56,7 +64,7 @@ void Framework::Release()
 	std::cout << "서버 종료\n";
 }
 
-void Framework::ProceedAsync(Asynchron* context, int bytes)
+void Framework::ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes)
 {
 	const auto operation = context->myOperation;
 
@@ -70,13 +78,13 @@ void Framework::ProceedAsync(Asynchron* context, int bytes)
 
 		case srv::Operations::SEND:
 		{
-			ProceedSent(context, bytes);
+			ProceedSent(context, key, bytes);
 		}
 		break;
 
 		case srv::Operations::RECV:
 		{
-			ProceedRecv(context, bytes);
+			ProceedRecv(context, key, bytes);
 		}
 		break;
 
@@ -93,7 +101,7 @@ void Framework::ProceedConnect(Asynchron* context)
 
 }
 
-void Framework::ProceedSent(Asynchron* context, int bytes)
+void Framework::ProceedSent(Asynchron* context, ULONG_PTR key, int bytes)
 {
 	auto& wbuffer = context->myBuffer;
 	auto& buffer = wbuffer.buf;
@@ -101,7 +109,7 @@ void Framework::ProceedSent(Asynchron* context, int bytes)
 
 }
 
-void Framework::ProceedRecv(Asynchron* context, int bytes)
+void Framework::ProceedRecv(Asynchron* context, ULONG_PTR key, int bytes)
 {
 
 }
@@ -114,7 +122,9 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 	ULONG_PTR key = 0;
 	WSAOVERLAPPED* asyncer = nullptr;
 
-	BOOL result;
+	BOOL result{};
+
+	std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 시작\n";
 	while (true)
 	{
 		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(asyncer));
@@ -127,7 +137,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 		if (TRUE == result)
 		{
-
+			me.ProceedAsync(static_cast<Asynchron*>(asyncer), key, static_cast<int>(bytes));
 		}
 		else
 		{

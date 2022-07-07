@@ -28,7 +28,7 @@ public:
 		connectNewbie.store(NULL, std::memory_order_release);
 	};
 
-	inline void Awake(unsigned short server_port)
+	inline void Awake(unsigned short server_port_tcp)
 	{
 		WSADATA wsadata{};
 		if (0 != WSAStartup(MAKEWORD(2, 2), &wsadata))
@@ -48,7 +48,7 @@ public:
 
 		serverEndPoint.sin_family = AF_INET;
 		serverEndPoint.sin_addr.s_addr = htonl(INADDR_ANY);
-		serverEndPoint.sin_port = htons(server_port);
+		serverEndPoint.sin_port = htons(server_port_tcp);
 
 		if (SOCKET_ERROR == bind(serverSocket, (SOCKADDR*)(&serverEndPoint), szAddress))
 		{

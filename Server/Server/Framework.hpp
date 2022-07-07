@@ -11,15 +11,15 @@ public:
 	Framework();
 	~Framework();
 
-	void Awake();
+	void Awake(unsigned int concurrent_hint, unsigned short port_tcp);
 	void Start();
 	void Update();
 	void Release();
 
-	void ProceedAsync(Asynchron* context, int bytes);
+	void ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes);
 	void ProceedConnect(Asynchron* context);
-	void ProceedSent(Asynchron* context, int bytes);
-	void ProceedRecv(Asynchron* context, int bytes);
+	void ProceedSent(Asynchron* context, ULONG_PTR key, int bytes);
+	void ProceedRecv(Asynchron* context, ULONG_PTR key, int bytes);
 	
 	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 
@@ -33,7 +33,10 @@ private:
 
 	ConnectService myEntryPoint;
 	AsyncPoolService myAsyncProvider;
+
+	unsigned int concurrentsNumber;
 	std::vector<std::jthread> myWorkers;
+	std::stop_source myPipelineBreaker;
 
 	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, srv::MAX_ENTITIES> everySessions;
@@ -43,6 +46,5 @@ private:
 
 	srv::Protocol lastPacketType;
 
-	std::stop_source myPipelineBreaker;
 	std::osyncstream syncout;
 };

@@ -23,7 +23,13 @@ class Player;
 
 namespace srv
 {
-// 서버 식별자
+	// 서버 스레드 수
+	constexpr unsigned int THREADS_COUNT = 6;
+	// 서버 TCP 포트
+	constexpr unsigned int SERVER_PORT_TCP = 9000;
+	// 서버 UDP 포트
+	constexpr unsigned int SERVER_PORT_UDP = 9001;
+	// 서버 식별자
 	constexpr ULONG_PTR SERVER_ID = ULONG_PTR(-1);
 
 	// 최대 방의 수

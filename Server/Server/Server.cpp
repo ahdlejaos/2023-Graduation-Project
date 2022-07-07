@@ -5,7 +5,7 @@ Framework globalFramework{};
 
 int main()
 {
-	globalFramework.Awake();
+	globalFramework.Awake(srv::THREADS_COUNT, srv::SERVER_PORT_TCP);
 	globalFramework.Start();
 	globalFramework.Update();
 	globalFramework.Release();
