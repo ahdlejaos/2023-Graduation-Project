@@ -24,6 +24,11 @@ void Framework::Awake()
 
 	myAsyncProvider.Awake(6);
 	myEntryPoint.Awake(6000);
+	
+	std::cout << "자원 생성 중...\n";
+	BuildSessions();
+	BuildRooms();
+	BuildResources();
 }
 
 void Framework::Start()
@@ -104,3 +109,24 @@ void Worker(Framework&)
 {
 
 }
+
+void Framework::BuildSessions()
+{
+	for (unsigned i = 0; i < srv::MAX_ENTITIES; i++)
+	{
+		auto& session = everySessions[i];
+		session = make_shared<Session>(i);
+	}
+}
+
+void Framework::BuildRooms()
+{
+	for (unsigned i = 0; i < srv::MAX_ROOMS; i++)
+	{
+		auto& room = everyRooms[i];
+		room = make_shared<Room>(i);
+	}
+}
+
+void Framework::BuildResources()
+{}
