@@ -111,6 +111,9 @@ void Framework::ProceedSent(Asynchron* context, ULONG_PTR key, int bytes)
 
 void Framework::ProceedRecv(Asynchron* context, ULONG_PTR key, int bytes)
 {
+	auto& wbuffer = context->myBuffer;
+	auto& buffer = wbuffer.buf;
+	auto& buffer_length = wbuffer.len;
 
 }
 
