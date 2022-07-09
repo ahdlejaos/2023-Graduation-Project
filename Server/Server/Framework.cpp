@@ -1,6 +1,8 @@
 #include "pch.hpp"
 #include "Framework.hpp"
 
+void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
+
 Framework::Framework()
 	: myID(srv::SERVER_ID)
 	, myEntryPoint(), myAsyncProvider(), concurrentsNumber(0), myWorkers()
@@ -23,17 +25,15 @@ void Framework::Awake(unsigned int concurrent_hint, unsigned short port_tcp)
 {
 	std::cout << "서버 시동 중...\n";
 
-	myAsyncProvider.Awake(6);
-	myEntryPoint.Awake(6000);
-	
-	std::cout << "자원 생성 중...\n";
-	BuildSessions();
-	BuildRooms();
-	BuildResources();
 	concurrentsNumber = concurrent_hint;
 
 	myAsyncProvider.Awake(concurrentsNumber);
 	myEntryPoint.Awake(port_tcp);
+
+	std::cout << "자원 생성 중...\n";
+	BuildSessions();
+	BuildRooms();
+	BuildResources();
 }
 
 void Framework::Start()
@@ -45,9 +45,9 @@ void Framework::Start()
 
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
-		myWorkers.emplace_back(myPipelineBreaker, *this, myAsyncProvider);
+		myWorkers.emplace_back(Worker, std::ref(myPipelineBreaker), std::ref(*this), std::ref(myAsyncProvider));
 	}
-	
+
 	std::begin(myWorkers);
 	std::end(myWorkers);
 
@@ -134,24 +134,34 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 	BOOL result{};
 
-	std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 시작\n";
+	auto& syncout = me.syncout;
+	if (syncout)
+	{
+		syncout << "작업자 스레드 " << std::this_thread::get_id() << " 시작\n";
+	}
+	else
+	{
+		std::cout << std::boolalpha << syncout.good();
+	}
+
 	while (true)
 	{
 		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(asyncer));
 
 		if (token.stop_requested())
 		{
-			std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
+			syncout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
 			break;
 		}
 
-		if (TRUE == result)
+		if (TRUE == result) [[likely]]
 		{
 			me.ProceedAsync(static_cast<Asynchron*>(asyncer), key, static_cast<int>(bytes));
 		}
 		else
 		{
-
+		}
+	}
 }
 
 void Framework::BuildSessions()
@@ -174,6 +184,3 @@ void Framework::BuildRooms()
 
 void Framework::BuildResources()
 {}
-		}
-	}
-}

@@ -173,16 +173,19 @@ namespace srv {
 		return WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 	}
 
+	[[noreturn]]
 	inline void RaisePlainError(const std::string_view& description) noexcept(false)
 	{
 		throw std::exception(description.data());
 	}
 
+	[[noreturn]]
 	inline void RaiseRuntimeError(const std::string_view& description) noexcept(false)
 	{
 		throw std::runtime_error(description.data());
 	}
 
+	[[noreturn]]
 	inline void RaiseSystemError(std::errc code) noexcept(false)
 	{
 		throw std::system_error(std::make_error_code(code));
