@@ -29,6 +29,10 @@ public:
 	void Dispose(Session* session);
 
 private:
+	void BuildSessions();
+	void BuildRooms();
+	void BuildResources();
+
 	ULONG_PTR myID;
 
 	ConnectService myEntryPoint;

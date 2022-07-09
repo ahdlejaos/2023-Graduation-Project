@@ -101,5 +101,23 @@ namespace srv
 
 		ENTITY_MOVE,
 	};
+
+	enum class SessionStates : unsigned char
+	{
+		NONE = 0,
+
+		CONNECTED,
+		ACCEPTED,
+
+		ROOMS = 100,
+		ROOM_MAIN,
+		ROOM_LOBBY,
+		ROOM_INGAME,
+		ROOM_COMPLETE,
+
+		NPCS = 200,
+		NPC_INGAME = ROOM_INGAME,
+		NPC_DEAD = 201,
+	};
 }
 #endif // ! __PCH__

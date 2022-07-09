@@ -23,6 +23,13 @@ void Framework::Awake(unsigned int concurrent_hint, unsigned short port_tcp)
 {
 	std::cout << "서버 시동 중...\n";
 
+	myAsyncProvider.Awake(6);
+	myEntryPoint.Awake(6000);
+	
+	std::cout << "자원 생성 중...\n";
+	BuildSessions();
+	BuildRooms();
+	BuildResources();
 	concurrentsNumber = concurrent_hint;
 
 	myAsyncProvider.Awake(concurrentsNumber);
@@ -145,6 +152,28 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 		else
 		{
 
+}
+
+void Framework::BuildSessions()
+{
+	for (unsigned i = 0; i < srv::MAX_ENTITIES; i++)
+	{
+		auto& session = everySessions[i];
+		session = make_shared<Session>(i);
+	}
+}
+
+void Framework::BuildRooms()
+{
+	for (unsigned i = 0; i < srv::MAX_ROOMS; i++)
+	{
+		auto& room = everyRooms[i];
+		room = make_shared<Room>(i);
+	}
+}
+
+void Framework::BuildResources()
+{}
 		}
 	}
 }
