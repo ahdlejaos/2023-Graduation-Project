@@ -157,6 +157,9 @@
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Arithmetics.inl">
+      <FileType>Document</FileType>
+    </ClInclude>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +175,7 @@
     <ClInclude Include="Runnable.hpp" />
     <ClInclude Include="Session.hpp" />
     <ClInclude Include="stdafx.hpp" />
+    <ClInclude Include="Transformer.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

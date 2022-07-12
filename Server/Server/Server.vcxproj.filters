@@ -92,5 +92,11 @@
     <ClInclude Include="AsyncPoolService.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Transformer.inl">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Arithmetics.inl">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
