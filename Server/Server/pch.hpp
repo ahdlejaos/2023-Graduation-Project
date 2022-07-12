@@ -119,5 +119,14 @@ namespace srv
 		NPC_INGAME = ROOM_INGAME,
 		NPC_DEAD = 201,
 	};
+
+	enum class RoomStates : unsigned char
+	{
+		IDLE = 0,
+		IN_LOBBY,
+		IN_READY,
+		IN_GAME,
+		IN_COMPLETE,
+	};
 }
 #endif // ! __PCH__

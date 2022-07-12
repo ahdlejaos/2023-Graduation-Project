@@ -6,6 +6,7 @@ class Room
 public:
 	constexpr Room(unsigned place)
 		: myPlace(place)
+		, myState(srv::RoomStates::IDLE)
 	{
 
 	}
@@ -14,6 +15,8 @@ public:
 	{}
 
 	const unsigned myPlace;
+
+	atomic<srv::RoomStates> myState;
 
 	std::array<shared_ptr<Session>, srv::MAX_PLAYERS_PER_ROOM> myPlayers;
 };
