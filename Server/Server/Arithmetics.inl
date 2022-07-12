@@ -36,7 +36,19 @@ namespace Vector3
 
 	inline XMFLOAT3 ScalarProduct(const XMFLOAT3& vector, float scalar, bool normalize = true)
 	{
-		return ScalarProduct(XMFLOAT3(vector), scalar, normalize);
+		XMFLOAT3 result{};
+
+		const auto xmvector = XMLoadFloat3(&vector);
+		if (normalize)
+		{
+			XMStoreFloat3(&result, XMVector3Normalize(xmvector) * scalar);
+		}
+		else
+		{
+			XMStoreFloat3(&result, xmvector * scalar);
+		}
+
+		return result;
 	}
 
 	inline XMFLOAT3 Add(XMFLOAT3&& vector1, XMFLOAT3&& vector2)
@@ -316,11 +328,29 @@ namespace Matrix4x4
 		return result;
 	}
 
+	inline XMFLOAT4X4 Multiply(XMFLOAT4X4&& lhs, const XMMATRIX& rhs)
+	{
+		XMFLOAT4X4 result{};
+
+		XMStoreFloat4x4(&result, XMLoadFloat4x4(std::forward<XMFLOAT4X4*>(&lhs)) * rhs);
+
+		return result;
+	}
+
 	inline XMFLOAT4X4 Multiply(const XMMATRIX& lhs, const XMFLOAT4X4& rhs)
 	{
 		XMFLOAT4X4 result{};
 
 		XMStoreFloat4x4(&result, lhs * XMLoadFloat4x4(&rhs));
+
+		return result;
+	}
+
+	inline XMFLOAT4X4 Multiply(XMMATRIX&& lhs, const XMFLOAT4X4& rhs)
+	{
+		XMFLOAT4X4 result{};
+
+		XMStoreFloat4x4(&result, std::forward<XMMATRIX>(lhs) * XMLoadFloat4x4(&rhs));
 
 		return result;
 	}

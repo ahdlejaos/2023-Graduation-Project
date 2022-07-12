@@ -51,22 +51,22 @@ public:
 	inline Transformer& LookAt(const XMFLOAT3& look, XMFLOAT3&& up);
 	inline Transformer& LookAt(XMFLOAT3&& look, XMFLOAT3&& up);
 
-	inline XMFLOAT4X4& GetMatrix() &;
+	inline XMFLOAT4X4& GetMatrix()&;
 	inline const XMFLOAT4X4& GetMatrix() const&;
-	inline XYZWrapper& GetRight() &;
-	inline XYZWrapper& GetUp() &;
-	inline XYZWrapper& GetLook() &;
-	inline XYZWrapper& GetPosition() &;
+	inline XYZWrapper& GetRight()&;
+	inline XYZWrapper& GetUp()&;
+	inline XYZWrapper& GetLook()&;
+	inline XYZWrapper& GetPosition()&;
 	inline const XYZWrapper& GetRight() const&;
 	inline const XYZWrapper& GetUp() const&;
 	inline const XYZWrapper& GetLook() const&;
 	inline const XYZWrapper& GetPosition() const&;
 
-	inline XMFLOAT4X4 GetMatrix() const&&;
-	inline XMFLOAT3 GetRight() &&;
-	inline XMFLOAT3 GetUp() &&;
-	inline XMFLOAT3 GetLook() &&;
-	inline XMFLOAT3 GetPosition() &&;
+	inline XMFLOAT4X4 GetMatrix()&&;
+	inline XMFLOAT3 GetRight()&&;
+	inline XMFLOAT3 GetUp()&&;
+	inline XMFLOAT3 GetLook()&&;
+	inline XMFLOAT3 GetPosition()&&;
 
 	XMFLOAT4X4 myMatrix;
 	XYZWrapper myRight;
@@ -115,214 +115,364 @@ inline Transformer& Transformer::SetMatrix(XMFLOAT4X4&& mat)
 inline Transformer& Transformer::SetScale(float x, float y, float z)
 {
 	myMatrix = Matrix4x4::Multiply(XMMatrixScaling(x, y, z), myMatrix);
+
+	return *this;
 }
 
 inline Transformer& Transformer::SetScale(std::span<float, 3> scl)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myMatrix = Matrix4x4::Multiply(XMMatrixScaling(scl[0], scl[1], scl[2]), myMatrix);
+
+	return *this;
 }
 
 inline Transformer& Transformer::SetPosition(float x, float y, float z)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myPosition.x = x;
+	myPosition.y = y;
+	myPosition.z = z;
+
+	return *this;
 }
 
 inline Transformer& Transformer::SetPosition(const XMFLOAT3& pos)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myPosition = pos;
+
+	return *this;
 }
 
 inline Transformer& Transformer::SetPosition(XMFLOAT3&& pos)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myPosition = std::forward<XMFLOAT3>(pos);
+
+	return *this;
 }
 
 inline Transformer& Transformer::SetPosition(std::span<float, 3> pos)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myPosition = pos;
+
+	return *this;
 }
 
 inline Transformer& Transformer::SetRotation(const XMFLOAT4X4& tfrm)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myRight.x = tfrm._11;
+	myRight.y = tfrm._12;
+	myRight.z = tfrm._13;
+
+	myUp.x = tfrm._21;
+	myUp.y = tfrm._22;
+	myUp.z = tfrm._23;
+
+	myLook.x = tfrm._31;
+	myLook.y = tfrm._32;
+	myLook.z = tfrm._33;
+
+	return *this;
 }
 
 inline Transformer& Transformer::SetRotation(XMFLOAT4X4&& tfrm)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myRight.x = std::forward<float>(tfrm._11);
+	myRight.y = std::forward<float>(tfrm._12);
+	myRight.z = std::forward<float>(tfrm._13);
+
+	myUp.x = std::forward<float>(tfrm._21);
+	myUp.y = std::forward<float>(tfrm._22);
+	myUp.z = std::forward<float>(tfrm._23);
+
+	myLook.x = std::forward<float>(tfrm._31);
+	myLook.y = std::forward<float>(tfrm._32);
+	myLook.z = std::forward<float>(tfrm._33);
+
+	return *this;
 }
 
 inline Transformer& Transformer::Translate(float x, float y, float z)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myPosition.x += x;
+	myPosition.y += y;
+	myPosition.z += z;
+
+	return *this;
 }
 
 inline Transformer& Transformer::Translate(const XMFLOAT3& shift)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myPosition.x += shift.x;
+	myPosition.y += shift.y;
+	myPosition.z += shift.z;
+
+	return *this;
 }
 
 inline Transformer& Transformer::Translate(XMFLOAT3&& shift)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myPosition.x += std::forward<float>(shift.x);
+	myPosition.y += std::forward<float>(shift.y);
+	myPosition.z += std::forward<float>(shift.z);
+
+	return *this;
 }
 
 inline Transformer& Transformer::Translate(std::span<float, 3> shift)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myPosition.x += shift[0];
+	myPosition.y += shift[1];
+	myPosition.z += shift[2];
+
+	return *this;
 }
 
 inline Transformer& Transformer::Move(const XMFLOAT3& dir, float distance)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return Translate(Vector3::ScalarProduct(dir, distance));
 }
 
 inline Transformer& Transformer::Move(XMFLOAT3&& dir, float distance)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return Translate(Vector3::ScalarProduct(std::forward<XMFLOAT3>(dir), distance));
 }
 
 inline Transformer& Transformer::Move(std::span<float, 3> dir, float distance)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return Translate(Vector3::ScalarProduct(XMFLOAT3(dir[0], dir[1], dir[2]), distance));
 }
 
 inline Transformer& Transformer::Move(std::span<float, 4> vector)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return Translate(Vector3::ScalarProduct(XMFLOAT3(vector[0], vector[1], vector[2]), vector[3]));
 }
 
 inline Transformer& Transformer::MoveStrafe(float distance)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return Move(XMFLOAT3(GetRight()), distance);
 }
 
 inline Transformer& Transformer::MoveForward(float distance)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return Move(XMFLOAT3(GetLook()), distance);
 }
 
 inline Transformer& Transformer::MoveUp(float distance)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return Move(XMFLOAT3(GetUp()), distance);
 }
 
 inline Transformer& Transformer::Rotate(const XMFLOAT4X4& tfrm)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myRight.x += tfrm._11;
+	myRight.y += tfrm._12;
+	myRight.z += tfrm._13;
+
+	myUp.x += tfrm._21;
+	myUp.y += tfrm._22;
+	myUp.z += tfrm._23;
+
+	myLook.x += tfrm._31;
+	myLook.y += tfrm._32;
+	myLook.z += tfrm._33;
+
+	return *this;
 }
 
 inline Transformer& Transformer::Rotate(XMFLOAT4X4&& tfrm)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	myRight.x += std::forward<float>(tfrm._11);
+	myRight.y += std::forward<float>(tfrm._12);
+	myRight.z += std::forward<float>(tfrm._13);
+
+	myUp.x += std::forward<float>(tfrm._21);
+	myUp.y += std::forward<float>(tfrm._22);
+	myUp.z += std::forward<float>(tfrm._23);
+
+	myLook.x += std::forward<float>(tfrm._31);
+	myLook.y += std::forward<float>(tfrm._32);
+	myLook.z += std::forward<float>(tfrm._33);
+
+	return *this;
 }
 
 inline Transformer& Transformer::Rotate(float pitch, float yaw, float roll)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	XMFLOAT4X4 mtxRotate = Matrix4x4::RotationYawPitchRoll(pitch, yaw, roll);
+
+	myMatrix = Matrix4x4::Multiply(mtxRotate, myMatrix);
+
+	myRight = Vector3::Normalize(XMFLOAT3(myRight));
+	myUp = Vector3::Normalize(XMFLOAT3(myUp));
+	myLook = Vector3::Normalize(XMFLOAT3(myLook));
+
+	return *this;
 }
 
 inline Transformer& Transformer::Rotate(const XMFLOAT3& axis, float angle)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	XMFLOAT4X4 mtxRotate = Matrix4x4::RotationAxis(axis, angle);
+
+	myMatrix = Matrix4x4::Multiply(mtxRotate, myMatrix);
+
+	myRight = Vector3::Normalize(XMFLOAT3(myRight));
+	myUp = Vector3::Normalize(XMFLOAT3(myUp));
+	myLook = Vector3::Normalize(XMFLOAT3(myLook));
+
+	return *this;
 }
 
 inline Transformer& Transformer::Rotate(const XMFLOAT4& quaternion)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	auto mid = XMLoadFloat4(&quaternion);
+	auto mtxRotate = XMMatrixRotationQuaternion(mid);
+	myMatrix = Matrix4x4::Multiply(mtxRotate, myMatrix);
+
+	return *this;
 }
 
 inline Transformer& Transformer::Rotate(XMFLOAT4&& quaternion)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	auto mid = XMLoadFloat4(std::forward<XMFLOAT4*>(&quaternion));
+	auto mtxRotate = XMMatrixRotationQuaternion(mid);
+	myMatrix = Matrix4x4::Multiply(mtxRotate, myMatrix);
+
+	return *this;
 }
 
 inline Transformer& Transformer::LookTo(const XMFLOAT3& look, const XMFLOAT3& up)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return LookTo(XMFLOAT3(look), XMFLOAT3(up));
 }
 
 inline Transformer& Transformer::LookTo(XMFLOAT3&& look, const XMFLOAT3& up)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return LookTo(std::forward<XMFLOAT3>(look), XMFLOAT3(up));
 }
 
 inline Transformer& Transformer::LookTo(const XMFLOAT3& look, XMFLOAT3&& up)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return LookTo(XMFLOAT3(look), std::forward<XMFLOAT3>(up));
 }
 
 inline Transformer& Transformer::LookTo(XMFLOAT3&& look, XMFLOAT3&& up)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	const auto&& view = Matrix4x4::LookToLH(XMFLOAT3(GetPosition()), std::forward<XMFLOAT3>(look), std::forward<XMFLOAT3>(up));
+
+	myMatrix._11 = view._11; myMatrix._12 = view._21; myMatrix._13 = view._31;
+	myMatrix._21 = view._12; myMatrix._22 = view._22; myMatrix._23 = view._32;
+	myMatrix._31 = view._13; myMatrix._32 = view._23; myMatrix._33 = view._33;
+
+	myRight = Vector3::Normalize(XMFLOAT3(myRight));
+	myUp = Vector3::Normalize(XMFLOAT3(myUp));
+	myLook = Vector3::Normalize(XMFLOAT3(myLook));
+
+	return *this;
 }
 
 inline Transformer& Transformer::LookAt(const XMFLOAT3& look, const XMFLOAT3& up)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return LookAt(XMFLOAT3(look), XMFLOAT3(up));
 }
 
 inline Transformer& Transformer::LookAt(XMFLOAT3&& look, const XMFLOAT3& up)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return LookAt(std::forward<XMFLOAT3>(look), XMFLOAT3(up));
 }
 
 inline Transformer& Transformer::LookAt(const XMFLOAT3& look, XMFLOAT3&& up)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return LookAt(XMFLOAT3(look), std::forward<XMFLOAT3>(up));
 }
 
 inline Transformer& Transformer::LookAt(XMFLOAT3&& look, XMFLOAT3&& up)
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	const auto&& view = Matrix4x4::LookAtLH(XMFLOAT3(GetPosition()), std::forward<XMFLOAT3>(look), std::forward<XMFLOAT3>(up));
+
+	myMatrix._11 = view._11; myMatrix._12 = view._21; myMatrix._13 = view._31;
+	myMatrix._21 = view._12; myMatrix._22 = view._22; myMatrix._23 = view._32;
+	myMatrix._31 = view._13; myMatrix._32 = view._23; myMatrix._33 = view._33;
+
+	myRight = Vector3::Normalize(XMFLOAT3(myRight));
+	myUp = Vector3::Normalize(XMFLOAT3(myUp));
+	myLook = Vector3::Normalize(XMFLOAT3(myLook));
+
+	return *this;
 }
 
 inline XMFLOAT4X4& Transformer::GetMatrix()&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myMatrix;
 }
 
 inline const XMFLOAT4X4& Transformer::GetMatrix() const&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myMatrix;
 }
 
 inline XYZWrapper& Transformer::GetRight()&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myRight;
 }
 
 inline XYZWrapper& Transformer::GetUp()&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myUp;
 }
 
 inline XYZWrapper& Transformer::GetLook()&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myLook;
 }
 
 inline XYZWrapper& Transformer::GetPosition()&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myPosition;
 }
 
 inline const XYZWrapper& Transformer::GetRight() const&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myRight;
 }
 
 inline const XYZWrapper& Transformer::GetUp() const&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myUp;
 }
 
 inline const XYZWrapper& Transformer::GetLook() const&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myLook;
 }
 
 inline const XYZWrapper& Transformer::GetPosition() const&
 {
-	// // O: 여기에 return 문을 삽입합니다.
+	return myPosition;
+}
+
+inline XMFLOAT4X4 Transformer::GetMatrix()&&
+{
+	return myMatrix;
+}
+
+inline XMFLOAT3 Transformer::GetRight()&&
+{
+	return XMFLOAT3(myRight);
+}
+
+inline XMFLOAT3 Transformer::GetUp()&&
+{
+
+	return XMFLOAT3(myUp);
+}
+
+inline XMFLOAT3 Transformer::GetLook()&&
+{
+
+	return XMFLOAT3(myLook);
+}
+
+inline XMFLOAT3 Transformer::GetPosition()&&
+{
+
+	return XMFLOAT3(myPosition);
 }
