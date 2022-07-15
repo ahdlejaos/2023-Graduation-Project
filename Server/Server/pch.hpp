@@ -88,6 +88,21 @@ namespace srv
 
 		SC_ROOM_ENTERED, // 방에 입장했음을 응답
 
+		SC_GAME_START = 5000, // 게임 시작
+		SC_CREATE_VFX, // 시작 효과 생성
+		SC_PLAY_SFX, // 효과음 재생
+		SC_PLAY_MUSIC, // 음악 재생
+		SC_ANIMATION_START, // 애니메이션 시작
+		SC_CREATE_PLAYER, // 캐릭터 생성
+		SC_CREATE_ENTITY, // 플레이어 캐릭터 이외의 캐릭터 생성 (적, 함정 등)
+		SC_CREATE_OBJET, // 게임에 영향을 끼치지 않는 개체 생성
+		SC_MOVE_CHARACTER, // 플레이어를 비롯한 캐릭터를 이동
+		SC_MOVE_OBJET, // 게임에 영향을 끼치지 않는 개체를 이동
+		SC_UPDATE_CHARACTER, // 플레이어를 비롯한 캐릭터의 상태 변경 (사망, 상태이상 등)
+		SC_UPDATE_OBJET, // 게임에 영향을 끼치지 않는 개체의 상태 변경
+		SC_REMOVE_CHARACTER, // 플레이어를 비롯한 캐릭터를 삭제
+		SC_REMOVE_OBJET, // 게임에 영향을 끼치지 않는 개체를 삭제
+
 		SC_CHAT, // 메시지 (시스템 알림, 방 대화, 대기실 대화, 1:1대화 등)
 	};
 
