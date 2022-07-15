@@ -143,5 +143,15 @@ namespace srv
 		IN_GAME,
 		IN_COMPLETE,
 	};
+
+	enum class ObjectTags : unsigned char // 충돌 식별 태그 (유니티 태그 아님)
+	{
+
+	};
+
+	enum class CollisionLayers : unsigned char // 유니티 레이어
+	{
+
+	};
 }
 #endif // ! __PCH__

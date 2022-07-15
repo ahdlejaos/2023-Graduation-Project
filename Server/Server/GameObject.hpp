@@ -7,8 +7,6 @@ public:
 	GameObject();
 	virtual ~GameObject();
 
-	virtual void ReleaseUploadBuffers();
-
 	void SetOriginalCollider(const shared_ptr<BoundingOrientedBox>& box);
 	void SetOriginalCollider(shared_ptr<BoundingOrientedBox>&& box);
 	void Attach(GameObject* pChild);
@@ -25,8 +23,6 @@ public:
 	void EnumerateTransforms(const XMFLOAT4X4& parent);
 	void EnumerateTransforms(XMFLOAT4X4&& parent);
 	void UpdateCollider();
-	virtual void PrepareRendering(P3DGrpCommandList cmdlist) const;
-	virtual void Render(P3DGrpCommandList cmdlist, GameCamera* camera) const;
 	virtual void Release();
 
 	bool CheckCollisionWith(GameObject* other) const;
@@ -34,7 +30,7 @@ public:
 
 	void OnTransformUpdate();
 
-	virtual constexpr COLLISION_TAGS GetTag() const noexcept;
+	virtual constexpr srv::ObjectTags GetTag() const noexcept;
 
 	void SetMatrix(const XMFLOAT4X4& mat);
 	void SetMatrix(XMFLOAT4X4&& mat);
@@ -89,6 +85,6 @@ public:
 	GameObject* myChild = NULL;
 	GameObject* mySibling = NULL;
 
-	shared_ptr<BoundingOrientedBox> staticCollider;
-	unique_ptr<BoundingOrientedBox> myCollider;
+	BoundingOrientedBox staticCollider;
+	BoundingOrientedBox myCollider;
 };
