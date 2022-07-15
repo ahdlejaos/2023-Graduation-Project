@@ -1,6 +1,8 @@
 #pragma once
 #include "Asynchron.hpp"
 
+static LPFN_DISCONNECTEX DisconnectEx = nullptr;
+
 class ConnectService
 {
 public:
@@ -10,6 +12,7 @@ public:
 		, connectBytes(), connectBuffer()
 		, connectNewbie(NULL)
 		, connectSize(sizeof(SOCKADDR_IN) + 16)
+		, everySockets()
 	{
 		WSABUF buffer{};
 		buffer.buf = connectBuffer;
@@ -54,6 +57,18 @@ public:
 		{
 			srv::RaiseSystemError(std::errc::bad_address);
 		}
+
+		GUID guidDisconnectEx = WSAID_DISCONNECTEX;
+		DWORD cbBytesReturned = 0;
+		WSAIoctl(serverSocket, SIO_GET_EXTENSION_FUNCTION_POINTER
+		, &guidDisconnectEx, sizeof(guidDisconnectEx)
+		, &DisconnectEx, sizeof(DisconnectEx), &cbBytesReturned
+		, NULL, NULL);
+
+		for (auto& place : everySockets)
+		{
+			place = srv::CreateSocket();
+		}
 	}
 
 	inline void Start()
@@ -79,7 +94,7 @@ public:
 	inline SOCKET Update()
 	{
 		// 货肺款 立加
-		auto newbie = connectNewbie.load(std::memory_order_acquire);
+		auto newbie = connectNewbie.load(std::memory_order_seq_cst);
 
 		// 促澜 立加阑 困茄 货肺款 TCP 家南
 		connectNewbie.store(srv::CreateSocket(), std::memory_order_release);
@@ -128,4 +143,6 @@ private:
 			}
 		}
 	}
+
+	std::array<SOCKET, srv::MAX_USERS> everySockets;
 };

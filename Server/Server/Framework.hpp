@@ -36,7 +36,8 @@ private:
 	void BuildResources();
 
 	unsigned SeekNewbiePlace() const noexcept;
-	void AcceptNewbie(SOCKET target, unsigned place);
+	void AcceptPlayer(SOCKET target, unsigned place);
+	void ConnectPlayer(unsigned place);
 
 	ULONG_PTR myID;
 

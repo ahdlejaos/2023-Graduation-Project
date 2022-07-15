@@ -108,7 +108,7 @@ void Framework::ProceedConnect(Asynchron* context)
 		if (concurrentsNumber < srv::MAX_USERS) [[likely]]
 		{
 			const auto place = SeekNewbiePlace();
-			AcceptNewbie(target, place);
+			AcceptPlayer(target, place);
 		}
 		else
 		{
@@ -192,5 +192,5 @@ unsigned Framework::SeekNewbiePlace() const noexcept
 	return 0;
 }
 
-void Framework::AcceptNewbie(SOCKET target, unsigned place)
+void Framework::AcceptPlayer(SOCKET target, unsigned place)
 {}
