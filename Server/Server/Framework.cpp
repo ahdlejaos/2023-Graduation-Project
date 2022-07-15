@@ -105,6 +105,7 @@ void Framework::ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes)
 void Framework::ProceedConnect(Asynchron* context)
 {
 
+	myEntryPoint.Update();
 }
 
 void Framework::ProceedSent(Asynchron* context, ULONG_PTR key, int bytes)
