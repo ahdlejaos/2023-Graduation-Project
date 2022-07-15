@@ -10,7 +10,6 @@ Framework::Framework()
 	, numberRooms(0)
 	, lastPacketType(srv::Protocol::NONE)
 	, myPipelineBreaker()
-	, syncout(std::cout)
 {
 	setlocale(LC_ALL, "KOREAN");
 	std::cout.sync_with_stdio(false);
@@ -134,15 +133,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 	BOOL result{};
 
-	auto& syncout = me.syncout;
-	if (syncout)
-	{
-		syncout << "작업자 스레드 " << std::this_thread::get_id() << " 시작\n";
-	}
-	else
-	{
-		std::cout << std::boolalpha << syncout.good();
-	}
+	std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 시작\n";
 
 	while (true)
 	{
@@ -150,7 +141,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 		if (token.stop_requested())
 		{
-			syncout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
+			std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
 			break;
 		}
 

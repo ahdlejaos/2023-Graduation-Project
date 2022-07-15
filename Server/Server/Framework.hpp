@@ -49,6 +49,4 @@ private:
 	std::priority_queue<int> timerQueue;
 
 	srv::Protocol lastPacketType;
-
-	std::osyncstream syncout;
 };
