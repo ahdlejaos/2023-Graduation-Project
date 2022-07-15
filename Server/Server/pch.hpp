@@ -157,22 +157,5 @@ namespace srv
 
 
 	};
-
-	class Packet
-	{
-	public:
-		constexpr Packet(Protocol type, unsigned size)
-			: myProtocol(type), mySize(size)
-		{}
-
-		constexpr Packet(Protocol type)
-			: Packet(type, sizeof(Packet))
-		{}
-
-		constexpr virtual ~Packet() {}
-
-		const Protocol myProtocol;
-		const unsigned mySize;
-	};
 }
 #endif // ! __PCH__

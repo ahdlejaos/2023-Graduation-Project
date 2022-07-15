@@ -68,3 +68,11 @@ public:
 	const srv::Operations myOperation;
 	WSABUF myBuffer;
 };
+
+namespace srv
+{
+	inline Asynchron* CreateAsynchron(const Operations& op)
+	{
+		return new Asynchron(op);
+	}
+}
