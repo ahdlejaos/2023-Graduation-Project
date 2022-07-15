@@ -146,12 +146,33 @@ namespace srv
 
 	enum class ObjectTags : unsigned char // 충돌 식별 태그 (유니티 태그 아님)
 	{
+		NONE = 0,
+
 
 	};
 
 	enum class CollisionLayers : unsigned char // 유니티 레이어
 	{
+		NONE = 0,
 
+
+	};
+
+	class Packet
+	{
+	public:
+		constexpr Packet(Protocol type, unsigned size)
+			: myProtocol(type), mySize(size)
+		{}
+
+		constexpr Packet(Protocol type)
+			: Packet(type, sizeof(Packet))
+		{}
+
+		constexpr virtual ~Packet() {}
+
+		const Protocol myProtocol;
+		const unsigned mySize;
 	};
 }
 #endif // ! __PCH__
