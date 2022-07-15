@@ -47,9 +47,6 @@ void Framework::Start()
 		myWorkers.emplace_back(Worker, std::ref(myPipelineBreaker), std::ref(*this), std::ref(myAsyncProvider));
 	}
 
-	std::begin(myWorkers);
-	std::end(myWorkers);
-
 	std::cout << "서버 시작\n";
 }
 
@@ -104,8 +101,21 @@ void Framework::ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes)
 
 void Framework::ProceedConnect(Asynchron* context)
 {
+	SOCKET target = myEntryPoint.Update();
 
-	myEntryPoint.Update();
+	if (NULL != target) [[likely]]
+	{
+		if (concurrentsNumber < srv::MAX_USERS) [[likely]]
+		{
+			const auto place = SeekNewbiePlace();
+			AcceptNewbie(target, place);
+		}
+		else
+		{
+			std::cout << "유저 수가 초과하여 더 이상 접속을 받을 수 없습니다.\n";
+			closesocket(target);
+		}
+	}
 }
 
 void Framework::ProceedSent(Asynchron* context, ULONG_PTR key, int bytes)
@@ -175,4 +185,12 @@ void Framework::BuildRooms()
 }
 
 void Framework::BuildResources()
+{}
+
+unsigned Framework::SeekNewbiePlace() const noexcept
+{
+	return 0;
+}
+
+void Framework::AcceptNewbie(SOCKET target, unsigned place)
 {}

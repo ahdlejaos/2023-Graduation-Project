@@ -73,26 +73,25 @@ public:
 
 		SOCKET newbie = connectNewbie.load(std::memory_order_relaxed);
 
-		Listen(newbie);
+		Accept(newbie);
 	}
 
-	inline void Update()
+	inline SOCKET Update()
 	{
 		// 货肺款 立加
 		auto newbie = connectNewbie.load(std::memory_order_acquire);
-		Accept(newbie);
 
 		// 促澜 立加阑 困茄 货肺款 TCP 家南
-		const auto new_sock = srv::CreateSocket();
+		connectNewbie.store(srv::CreateSocket(), std::memory_order_release);
 		connectWorker.Clear();
 
-		connectNewbie.store(new_sock, std::memory_order_release);
-
 		// 促澜 立加 罐扁
-		Listen(connectNewbie);
+		Accept(connectNewbie);
+
+		return newbie;
 	}
 
-	SOCKET GetLastUser() const noexcept
+	inline SOCKET GetLastUser() const noexcept
 	{
 		return connectNewbie.load(std::memory_order_relaxed);
 	}
@@ -108,7 +107,7 @@ public:
 	atomic<SOCKET> connectNewbie;
 
 private:
-	inline void Listen(SOCKET target) noexcept(false)
+	inline void Accept(SOCKET target) noexcept(false)
 	{
 		auto result = AcceptEx(serverSocket, target, connectBuffer
 			, 0
@@ -128,10 +127,5 @@ private:
 				//ErrorDisplay("AcceptEx()");
 			}
 		}
-	}
-
-	inline void Accept(SOCKET target) noexcept(false)
-	{
-
 	}
 };

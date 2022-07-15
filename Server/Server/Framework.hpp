@@ -23,8 +23,10 @@ public:
 	
 	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 
-	void Listen();
-	void Accept();
+	template<typename MY_PACKET, typename ...Ty>
+		requires std::is_base_of_v<Packet, MY_PACKET>
+	std::pair<LPWSABUF, Asynchron*> CreateTicket(Ty&&... args) const;
+
 	void Dispose(size_t index);
 	void Dispose(Session* session);
 
@@ -32,6 +34,9 @@ private:
 	void BuildSessions();
 	void BuildRooms();
 	void BuildResources();
+
+	unsigned SeekNewbiePlace() const noexcept;
+	void AcceptNewbie(SOCKET target, unsigned place);
 
 	ULONG_PTR myID;
 
