@@ -189,8 +189,18 @@ void Framework::BuildResources()
 
 unsigned Framework::SeekNewbiePlace() const noexcept
 {
+	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
+	auto it = std::find_if(players_view.begin(), players_view.end()
+	, [&](const shared_ptr<Session>& ptr) {
+		return ptr->myState == srv::SessionStates::NONE;
+	});
+
+
+
 	return 0;
 }
 
 void Framework::AcceptPlayer(SOCKET target, unsigned place)
-{}
+{
+
+}
