@@ -193,4 +193,11 @@ unsigned Framework::SeekNewbiePlace() const noexcept
 }
 
 void Framework::AcceptPlayer(SOCKET target, unsigned place)
-{}
+{
+
+}
+
+void Framework::ConnectPlayer(unsigned place)
+{
+
+}
