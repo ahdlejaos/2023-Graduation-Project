@@ -6,7 +6,7 @@ class Session
 public:
 	constexpr Session(unsigned place)
 		: mySwitch()
-		, myPlace(place), mySocket(NULL), myRoom(nullptr)
+		, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
 	{
 	}
 
@@ -53,5 +53,6 @@ public:
 	atomic_flag mySwitch;
 	atomic<srv::SessionStates> myState;
 	atomic<SOCKET> mySocket;
+	atomic<unsigned long long> myID;
 	atomic<shared_ptr<Room>> myRoom;
 };
