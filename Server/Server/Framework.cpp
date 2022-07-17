@@ -195,7 +195,10 @@ unsigned Framework::SeekNewbiePlace() const noexcept
 		return ptr->myState == srv::SessionStates::NONE;
 	});
 
+	if (players_view.end() == it)
+	{
 
+	}
 
 	return 0;
 }
@@ -209,3 +212,9 @@ void Framework::ConnectPlayer(unsigned place)
 {
 
 }
+
+void Framework::Dispose(unsigned place)
+{}
+
+void Framework::Dispose(Session * session)
+{}

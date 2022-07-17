@@ -53,7 +53,7 @@ namespace srv
 	// 최대 매치의 수
 	constexpr unsigned int MAX_SEARCHS = 500;
 
-	enum class Protocol : std::int32_t
+	enum class Protocol : std::uint32_t
 	{
 		NONE = 0,
 

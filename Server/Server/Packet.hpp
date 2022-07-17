@@ -16,7 +16,7 @@ namespace srv
 		constexpr virtual ~Packet() {}
 
 		const Protocol myProtocol;
-		const unsigned mySize;
+		const std::uint32_t mySize;
 	};
 
 	template<class Pk>

@@ -4,6 +4,7 @@
 #include "Asynchron.hpp"
 #include "Room.hpp"
 #include "Session.hpp"
+#include "Packet.hpp"
 
 class Framework
 {
@@ -23,12 +24,8 @@ public:
 	
 	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 
-	template<typename MY_PACKET, typename ...Ty>
-		requires std::is_base_of_v<Packet, MY_PACKET>
-	std::pair<LPWSABUF, Asynchron*> CreateTicket(Ty&&... args) const;
-
-	void Dispose(size_t index);
-	void Dispose(Session* session);
+	template<srv::packets PACKET, typename ...Ty>
+	std::pair<PACKET*, Asynchron*> CreateTicket(const srv::Protocol protocol, Ty&&... args) const;
 
 private:
 	void BuildSessions();
@@ -38,6 +35,8 @@ private:
 	unsigned SeekNewbiePlace() const noexcept;
 	void AcceptPlayer(SOCKET target, unsigned place);
 	void ConnectPlayer(unsigned place);
+	void Dispose(unsigned place);
+	void Dispose(Session* session);
 
 	ULONG_PTR myID;
 
@@ -56,3 +55,19 @@ private:
 
 	srv::Protocol lastPacketType;
 };
+
+template<srv::packets PACKET, typename ...Ty>
+inline std::pair<PACKET*, Asynchron*> Framework::CreateTicket(const srv::Protocol protocol, Ty && ...args) const
+{
+	Asynchron* asyncron = srv::CreateAsynchron(srv::Operations::SEND);
+
+	PACKET* packet = srv::CreatePacket(protocol, args...);
+
+	WSABUF wbuffer{};
+	wbuffer.buf = reinterpret_cast<char>(packet);
+	wbuffer.len = packet->mySize;
+
+	asyncron->SetBuffer(wbuffer);
+
+	return make_pair<PACKET*, Asynchron*>(packet, asyncron);
+}
