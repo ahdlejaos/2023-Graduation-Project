@@ -7,8 +7,7 @@ public:
 	constexpr Session(unsigned place)
 		: mySwitch()
 		, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
-	{
-	}
+	{}
 
 	virtual ~Session()
 	{}
@@ -33,9 +32,19 @@ public:
 		myState.store(state, std::memory_order_relaxed);
 	}
 
-	inline void SetSocket(const SOCKET sock)
+	inline void SetSocket(const SOCKET& sock)
 	{
 		mySocket.store(sock, std::memory_order_relaxed);
+	}
+
+	inline void SetSocket(SOCKET&& sock)
+	{
+		mySocket.store(std::forward<SOCKET>(sock), std::memory_order_relaxed);
+	}
+
+	inline void SetID(const unsigned long long id)
+	{
+		myID.store(id, std::memory_order_relaxed);
 	}
 
 	inline void SetRoom(const shared_ptr<Room>& room)
