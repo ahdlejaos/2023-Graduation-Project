@@ -5,13 +5,28 @@ class Session
 {
 public:
 	constexpr Session(unsigned place)
-		: myPlace(place)
+		: mySwitch()
+		, myPlace(place), mySocket(NULL), myRoom(nullptr)
 	{
-
 	}
 
 	virtual ~Session()
 	{}
+
+	inline void Acquire() volatile
+	{
+		while (mySwitch.test_and_set(std::memory_order_acquire));
+	}
+
+	inline bool TryAcquire() volatile
+	{
+		return !mySwitch.test_and_set(std::memory_order_acquire);
+	}
+
+	inline void Release() volatile
+	{
+		mySwitch.clear(std::memory_order_release);
+	}
 
 	inline void SetState(const srv::SessionStates state)
 	{
@@ -35,6 +50,7 @@ public:
 
 	const unsigned int myPlace;
 
+	atomic_flag mySwitch;
 	atomic<srv::SessionStates> myState;
 	atomic<SOCKET> mySocket;
 	atomic<shared_ptr<Room>> myRoom;

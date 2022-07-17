@@ -101,14 +101,13 @@ void Framework::ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes)
 
 void Framework::ProceedConnect(Asynchron* context)
 {
-	SOCKET target = myEntryPoint.Update();
+	const SOCKET target = myEntryPoint.Update();
 
 	if (NULL != target) [[likely]]
 	{
 		if (concurrentsNumber < srv::MAX_USERS) [[likely]]
 		{
-			const auto place = SeekNewbiePlace();
-			AcceptPlayer(target, place);
+			AcceptPlayer(target);
 		}
 		else
 		{
@@ -187,34 +186,49 @@ void Framework::BuildRooms()
 void Framework::BuildResources()
 {}
 
-unsigned Framework::SeekNewbiePlace() const noexcept
+shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 {
-	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
-	auto it = std::find_if(players_view.begin(), players_view.end()
-	, [&](const shared_ptr<Session>& ptr) {
-		return ptr->myState == srv::SessionStates::NONE;
-	});
+	const auto place = SeekNewbiePlace();
+	auto session = place.get();
 
-	if (players_view.end() == it)
-	{
+	session->Acquire();
 
-	}
 
-	return 0;
+
+	session->Release();
+
+	return place;
 }
 
-void Framework::AcceptPlayer(SOCKET target, unsigned place)
-{
-
-}
-
-void Framework::ConnectPlayer(unsigned place)
+shared_ptr<Session> Framework::ConnectPlayer(unsigned place)
 {
 
 }
 
 void Framework::Dispose(unsigned place)
-{}
+{
+
+}
 
 void Framework::Dispose(Session * session)
-{}
+{
+
+}
+
+shared_ptr<Session> Framework::SeekNewbiePlace() const noexcept
+{
+	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
+	auto it = std::find_if(players_view.begin(), players_view.end()
+		, [&](const shared_ptr<Session>& ptr) {
+		return ptr->myState == srv::SessionStates::NONE;
+	});
+
+	if (players_view.end() == it)
+	{
+		return nullptr;
+	}
+	else
+	{
+		return (*it);
+	}
+}

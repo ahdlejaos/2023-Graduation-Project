@@ -32,11 +32,12 @@ private:
 	void BuildRooms();
 	void BuildResources();
 
-	unsigned SeekNewbiePlace() const noexcept;
-	void AcceptPlayer(SOCKET target, unsigned place);
-	void ConnectPlayer(unsigned place);
+	shared_ptr<Session> AcceptPlayer(SOCKET target);
+	shared_ptr<Session> ConnectPlayer(unsigned place);
 	void Dispose(unsigned place);
 	void Dispose(Session* session);
+
+	shared_ptr<Session> SeekNewbiePlace() const noexcept;
 
 	ULONG_PTR myID;
 
