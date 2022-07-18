@@ -63,8 +63,7 @@ namespace srv
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		PACKET* packet = CreatePacket<PACKET>(args...);
-	PACKET* packet = srv::CreatePacket(protocol, std::forward<Ty>(args)...);
+		PACKET* packet = srv::CreatePacket(protocol, std::forward<Ty>(args)...);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);
