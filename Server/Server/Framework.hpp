@@ -62,7 +62,7 @@ inline std::pair<PACKET*, Asynchron*> Framework::CreateTicket(const srv::Protoco
 {
 	Asynchron* asyncron = srv::CreateAsynchron(srv::Operations::SEND);
 
-	PACKET* packet = srv::CreatePacket(protocol, args...);
+	PACKET* packet = srv::CreatePacket(protocol, std::forward<Ty>(args)...);
 
 	WSABUF wbuffer{};
 	wbuffer.buf = reinterpret_cast<char>(packet);
