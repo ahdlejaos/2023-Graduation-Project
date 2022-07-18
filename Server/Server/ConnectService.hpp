@@ -67,7 +67,7 @@ public:
 
 		for (auto& place : everySockets)
 		{
-			place = srv::CreateSocket();
+			//place = srv::CreateSocket();
 		}
 	}
 
@@ -86,7 +86,8 @@ public:
 			return;
 		}
 
-		SOCKET newbie = connectNewbie.load(std::memory_order_relaxed);
+		SOCKET newbie = srv::CreateSocket();
+		connectNewbie.store(newbie, std::memory_order_relaxed);
 
 		Accept(newbie);
 	}
@@ -139,6 +140,7 @@ private:
 
 				ZeroMemory(connectBuffer, sizeof(connectBuffer));
 
+				std::cout << "접속 수용 오류!\n";
 				//ErrorDisplay("AcceptEx()");
 			}
 		}

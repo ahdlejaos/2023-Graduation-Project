@@ -1,4 +1,5 @@
 #pragma once
+#include "Asynchron.hpp"
 #include "Room.hpp"
 
 class Session
@@ -6,9 +7,8 @@ class Session
 public:
 	constexpr Session(unsigned place)
 		: mySwitch()
-		, myPlace(place), mySocket(NULL), myRoom(nullptr)
-	{
-	}
+		, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
+	{}
 
 	virtual ~Session()
 	{}
@@ -28,14 +28,34 @@ public:
 		mySwitch.clear(std::memory_order_release);
 	}
 
+	inline int Send(Asynchron* asynchron)
+	{
+		return asynchron->Send(mySocket, nullptr, 0);
+	}
+
+	inline int Recv(Asynchron* asynchron)
+	{
+		return asynchron->Recv(mySocket, nullptr, 0);
+	}
+
 	inline void SetState(const srv::SessionStates state)
 	{
 		myState.store(state, std::memory_order_relaxed);
 	}
 
-	inline void SetSocket(const SOCKET sock)
+	inline void SetSocket(const SOCKET& sock)
 	{
 		mySocket.store(sock, std::memory_order_relaxed);
+	}
+
+	inline void SetSocket(SOCKET&& sock)
+	{
+		mySocket.store(std::forward<SOCKET>(sock), std::memory_order_relaxed);
+	}
+
+	inline void SetID(const unsigned long long id)
+	{
+		myID.store(id, std::memory_order_relaxed);
 	}
 
 	inline void SetRoom(const shared_ptr<Room>& room)
@@ -53,5 +73,6 @@ public:
 	atomic_flag mySwitch;
 	atomic<srv::SessionStates> myState;
 	atomic<SOCKET> mySocket;
+	atomic<unsigned long long> myID;
 	atomic<shared_ptr<Room>> myRoom;
 };

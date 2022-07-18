@@ -39,6 +39,7 @@ using namespace DirectX::PackedVector;
 #include <exception>
 #include <filesystem>
 #include <concepts>
+#include <execution>
 #include <random>
 #include <chrono>
 #include <atomic>

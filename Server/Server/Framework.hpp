@@ -21,11 +21,8 @@ public:
 	void ProceedConnect(Asynchron* context);
 	void ProceedSent(Asynchron* context, ULONG_PTR key, int bytes);
 	void ProceedRecv(Asynchron* context, ULONG_PTR key, int bytes);
-	
-	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 
-	template<srv::packets PACKET, typename ...Ty>
-	std::pair<PACKET*, Asynchron*> CreateTicket(const srv::Protocol protocol, Ty&&... args) const;
+	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 
 private:
 	void BuildSessions();
@@ -38,6 +35,7 @@ private:
 	void Dispose(Session* session);
 
 	shared_ptr<Session> SeekNewbiePlace() const noexcept;
+	unsigned long long MakeNewbieID() noexcept;
 
 	ULONG_PTR myID;
 
@@ -45,30 +43,35 @@ private:
 	AsyncPoolService myAsyncProvider;
 
 	unsigned int concurrentsNumber;
-	std::vector<std::jthread> myWorkers;
+	std::vector<std::thread> myWorkers;
 	std::stop_source myPipelineBreaker;
+	std::priority_queue<int> timerQueue;
 
 	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, srv::MAX_ENTITIES> everySessions;
-	unsigned int numberRooms;
+	atomic<unsigned> numberRooms;
+	atomic<unsigned> numberUsers;
 
-	std::priority_queue<int> timerQueue;
-
+	atomic<unsigned long long> playerIDs;
 	srv::Protocol lastPacketType;
 };
 
-template<srv::packets PACKET, typename ...Ty>
-inline std::pair<PACKET*, Asynchron*> Framework::CreateTicket(const srv::Protocol protocol, Ty && ...args) const
+namespace srv
 {
-	Asynchron* asyncron = srv::CreateAsynchron(srv::Operations::SEND);
+	template<packets PACKET, typename ...Ty>
+	inline std::pair<PACKET*, Asynchron*> CreateTicket(Ty ...args)
+	{
+		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
+		PACKET* packet = CreatePacket<PACKET>(args...);
 	PACKET* packet = srv::CreatePacket(protocol, std::forward<Ty>(args)...);
 
-	WSABUF wbuffer{};
-	wbuffer.buf = reinterpret_cast<char>(packet);
-	wbuffer.len = packet->mySize;
+		WSABUF wbuffer{};
+		wbuffer.buf = reinterpret_cast<char*>(packet);
+		wbuffer.len = packet->mySize;
 
-	asyncron->SetBuffer(wbuffer);
+		asyncron->SetBuffer(wbuffer);
 
-	return make_pair<PACKET*, Asynchron*>(packet, asyncron);
+		return make_pair(packet, asyncron);
+	}
 }

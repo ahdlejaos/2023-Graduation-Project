@@ -23,20 +23,27 @@ public class SampleSystem : MonoBehaviour
 	void Awake()
 	{
 	}
-
 	void Start()
 	{
 		Connect();
 	}
-
 	void Update()
 	{
 		//if (tcpClient != null && tcpClient.Connected)
 		{ }
 	}
+	void OnDestroy()
+	{
+		if (tcpClient is not null && tcpClient.Connected)
+		{
+			tcpClient.Close();
+		}
+	}
 
 	void Connect()
 	{
+		Debug.Log("서버 접속 중...");
+
 		serverAddress = new(IPAddress.Loopback, 9000);
 		tcpClient = new(serverAddress);
 
@@ -50,13 +57,22 @@ public class SampleSystem : MonoBehaviour
 			tcpClient.Close();
 		}
 
-		tcpStream = tcpClient.GetStream();
-		if (tcpStream is null)
+		if (tcpClient is not null && tcpClient.Connected)
 		{
-			throw new Exception("소켓 연결 실패!");
-		}
+			Debug.Log("서버 접속 성공함.");
 
-		RecvTCP(0, BUFFSIZE);
+			tcpStream = tcpClient.GetStream();
+			if (tcpStream is null)
+			{
+				throw new Exception("소켓 연결 실패!");
+			}
+
+			RecvTCP(0, BUFFSIZE);
+		}
+		else
+		{
+			Debug.LogError("TCP 소켓 생성 실패");
+		}
 	}
 	void CallbackRead(IAsyncResult result)
 	{
