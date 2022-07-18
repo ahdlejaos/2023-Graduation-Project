@@ -1,4 +1,5 @@
 #pragma once
+#include "Asynchron.hpp"
 #include "Room.hpp"
 
 class Session
@@ -25,6 +26,16 @@ public:
 	inline void Release() volatile
 	{
 		mySwitch.clear(std::memory_order_release);
+	}
+
+	inline int Send(Asynchron* asynchron)
+	{
+		return asynchron->Send(mySocket, nullptr, 0);
+	}
+
+	inline int Recv(Asynchron* asynchron)
+	{
+		return asynchron->Recv(mySocket, nullptr, 0);
 	}
 
 	inline void SetState(const srv::SessionStates state)

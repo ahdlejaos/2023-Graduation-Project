@@ -22,15 +22,23 @@ namespace srv
 	template<class Pk>
 	concept packets = std::derived_from<Pk, Packet>;
 
-	template<packets Pk>
-	inline constexpr Packet* CreatePacket(const Protocol& type)
+	class SCPacketSignUp : public Packet
 	{
-		return new Pk(type);
-	}
+	public:
+		constexpr SCPacketSignUp()
+			: Packet(srv::Protocol::SC_SIGNIN_SUCCESS)
+		{}
+	};
 
 	template<packets Pk, typename... _Valty>
-	inline constexpr Packet* CreatePacket(const Protocol& type, _Valty ...vargs)
+	inline constexpr Pk* CreatePacket(_Valty ...vargs)
 	{
-		return new Pk(type, vargs...);
+		return new Pk(vargs...);
+	}
+
+	template<packets Pk>
+	inline constexpr Pk* CreatePacket()
+	{
+		return new Pk();
 	}
 }
