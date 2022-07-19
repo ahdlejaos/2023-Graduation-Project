@@ -59,11 +59,11 @@ private:
 namespace srv
 {
 	template<packets PACKET, typename ...Ty>
-	inline std::pair<PACKET*, Asynchron*> CreateTicket(Ty ...args)
+	inline std::pair<PACKET*, Asynchron*> CreateTicket(std::remove_cvref_t<Ty>&& ...args)
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		PACKET* packet = srv::CreatePacket(protocol, std::forward<Ty>(args)...);
+		PACKET* packet = srv::CreatePacket<PACKET>(std::forward<Ty>(args)...);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);

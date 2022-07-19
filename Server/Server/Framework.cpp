@@ -45,8 +45,6 @@ void Framework::Start()
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
 		auto& th = myWorkers.emplace_back(Worker, std::ref(myPipelineBreaker), std::ref(*this), std::ref(myAsyncProvider));
-
-		th.join();
 	}
 
 	std::cout << "서버 시작\n";
@@ -54,9 +52,16 @@ void Framework::Start()
 
 void Framework::Update()
 {
-	while (true)
+	try
 	{
-		SleepEx(10, TRUE);
+		while (true)
+		{
+			SleepEx(10, TRUE);
+		}
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "예외로 인한 서버 인터럽트: " << e.what() << std::endl;
 	}
 
 	std::cout << "서버 종료 중...\n";
@@ -67,6 +72,11 @@ void Framework::Release()
 	myPipelineBreaker.request_stop();
 
 	std::cout << "서버 종료\n";
+
+	for (auto& th : myWorkers)
+	{
+		th.join();
+	}
 }
 
 void Framework::ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes)
