@@ -8,6 +8,7 @@ public:
 	constexpr Session(unsigned place)
 		: mySwitch()
 		, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
+		, myReceiver(nullptr), myRecvBuffer()
 	{}
 
 	virtual ~Session()
@@ -28,14 +29,17 @@ public:
 		mySwitch.clear(std::memory_order_release);
 	}
 
-	inline int Send(Asynchron* asynchron)
+	inline int BeginSend(Asynchron* asynchron)
 	{
 		return asynchron->Send(mySocket, nullptr, 0);
 	}
 
-	inline int Recv(Asynchron* asynchron)
+	inline int BeginRecv()
 	{
-		return asynchron->Recv(mySocket, nullptr, 0);
+		myReceiver = make_shared<Asynchron>(srv::Operations::RECV);
+		myReceiver->SetBuffer(myRecvBuffer, 0); // Page 락을 줄이기 위해 맨 처음에 0으로 받음
+
+		return myReceiver->Recv(mySocket, nullptr, 0);
 	}
 
 	inline void SetState(const srv::SessionStates state)
@@ -75,4 +79,7 @@ public:
 	atomic<SOCKET> mySocket;
 	atomic<unsigned long long> myID;
 	atomic<shared_ptr<Room>> myRoom;
+
+	shared_ptr<Asynchron> myReceiver;
+	char myRecvBuffer[BUFSIZ];
 };

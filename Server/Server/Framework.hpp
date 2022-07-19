@@ -17,10 +17,13 @@ public:
 	void Update();
 	void Release();
 
+	void GetSession(unsigned place) const noexcept(false);
+
 	void ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes);
 	void ProceedConnect(Asynchron* context);
 	void ProceedSent(Asynchron* context, ULONG_PTR key, int bytes);
 	void ProceedRecv(Asynchron* context, ULONG_PTR key, int bytes);
+	void ProceedDispose(Asynchron* context, ULONG_PTR key, int bytes);
 
 	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 

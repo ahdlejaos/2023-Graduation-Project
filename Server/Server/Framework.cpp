@@ -133,6 +133,10 @@ void Framework::ProceedRecv(Asynchron* context, ULONG_PTR key, int bytes)
 	auto& buffer = wbuffer.buf;
 	auto& buffer_length = wbuffer.len;
 
+	if (0 == bytes)
+	{
+
+	}
 }
 
 void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
@@ -203,7 +207,7 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 	session->SetID(MakeNewbieID());
 
 	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
-	session->Send(asynchron);
+	session->BeginSend(asynchron);
 
 	session->Release();
 
