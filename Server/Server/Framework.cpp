@@ -1,5 +1,9 @@
 #include "pch.hpp"
 #include "Framework.hpp"
+#include "Asynchron.hpp"
+#include "Room.hpp"
+#include "Session.hpp"
+#include "PlayingSession.hpp"
 
 void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool);
 
@@ -110,6 +114,7 @@ void Framework::ProceedConnect(Asynchron *context)
 		if (numberUsers < srv::MAX_USERS) [[likely]]
 		{
 			AcceptPlayer(target);
+			numberUsers++;
 		}
 		else
 		{
@@ -161,7 +166,7 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, int bytes)
 
 void Framework::ProceedDispose(Asynchron *context, ULONG_PTR key)
 {
-
+	numberUsers--;
 }
 
 void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
@@ -202,10 +207,20 @@ void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
 
 void Framework::BuildSessions()
 {
-	for (unsigned i = 0; i < srv::MAX_ENTITIES; i++)
+	auto user_sessions = everySessions | std::views::take(srv::MAX_USERS);
+
+	unsigned place = srv::USERS_ID_BEGIN;
+	for (auto &user : user_sessions)
 	{
-		auto &session = everySessions[i];
-		session = make_shared<Session>(i);
+		user = static_pointer_cast<Session>(make_shared<PlayingSession>(place++));
+	}
+
+	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
+
+	place = srv::NPC_ID_BEGIN;
+	for (auto& npc : npc_sessions)
+	{
+		npc = make_shared<Session>(place++);
 	}
 }
 
