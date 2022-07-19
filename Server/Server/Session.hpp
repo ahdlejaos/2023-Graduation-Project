@@ -130,6 +130,16 @@ public:
 		myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_relaxed);
 	}
 
+	inline constexpr virtual bool IsUser()
+	{
+		return false;
+	}
+
+	inline constexpr virtual bool IsNotUser()
+	{
+		return true;
+	}
+
 	const unsigned int myPlace;
 
 	atomic_flag mySwitch;
