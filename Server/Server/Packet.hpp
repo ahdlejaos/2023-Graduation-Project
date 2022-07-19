@@ -31,9 +31,9 @@ namespace srv
 	};
 
 	template<packets Pk, typename... Ty>
-	inline constexpr Pk* CreatePacket(std::remove_cvref_t<Ty>&& ...args)
+	inline constexpr Pk* CreatePacket(std::decay_t<Ty>&& ...args)
 	{
-		return new Pk(std::forward<Ty>(args)...);
+		return new Pk(std::forward<decltype(args)>(args)...);
 	}
 
 	template<packets Pk>

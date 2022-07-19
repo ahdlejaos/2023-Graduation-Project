@@ -4,18 +4,19 @@ class Asynchron : public WSAOVERLAPPED
 {
 public:
 	constexpr Asynchron(const srv::Operations& service)
-		: myOperation(service)
-		, myBuffer()
+		: Asynchron(service, {})
 	{}
 
 	constexpr Asynchron(const srv::Operations& service, const WSABUF& wbuffer)
 		: myOperation(service)
 		, myBuffer(wbuffer)
+		, isFirst(true)
 	{}
 
 	constexpr Asynchron(const srv::Operations& service, WSABUF&& wbuffer)
 		: myOperation(service)
 		, myBuffer(std::forward<WSABUF>(wbuffer))
+		, isFirst(true)
 	{}
 
 	~Asynchron()
@@ -33,7 +34,7 @@ public:
 		myBuffer = std::forward<WSABUF>(wbuffer);
 	}
 
-	inline constexpr void SetBuffer(char*& buffer, size_t length) noexcept
+	inline constexpr void SetBuffer(char* buffer, size_t length) noexcept
 	{
 		myBuffer.buf = buffer;
 		myBuffer.len = static_cast<ULONG>(length);
@@ -67,6 +68,7 @@ public:
 
 	const srv::Operations myOperation;
 	WSABUF myBuffer;
+	bool isFirst;
 };
 
 namespace srv

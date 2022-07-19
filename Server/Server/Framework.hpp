@@ -1,9 +1,6 @@
 #pragma once
 #include "AsyncPoolService.hpp"
 #include "ConnectService.hpp"
-#include "Asynchron.hpp"
-#include "Room.hpp"
-#include "Session.hpp"
 #include "Packet.hpp"
 
 class Framework
@@ -22,7 +19,11 @@ public:
 	void ProceedSent(Asynchron* context, ULONG_PTR key, int bytes);
 	void ProceedRecv(Asynchron* context, ULONG_PTR key, int bytes);
 
+	void ProceedDispose(Asynchron* context, ULONG_PTR key);
+
 	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
+
+	shared_ptr<Session> GetSession(unsigned place) const noexcept(false);
 
 private:
 	void BuildSessions();
@@ -59,11 +60,11 @@ private:
 namespace srv
 {
 	template<packets PACKET, typename ...Ty>
-	inline std::pair<PACKET*, Asynchron*> CreateTicket(std::remove_cvref_t<Ty>&& ...args)
+	inline std::pair<PACKET*, Asynchron*> CreateTicket(std::decay_t<Ty>&& ...args)
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		PACKET* packet = srv::CreatePacket<PACKET>(std::forward<Ty>(args)...);
+		auto packet = srv::CreatePacket<PACKET>(std::forward<decltype(args)>(args)...);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);

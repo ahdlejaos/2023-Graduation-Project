@@ -1,7 +1,11 @@
 #include "pch.hpp"
 #include "Framework.hpp"
+#include "Asynchron.hpp"
+#include "Room.hpp"
+#include "Session.hpp"
+#include "PlayingSession.hpp"
 
-void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
+void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool);
 
 Framework::Framework()
 	: myID(srv::SERVER_ID)
@@ -79,7 +83,7 @@ void Framework::Release()
 	}
 }
 
-void Framework::ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes)
+void Framework::ProceedAsync(Asynchron *context, ULONG_PTR key, int bytes)
 {
 	const auto operation = context->myOperation;
 
@@ -111,7 +115,7 @@ void Framework::ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes)
 	}
 }
 
-void Framework::ProceedConnect(Asynchron* context)
+void Framework::ProceedConnect(Asynchron *context)
 {
 	const SOCKET target = myEntryPoint.Update();
 
@@ -120,6 +124,7 @@ void Framework::ProceedConnect(Asynchron* context)
 		if (numberUsers < srv::MAX_USERS) [[likely]]
 		{
 			AcceptPlayer(target);
+			numberUsers++;
 		}
 		else
 		{
@@ -129,29 +134,58 @@ void Framework::ProceedConnect(Asynchron* context)
 	}
 }
 
-void Framework::ProceedSent(Asynchron* context, ULONG_PTR key, int bytes)
+void Framework::ProceedSent(Asynchron *context, ULONG_PTR key, int bytes)
 {
-	auto& wbuffer = context->myBuffer;
-	auto& buffer = wbuffer.buf;
-	auto& buffer_length = wbuffer.len;
+	auto &wbuffer = context->myBuffer;
+	auto &buffer = wbuffer.buf;
+	auto &buffer_length = wbuffer.len;
 
 }
 
-void Framework::ProceedRecv(Asynchron* context, ULONG_PTR key, int bytes)
+void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, int bytes)
 {
-	auto& wbuffer = context->myBuffer;
-	auto& buffer = wbuffer.buf;
-	auto& buffer_length = wbuffer.len;
+	auto &wbuffer = context->myBuffer;
+	auto &buffer = wbuffer.buf;
+	auto &buffer_length = wbuffer.len;
 
+	const auto place = static_cast<unsigned>(key);
+	auto session = GetSession(place);
+	if (!session) [[unlikely]]
+	{
+		std::cout << "수신부에서 잘못된 세션을 참조함!\n";
+	};
+
+	if (0 == bytes) [[unlikely]] // 연결 끊김은 이미 GetQueueCompletionStatus에서 거른다
+	{
+		if (!context->isFirst) [[likely]]
+		{
+			Dispose(session.get());
+		}
+		else
+		{
+			context->isFirst = false; // Page lock 해제
+
+			session->Recv(BUFSIZ);
+		}
+	}
+	else
+	{
+
+	}
 }
 
-void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
+void Framework::ProceedDispose(Asynchron *context, ULONG_PTR key)
+{
+	numberUsers--;
+}
+
+void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
 {
 	auto token = stopper.get_token();
 
 	DWORD bytes = 0;
 	ULONG_PTR key = 0;
-	WSAOVERLAPPED* asyncer = nullptr;
+	WSAOVERLAPPED *overlap = nullptr;
 
 	BOOL result{};
 
@@ -159,7 +193,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 	while (true)
 	{
-		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(asyncer));
+		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(overlap));
 
 		if (token.stop_requested())
 		{
@@ -167,12 +201,14 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 			break;
 		}
 
+		auto asynchron = static_cast<Asynchron *>(overlap);
 		if (TRUE == result) [[likely]]
 		{
-			me.ProceedAsync(static_cast<Asynchron*>(asyncer), key, static_cast<int>(bytes));
+			me.ProceedAsync(asynchron, key, static_cast<int>(bytes));
 		}
 		else
 		{
+			me.ProceedDispose(asynchron, key);
 		}
 	}
 
@@ -181,10 +217,20 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 void Framework::BuildSessions()
 {
-	for (unsigned i = 0; i < srv::MAX_ENTITIES; i++)
+	auto user_sessions = everySessions | std::views::take(srv::MAX_USERS);
+
+	unsigned place = srv::USERS_ID_BEGIN;
+	for (auto &user : user_sessions)
 	{
-		auto& session = everySessions[i];
-		session = make_shared<Session>(i);
+		user = static_pointer_cast<Session>(make_shared<PlayingSession>(place++));
+	}
+
+	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
+
+	place = srv::NPC_ID_BEGIN;
+	for (auto& npc : npc_sessions)
+	{
+		npc = make_shared<Session>(place++);
 	}
 }
 
@@ -192,7 +238,7 @@ void Framework::BuildRooms()
 {
 	for (unsigned i = 0; i < srv::MAX_ROOMS; i++)
 	{
-		auto& room = everyRooms[i];
+		auto &room = everyRooms[i];
 		room = make_shared<Room>(i);
 	}
 }
@@ -213,7 +259,7 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 	session->SetID(MakeNewbieID());
 
 	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
-	session->Send(asynchron);
+	session->BeginSend(asynchron);
 
 	session->Release();
 
@@ -222,7 +268,7 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 
 shared_ptr<Session> Framework::ConnectPlayer(unsigned place)
 {
-	auto& session = everySessions.at(place);
+	auto &session = everySessions.at(place);
 
 	session->Acquire();
 
@@ -235,19 +281,19 @@ shared_ptr<Session> Framework::ConnectPlayer(unsigned place)
 
 void Framework::Dispose(unsigned place)
 {
-
+	Dispose(GetSession(place).get());
 }
 
-void Framework::Dispose(Session * session)
+void Framework::Dispose(Session *session)
 {
-
+	DisconnectEx(session->mySocket, nullptr, 0, 0);
 }
 
 shared_ptr<Session> Framework::SeekNewbiePlace() const noexcept
 {
 	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
 	auto it = std::find_if(std::execution::par, players_view.begin(), players_view.end()
-		, [&](const shared_ptr<Session>& ptr) {
+		, [&](const shared_ptr<Session> &ptr) {
 		return ptr->myState == srv::SessionStates::NONE;
 	});
 
@@ -264,4 +310,9 @@ shared_ptr<Session> Framework::SeekNewbiePlace() const noexcept
 unsigned long long Framework::MakeNewbieID() noexcept
 {
 	return playerIDs++;
+}
+
+shared_ptr<Session> Framework::GetSession(unsigned place) const noexcept(false)
+{
+	return everySessions.at(place);
 }
