@@ -30,10 +30,10 @@ namespace srv
 		{}
 	};
 
-	template<packets Pk, typename... _Valty>
-	inline constexpr Pk* CreatePacket(_Valty ...vargs)
+	template<packets Pk, typename... Ty>
+	inline constexpr Pk* CreatePacket(std::decay_t<Ty>&& ...args)
 	{
-		return new Pk(vargs...);
+		return new Pk(std::forward<decltype(args)>(args)...);
 	}
 
 	template<packets Pk>
