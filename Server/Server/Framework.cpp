@@ -22,6 +22,14 @@ Framework::Framework()
 Framework::~Framework()
 {
 	WSACleanup();
+
+	for (auto& th : myWorkers)
+	{
+		if (th.joinable())
+		{
+			th.join();
+		}
+	}
 }
 
 void Framework::Awake(unsigned int concurrent_hint, unsigned short port_tcp)
@@ -76,11 +84,6 @@ void Framework::Release()
 	myPipelineBreaker.request_stop();
 
 	std::cout << "서버 종료\n";
-
-	for (auto& th : myWorkers)
-	{
-		th.join();
-	}
 }
 
 void Framework::ProceedAsync(Asynchron *context, ULONG_PTR key, int bytes)
