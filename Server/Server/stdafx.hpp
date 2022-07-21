@@ -153,15 +153,19 @@ namespace std
 	//unique_ptr(Ty[], Dx)->unique_ptr<std::remove_all_extents_t<std::remove_cvref_t<Ty>>[], Dx>;
 }
 
-template<typename Ty, std::forward_iterator Iterator>
+template<std::forward_iterator Iterator>
 class index_view_iterator
 {
-public
-	constexpr index_view_iterator() = default;
+public:
+	constexpr index_view_iterator() requires std::default_initializable<Iterator> = default;
+	constexpr index_view_iterator(Iterator iter, std::size_t npos = 0)
+		: handle(iter), index(npos)
+	{}
 
 	constexpr index_view_iterator &operator++()	// 레퍼런스를 리턴해야 한다.
 	{
 		// weakly_incrementable 컨셉
+		++handle;
 		++index;
 		return *this;
 	}
@@ -169,29 +173,32 @@ public
 	constexpr index_view_iterator operator++(int)
 	{
 		auto temp = index_view_iterator{ handle, index };
+		++handle;
 		++index;
 
-		return index_view_iterator{ temp };
+		return temp;
 	}
 
 	// indirectly_readable 및 forward_iterator 컨셉을 만족하려면
 	// 아래 두 함수의 리턴타입은 같아야 함
+	template<typename Ty>
 	constexpr const std::pair<Ty, std::size_t> &operator *() const
 	{
-
+		return make_pair(*handle, index);
 	}
 
+	template<typename Ty>
 	constexpr const std::pair<Ty, std::size_t> &operator *()
 	{
-
+		return make_pair(*handle, index);
 	}
 
 	constexpr bool operator==(const index_view_iterator &_other) const
 	{
-		return this->pos == _other.pos;
+		return this->handle == _other.handle;
 	}
 
-	Ty *handle;
+	Iterator handle;
 	std::size_t index;
 };
 
