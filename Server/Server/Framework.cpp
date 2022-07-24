@@ -185,7 +185,6 @@ void Framework::ProceedDispose(Asynchron *context, ULONG_PTR key)
 void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
 {
 	auto token = stopper.get_token();
-
 	DWORD bytes = 0;
 	ULONG_PTR key = 0;
 	WSAOVERLAPPED *overlap = nullptr;

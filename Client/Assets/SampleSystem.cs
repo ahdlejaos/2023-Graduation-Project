@@ -40,6 +40,14 @@ public class SampleSystem : MonoBehaviour
 		}
 	}
 
+	IEnumerator CheckConnection()
+	{
+		while (true)
+		{
+
+			yield return new WaitForEndOfFrame();
+		}
+	}
 	void Connect()
 	{
 		Debug.Log("서버 접속 중...");
