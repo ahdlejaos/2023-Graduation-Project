@@ -157,14 +157,12 @@ template<std::bidirectional_iterator Iterator>
 class index_view_iterator
 {
 public:
-	using _Mybase = _Array_const_iterator<_Ty, _Size>;
-
-	using iterator_concept = contiguous_iterator_tag;
-	using iterator_category = random_access_iterator_tag;
-	using value_type = _Ty;
-	using difference_type = ptrdiff_t;
-	using pointer = _Ty*;
-	using reference = _Ty&;
+	using iterator_concept = Iterator::iterator_concept;
+	using iterator_category = Iterator::iterator_category;
+	using value_type = Iterator::value_type;
+	using difference_type = Iterator::difference_type;
+	using pointer = Iterator::pointer;
+	using reference = Iterator::reference;
 
 	constexpr index_view_iterator() requires std::default_initializable<Iterator> = default;
 	constexpr index_view_iterator(Iterator iter, std::size_t npos = 0)
@@ -231,6 +229,8 @@ template <std::ranges::view View>
 class index_view : public std::ranges::view_interface<index_view<View>>
 {
 public:
+	using iterator = View::iterator;
+
 	constexpr index_view() requires std::default_initializable<View> = default;
 
 	constexpr index_view(View ranged)
@@ -258,28 +258,28 @@ public:
 		return std::move(myBase);
 	}
 
-	constexpr index_view_iterator begin() const
+	constexpr auto begin() const
 		requires std::ranges::range<const View>
 	{
-		return index_view_iterator{ std::ranges::begin(myBase), 0 };
+		return index_view_iterator<iterator>{ std::ranges::begin(myBase), 0 };
 	}
 
-	constexpr index_view_iterator end() const
+	constexpr auto end() const
 		requires std::ranges::sized_range<const View>
 	{
-		return index_view_iterator{ std::ranges::end(myBase), std::ranges::size(myBase) };
+		return index_view_iterator<iterator>{ std::ranges::end(myBase), std::ranges::size(myBase) };
 	}
 
-	constexpr const index_view_iterator cbegin() const
+	constexpr const auto cbegin() const
 		requires std::ranges::range<const View>
 	{
-		return index_view_iterator{ std::ranges::cbegin(myBase), 0 };
+		return index_view_iterator<iterator>{ std::ranges::cbegin(myBase), 0 };
 	}
 
-	constexpr const index_view_iterator cend() const
+	constexpr const auto cend() const
 		requires std::ranges::sized_range<const View>
 	{
-		return index_view_iterator{ std::ranges::cend(myBase), std::ranges::size(myBase) };
+		return index_view_iterator<iterator>{ std::ranges::cend(myBase), std::ranges::size(myBase) };
 	}
 
 	View myBase;
