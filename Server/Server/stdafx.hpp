@@ -103,7 +103,7 @@ template <class _Ty>
 concept Arithmetic = std::is_arithmetic_v<_Ty>;
 
 template<Arithmetic Ty1, Arithmetic Ty2>
-inline constexpr auto operator+(std::pair<Ty1, Ty2>&& lhs, std::pair<Ty1, Ty2>&& rhs)
+inline constexpr auto operator+(std::pair<Ty1, Ty2> &&lhs, std::pair<Ty1, Ty2> &&rhs)
 -> std::pair<std::remove_cvref_t<Ty1>, std::remove_cvref_t<Ty2>>
 {
 	return std::make_pair<Ty1, Ty2>(
@@ -112,14 +112,14 @@ inline constexpr auto operator+(std::pair<Ty1, Ty2>&& lhs, std::pair<Ty1, Ty2>&&
 }
 
 template<Arithmetic Ty1, Arithmetic Ty2>
-constexpr auto operator+(const std::pair<Ty1, Ty2>& lhs, const std::pair<Ty1, Ty2>& rhs)
+constexpr auto operator+(const std::pair<Ty1, Ty2> &lhs, const std::pair<Ty1, Ty2> &rhs)
 -> std::pair<std::remove_cvref_t<Ty1>, std::remove_cvref_t<Ty2>>
 {
 	return std::make_pair<Ty1, Ty2>(lhs.first + rhs.first, lhs.second + rhs.second);
 }
 
 template<Arithmetic Ty>
-constexpr auto operator+(std::pair<Ty, Ty>&& lhs, std::pair<Ty, Ty>&& rhs)
+constexpr auto operator+(std::pair<Ty, Ty> &&lhs, std::pair<Ty, Ty> &&rhs)
 -> std::pair<std::remove_cvref_t<Ty>, std::remove_cvref_t<Ty>>
 {
 	return std::make_pair<Ty, Ty>(
@@ -132,10 +132,10 @@ struct std::default_delete<WSABUF>
 {
 	constexpr default_delete() noexcept = default;
 
-	template <class _Ty2, enable_if_t<is_convertible_v<_Ty2*, WSABUF*>, int> = 0>
-	default_delete(const default_delete<_Ty2>&) noexcept {}
+	template <class _Ty2, enable_if_t<is_convertible_v<_Ty2 *, WSABUF *>, int> = 0>
+	default_delete(const default_delete<_Ty2> &) noexcept {}
 
-	void operator()(WSABUF* _Ptr) const noexcept /* strengthened */
+	void operator()(WSABUF *_Ptr) const noexcept /* strengthened */
 	{ // delete a pointer
 		static_assert(0 < sizeof(WSABUF), "can't delete an incomplete type");
 
@@ -153,8 +153,12 @@ namespace std
 	//unique_ptr(Ty[], Dx)->unique_ptr<std::remove_all_extents_t<std::remove_cvref_t<Ty>>[], Dx>;
 }
 
+//template<typename Container>
+//class index_view_enumerator
+//{};
+
 template<std::bidirectional_iterator Iterator>
-class index_view_iterator
+class index_view_enumerator
 {
 public:
 	using iterator_concept = Iterator::iterator_concept;
@@ -164,12 +168,12 @@ public:
 	using pointer = Iterator::pointer;
 	using reference = Iterator::reference;
 
-	constexpr index_view_iterator() requires std::default_initializable<Iterator> = default;
-	constexpr index_view_iterator(Iterator iter, std::size_t npos = 0)
+	constexpr index_view_enumerator() requires std::default_initializable<Iterator> = default;
+	constexpr index_view_enumerator(Iterator iter, difference_type npos = 0)
 		: handle(iter), index(npos)
 	{}
 
-	constexpr index_view_iterator& operator++()
+	constexpr index_view_enumerator &operator++()
 	{
 		// weakly_incrementable 컨셉
 		++handle;
@@ -177,25 +181,25 @@ public:
 		return *this;
 	}
 
-	constexpr index_view_iterator operator++(int)
+	constexpr index_view_enumerator operator++(int)
 	{
-		auto temp = index_view_iterator{ handle, index };
+		auto temp = index_view_enumerator{ handle, index };
 		++handle;
 		++index;
 
 		return temp;
 	}
 
-	constexpr index_view_iterator& operator--()
+	constexpr index_view_enumerator &operator--()
 	{
 		--handle;
 		--index;
 		return *this;
 	}
 
-	constexpr index_view_iterator operator--(int)
+	constexpr index_view_enumerator operator--(int)
 	{
-		auto temp = index_view_iterator{ handle, index };
+		auto temp = index_view_enumerator{ handle, index };
 		--handle;
 		--index;
 
@@ -204,33 +208,54 @@ public:
 
 	// indirectly_readable 및 forward_iterator 컨셉을 만족하려면
 	// 아래 두 함수의 리턴타입은 같아야 함
-	template<typename Ty>
-	constexpr const std::pair<Ty, std::size_t>& operator *() const
+	constexpr const auto &operator *() const
 	{
-		return make_pair(*handle, index);
+		return make_pair(handle, index);
 	}
 
-	template<typename Ty>
-	constexpr const std::pair<Ty, std::size_t>& operator *()
+	constexpr const auto &operator *()
 	{
-		return make_pair(*handle, index);
+		return make_pair(handle, index);
 	}
 
-	constexpr bool operator==(const index_view_iterator& _other) const
+	constexpr auto operator->() const noexcept
+	{
+		return this->handle;
+	}
+
+	constexpr bool operator==(const index_view_enumerator &_other) const
 	{
 		return this->handle == _other.handle;
 	}
 
+	constexpr bool operator==(const Iterator &_other) const
+	{
+		return this->handle == _other;
+	}
+
+	constexpr bool operator==(Iterator &&_other) const
+	{
+		return this->handle == std::forward<Iterator>(_other);
+	}
+
 	Iterator handle;
-	std::size_t index;
+	difference_type index;
 };
 
+template<std::bidirectional_iterator Iterator>
+index_view_enumerator(Iterator, std::ptrdiff_t)->index_view_enumerator<Iterator>;
+
+template<std::bidirectional_iterator Iterator>
+index_view_enumerator(Iterator, std::size_t)->index_view_enumerator<Iterator>;
+
+template<std::bidirectional_iterator Iterator>
+index_view_enumerator(Iterator)->index_view_enumerator<Iterator>;
+
+#ifdef __DDD__
 template <std::ranges::view View>
 class index_view : public std::ranges::view_interface<index_view<View>>
 {
 public:
-	using iterator = View::iterator;
-
 	constexpr index_view() requires std::default_initializable<View> = default;
 
 	constexpr index_view(View ranged)
@@ -239,13 +264,13 @@ public:
 	: myBase(std::move(ranged))
 	{}
 
-	constexpr index_view(View&& ranged)
+	constexpr index_view(View &&ranged)
 		noexcept(std::is_nothrow_move_constructible_v<View>)
 		requires std::ranges::range<const View>
 	: myBase(std::forward(ranged))
 	{}
 
-	[[nodiscard]] constexpr View base() const&
+	[[nodiscard]] constexpr View base() const &
 		noexcept(std::is_nothrow_copy_constructible_v<View>)
 		requires std::copy_constructible<View>
 	{
@@ -261,29 +286,30 @@ public:
 	constexpr auto begin() const
 		requires std::ranges::range<const View>
 	{
-		return index_view_iterator<iterator>{ std::ranges::begin(myBase), 0 };
+		return index_view_iterator{ std::ranges::begin(myBase), 0 };
 	}
 
 	constexpr auto end() const
 		requires std::ranges::sized_range<const View>
 	{
-		return index_view_iterator<iterator>{ std::ranges::end(myBase), std::ranges::size(myBase) };
+		return index_view_iterator{ std::ranges::end(myBase), std::ranges::size(myBase) };
 	}
 
 	constexpr const auto cbegin() const
 		requires std::ranges::range<const View>
 	{
-		return index_view_iterator<iterator>{ std::ranges::cbegin(myBase), 0 };
+		return index_view_iterator{ std::ranges::cbegin(myBase), 0 };
 	}
 
 	constexpr const auto cend() const
 		requires std::ranges::sized_range<const View>
 	{
-		return index_view_iterator<iterator>{ std::ranges::cend(myBase), std::ranges::size(myBase) };
+		return index_view_iterator{ std::ranges::cend(myBase), std::ranges::size(myBase) };
 	}
 
 	View myBase;
 };
+#endif
 
 constexpr double PI = 3.141592653589793;
 
@@ -308,13 +334,13 @@ namespace srv
 	}
 
 	[[noreturn]]
-	inline void RaisePlainError(const std::string_view& description) noexcept(false)
+	inline void RaisePlainError(const std::string_view &description) noexcept(false)
 	{
 		throw std::exception(description.data());
 	}
 
 	[[noreturn]]
-	inline void RaiseRuntimeError(const std::string_view& description) noexcept(false)
+	inline void RaiseRuntimeError(const std::string_view &description) noexcept(false)
 	{
 		throw std::runtime_error(description.data());
 	}
@@ -329,17 +355,17 @@ namespace srv
 class XYZWrapper
 {
 public:
-	constexpr XYZWrapper(float& x, float& y, float& z)
+	constexpr XYZWrapper(float &x, float &y, float &z)
 		: x(x), y(y), z(z)
 	{}
 
-	constexpr XYZWrapper(XMFLOAT3& position)
+	constexpr XYZWrapper(XMFLOAT3 &position)
 		: XYZWrapper(position.x, position.y, position.z)
 	{}
 
-	XYZWrapper(XMFLOAT3&& position) = delete;
+	XYZWrapper(XMFLOAT3 &&position) = delete;
 
-	inline constexpr XYZWrapper& operator=(float(&list)[3])
+	inline constexpr XYZWrapper &operator=(float(&list)[3])
 	{
 		x = list[0];
 		y = list[1];
@@ -347,7 +373,7 @@ public:
 		return *this;
 	}
 
-	inline constexpr XYZWrapper& operator=(std::span<float, 3> list)
+	inline constexpr XYZWrapper &operator=(std::span<float, 3> list)
 	{
 		x = list[0];
 		y = list[1];
@@ -355,7 +381,7 @@ public:
 		return *this;
 	}
 
-	inline constexpr XYZWrapper& operator=(const XMFLOAT3& vector)
+	inline constexpr XYZWrapper &operator=(const XMFLOAT3 &vector)
 	{
 		x = vector.x;
 		y = vector.y;
@@ -363,7 +389,7 @@ public:
 		return *this;
 	}
 
-	inline constexpr XYZWrapper& operator=(XMFLOAT3&& vector)
+	inline constexpr XYZWrapper &operator=(XMFLOAT3 &&vector)
 	{
 		x = std::forward<float>(vector.x);
 		y = std::forward<float>(vector.y);
@@ -376,7 +402,7 @@ public:
 		return XMFLOAT3(x, y, z);
 	}
 
-	float& x;
-	float& y;
-	float& z;
+	float &x;
+	float &y;
+	float &z;
 };

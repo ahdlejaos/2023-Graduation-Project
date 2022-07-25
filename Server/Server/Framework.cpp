@@ -15,7 +15,7 @@ Framework::Framework()
 	, lastPacketType(srv::Protocol::NONE)
 	, myPipelineBreaker()
 {
-	std::cout.imbue(std::locale{ "KOREAN" });
+	//std::cout.imbue(std::locale{ "KOREAN" });
 	std::cout.sync_with_stdio(false);
 }
 
