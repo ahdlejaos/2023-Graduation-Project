@@ -41,6 +41,7 @@ using namespace DirectX::PackedVector;
 #include <concepts>
 #include <execution>
 #include <random>
+#include <numeric>
 #include <chrono>
 #include <atomic>
 #include <thread>
@@ -157,23 +158,34 @@ namespace std
 //class index_view_enumerator
 //{};
 
-template<std::bidirectional_iterator Iterator>
-class index_view_enumerator
+template<std::ranges::bidirectional_range Container>
+class index_enumerator
 {
 public:
-	using iterator_concept = Iterator::iterator_concept;
-	using iterator_category = Iterator::iterator_category;
-	using value_type = Iterator::value_type;
-	using difference_type = Iterator::difference_type;
-	using pointer = Iterator::pointer;
-	using reference = Iterator::reference;
+	using iterator_type = std::ranges::iterator_t<Container>;
+	using iterator_concept = iterator_type::iterator_concept;
+	using iterator_category = iterator_type::iterator_category;
+	using value_type = iterator_type::value_type;
+	using difference_type = iterator_type::difference_type;
+	using pointer = iterator_type::pointer;
+	using reference = iterator_type::reference;
 
-	constexpr index_view_enumerator() requires std::default_initializable<Iterator> = default;
-	constexpr index_view_enumerator(Iterator iter, difference_type npos = 0)
-		: handle(iter), index(npos)
+	constexpr index_enumerator()
+		requires std::default_initializable<Container> && std::default_initializable<iterator_type> = default;
+
+	template<std::integral numeric>
+	constexpr index_enumerator(Container& container, numeric npos = 0)
+		: range(std::addressof(container)), handle(std::begin(container))
+		, index(static_cast<std::size_t>(npos))
 	{}
 
-	constexpr index_view_enumerator &operator++()
+	template<std::integral numeric>
+	constexpr index_enumerator(iterator_type iter, numeric npos = 0)
+		: range(nullptr), handle(iter)
+		, index(static_cast<std::size_t>(npos))
+	{}
+
+	inline constexpr index_enumerator &operator++()
 	{
 		// weakly_incrementable 컨셉
 		++handle;
@@ -181,75 +193,71 @@ public:
 		return *this;
 	}
 
-	constexpr index_view_enumerator operator++(int)
+	inline constexpr index_enumerator operator++(int)
 	{
-		auto temp = index_view_enumerator{ handle, index };
+		auto temp = index_enumerator{ handle, index };
 		++handle;
 		++index;
 
 		return temp;
 	}
 
-	constexpr index_view_enumerator &operator--()
+	inline constexpr index_enumerator &operator--()
 	{
 		--handle;
 		--index;
 		return *this;
 	}
 
-	constexpr index_view_enumerator operator--(int)
+	inline constexpr index_enumerator operator--(int)
 	{
-		auto temp = index_view_enumerator{ handle, index };
+		auto temp = index_enumerator{ handle, index };
 		--handle;
 		--index;
 
 		return temp;
 	}
 
-	// indirectly_readable 및 forward_iterator 컨셉을 만족하려면
-	// 아래 두 함수의 리턴타입은 같아야 함
-	constexpr const auto &operator *() const
+	inline constexpr const auto &operator *() const
 	{
 		return make_pair(handle, index);
 	}
 
-	constexpr const auto &operator *()
+	inline constexpr const auto &operator *()
 	{
 		return make_pair(handle, index);
 	}
 
-	constexpr auto operator->() const noexcept
+	inline constexpr auto operator->() const noexcept
 	{
 		return this->handle;
 	}
 
-	constexpr bool operator==(const index_view_enumerator &_other) const
+	inline constexpr bool operator==(const index_enumerator &_other) const
 	{
 		return this->handle == _other.handle;
 	}
 
-	constexpr bool operator==(const Iterator &_other) const
+	inline constexpr bool operator==(const iterator_type&_other) const
 	{
 		return this->handle == _other;
 	}
 
-	constexpr bool operator==(Iterator &&_other) const
+	inline constexpr bool operator==(iterator_type&&_other) const
 	{
-		return this->handle == std::forward<Iterator>(_other);
+		return this->handle == std::forward<iterator_type>(_other);
 	}
 
-	Iterator handle;
-	difference_type index;
+	Container* range;
+	iterator_type handle;
+	std::size_t index;
 };
 
-template<std::bidirectional_iterator Iterator>
-index_view_enumerator(Iterator, std::ptrdiff_t)->index_view_enumerator<Iterator>;
+template<std::ranges::bidirectional_range Container, std::integral numeric>
+index_enumerator(std::ranges::iterator_t<Container>, numeric)->index_enumerator<Container>;
 
-template<std::bidirectional_iterator Iterator>
-index_view_enumerator(Iterator, std::size_t)->index_view_enumerator<Iterator>;
-
-template<std::bidirectional_iterator Iterator>
-index_view_enumerator(Iterator)->index_view_enumerator<Iterator>;
+template<std::ranges::bidirectional_range Container>
+index_enumerator(Container)->index_enumerator<Container>;
 
 #ifdef __DDD__
 template <std::ranges::view View>
