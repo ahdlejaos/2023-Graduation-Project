@@ -32,6 +32,7 @@ private:
 
 	shared_ptr<Session> AcceptPlayer(SOCKET target);
 	shared_ptr<Session> ConnectPlayer(unsigned place);
+	shared_ptr<Session> ConnectPlayer(shared_ptr<Session> session);
 	void Dispose(unsigned place);
 	void Dispose(Session* session);
 

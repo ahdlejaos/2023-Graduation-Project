@@ -172,7 +172,7 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, int bytes)
 		{
 			context->isFirst = false; // Page lock 해제
 
-			session->Recv(BUFSIZ);
+			session->Recv(BUFSIZ); // 실질적인 첫번째 수신
 		}
 	}
 	else
@@ -274,8 +274,11 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 
 shared_ptr<Session> Framework::ConnectPlayer(unsigned place)
 {
-	auto &session = everySessions.at(place);
+	return ConnectPlayer(GetSession(place));
+}
 
+shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
+{
 	session->Acquire();
 
 	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
@@ -292,7 +295,12 @@ void Framework::Dispose(unsigned place)
 
 void Framework::Dispose(Session *session)
 {
+	session->Acquire();
 	DisconnectEx(session->mySocket, nullptr, 0, 0);
+	session->SetID(0);
+	session->Release();
+
+	std::cout << "세션 " << session->myPlace << "의 연결 끊김.\n";
 }
 
 shared_ptr<Session> Framework::SeekNewbiePlace() const noexcept
