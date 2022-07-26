@@ -333,6 +333,8 @@ inline constexpr T dsin(T value)
 	return std::sin(value * PI / 180);
 }
 
+extern "C" static LPFN_DISCONNECTEX DisconnectEx = nullptr;
+
 namespace srv
 {
 	[[nodiscard]]

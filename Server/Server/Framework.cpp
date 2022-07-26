@@ -132,7 +132,11 @@ void Framework::ProceedConnect(Asynchron *context)
 		else
 		{
 			std::cout << "유저 수가 초과하여 더 이상 접속을 받을 수 없습니다.\n";
-			closesocket(target);
+
+			if (FALSE == DisconnectEx(target, context, 0, 0)) [[unlikely]]
+			{
+				std::cout << "비동기 연결 해제가 실패했습니다.\n";
+			}
 		}
 	}
 }

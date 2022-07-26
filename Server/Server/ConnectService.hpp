@@ -1,8 +1,6 @@
 #pragma once
 #include "Asynchron.hpp"
 
-static LPFN_DISCONNECTEX DisconnectEx = nullptr;
-
 class ConnectService
 {
 public:
@@ -60,10 +58,13 @@ public:
 
 		GUID guidDisconnectEx = WSAID_DISCONNECTEX;
 		DWORD cbBytesReturned = 0;
-		WSAIoctl(serverSocket, SIO_GET_EXTENSION_FUNCTION_POINTER
-		, &guidDisconnectEx, sizeof(guidDisconnectEx)
-		, &DisconnectEx, sizeof(DisconnectEx), &cbBytesReturned
-		, NULL, NULL);
+		if (SOCKET_ERROR == WSAIoctl(serverSocket, SIO_GET_EXTENSION_FUNCTION_POINTER
+			, &guidDisconnectEx, sizeof(guidDisconnectEx)
+			, &DisconnectEx, sizeof(DisconnectEx), &cbBytesReturned
+			, NULL, NULL))
+		{
+			srv::RaiseSystemError(std::errc::not_supported);
+		}
 
 		for (auto& place : everySockets)
 		{
