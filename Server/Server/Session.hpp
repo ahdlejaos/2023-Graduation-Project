@@ -140,6 +140,12 @@ public:
 		myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_relaxed);
 	}
 
+	inline void Dispose()
+	{
+		DisconnectEx(mySocket, srv::CreateAsynchron(srv::Operations::DISPOSE), 0, 0);
+		SetID(0);
+	}
+
 	inline constexpr virtual bool IsUser() noexcept
 	{
 		return false;

@@ -11,12 +11,12 @@ public:
 	virtual ~PlayingSession()
 	{}
 
-	inline constexpr bool IsUser() override
+	inline constexpr bool IsUser() noexcept override
 	{
 		return true;
 	}
 
-	inline constexpr bool IsNotUser() override
+	inline constexpr bool IsNotUser() noexcept override
 	{
 		return false;
 	}
