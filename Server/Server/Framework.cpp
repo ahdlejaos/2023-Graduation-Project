@@ -323,9 +323,11 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 	newbie->Acquire();
 	newbie->Ready(MakeNewbieID(), target);
 	std::cout << "플레이어 접속: " << target << "\n";
-	newbie->Release();
 
 	// 서버 상태 전송
+	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketServerInfo>(numberUsers.load(std::memory_order_relaxed), srv::MAX_USERS, srv::GAME_VERSION);
+	newbie->BeginSend(asynchron);
+	newbie->Release();
 
 	return newbie;
 }

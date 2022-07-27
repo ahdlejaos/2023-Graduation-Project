@@ -61,7 +61,7 @@ private:
 namespace srv
 {
 	template<packets PACKET, typename ...Ty>
-	inline std::pair<PACKET*, Asynchron*> CreateTicket(std::decay_t<Ty>&& ...args)
+	inline std::pair<PACKET*, Asynchron*> CreateTicket(Ty&& ...args)
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
