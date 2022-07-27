@@ -147,6 +147,21 @@ void Framework::ProceedSent(Asynchron *context, ULONG_PTR key, int bytes)
 	auto &buffer = wbuffer.buf;
 	auto &buffer_length = wbuffer.len;
 
+	const auto place = static_cast<unsigned>(key);
+	auto session = GetSession(place);
+	if (!session) [[unlikely]]
+	{
+		std::cout << "송신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
+	};
+
+	if (0 < bytes)
+	{
+		session->Send(context, static_cast<unsigned>(bytes));
+	}
+	else
+	{
+		std::cout << "송신 오류 발생: 보내는 바이트 수가 0임.\n";
+	}
 }
 
 void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, int bytes)
@@ -159,7 +174,7 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, int bytes)
 	auto session = GetSession(place);
 	if (!session) [[unlikely]]
 	{
-		std::cout << "수신부에서 잘못된 세션을 참조함!\n";
+		std::cout << "수신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
 	};
 
 	if (0 == bytes) [[unlikely]] // 연결 끊김은 이미 GetQueueCompletionStatus에서 거른다
@@ -183,7 +198,7 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, int bytes)
 
 void Framework::ProceedDispose(Asynchron *context, ULONG_PTR key)
 {
-	numberUsers--;
+	delete context;
 }
 
 void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
@@ -298,9 +313,10 @@ void Framework::Dispose(Session *session)
 	session->Acquire();
 	DisconnectEx(session->mySocket, nullptr, 0, 0);
 	session->SetID(0);
+	numberUsers--;
 	session->Release();
 
-	std::cout << "세션 " << session->myPlace << "의 연결 끊김.\n";
+	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수" << numberUsers <<"명)\n";
 }
 
 shared_ptr<Session> Framework::SeekNewbiePlace() const noexcept

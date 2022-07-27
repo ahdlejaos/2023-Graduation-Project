@@ -61,6 +61,16 @@ public:
 		return asynchron->Send(mySocket, nullptr, 0);
 	}
 
+	template<std::unsigned_integral Integral>
+	inline int Send(Asynchron *asynchron, Integral additional_offsets)
+	{
+		auto &wbuffer = asynchron->myBuffer;
+		wbuffer.buf += additional_offsets;
+		wbuffer.len -= additional_offsets;
+
+		return asynchron->Send(mySocket, nullptr, 0);
+	}
+
 	inline int Recv(unsigned size, unsigned offset = 0)
 	{
 		auto &wbuffer = myReceiver->myBuffer;
@@ -130,12 +140,12 @@ public:
 		myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_relaxed);
 	}
 
-	inline constexpr virtual bool IsUser()
+	inline constexpr virtual bool IsUser() noexcept
 	{
 		return false;
 	}
 
-	inline constexpr virtual bool IsNotUser()
+	inline constexpr virtual bool IsNotUser() noexcept
 	{
 		return true;
 	}
