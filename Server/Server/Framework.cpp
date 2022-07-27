@@ -266,7 +266,7 @@ void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
 	{
 		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(overlap));
 
-		if (token.stop_requested())
+		if (token.stop_requested()) [[unlikely]]
 		{
 			std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
 			break;
@@ -319,16 +319,15 @@ void Framework::BuildResources()
 
 shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 {
-	const auto place = SeekNewbiePlace();
-	auto session = place.get();
-
+	auto newbie = SeekNewbiePlace();
+	newbie->Acquire();
+	newbie->Ready(MakeNewbieID(), target);
 	std::cout << "플레이어 접속: " << target << "\n";
-	session->Acquire();
-	session->Ready(MakeNewbieID(), target);
+	newbie->Release();
 
-	session->Release();
+	// 서버 상태 전송
 
-	return place;
+	return newbie;
 }
 
 shared_ptr<Session> Framework::ConnectPlayer(unsigned place)
