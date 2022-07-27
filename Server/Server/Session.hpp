@@ -42,9 +42,22 @@ public:
 		Recv(size, static_cast<unsigned>(bytes));
 	}
 
+	/// <summary>
+	/// 비동기 연결 해제를 요청합니다. 나중에 Dispose()를 호출하도록 합니다.
+	/// </summary>
 	inline void Disconnect()
 	{
 		DisconnectEx(mySocket, srv::CreateAsynchron(srv::Operations::DISPOSE), 0, 0);
+	}
+
+	/// <summary>
+	/// 세션 정리
+	/// </summary>
+	inline void Dispose()
+	{
+		AssignState(srv::SessionStates::NONE);
+		AssignID(0);
+		AssignSocket(NULL);
 	}
 
 	inline void Acquire() volatile

@@ -33,8 +33,8 @@ private:
 	shared_ptr<Session> AcceptPlayer(SOCKET target);
 	shared_ptr<Session> ConnectPlayer(unsigned place);
 	shared_ptr<Session> ConnectPlayer(shared_ptr<Session> session);
-	void Dispose(unsigned place);
-	void Dispose(Session* session);
+	void Disconnect(unsigned place);
+	void Disconnect(Session* session);
 
 	shared_ptr<Session> SeekNewbiePlace() const noexcept;
 	unsigned long long MakeNewbieID() noexcept;

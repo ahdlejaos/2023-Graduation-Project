@@ -139,7 +139,7 @@ void Framework::ProceedAccept(Asynchron *context)
 		{
 			std::cout << "유저 수가 초과하여 더 이상 접속을 받을 수 없습니다.\n";
 
-			if (FALSE == DisconnectEx(target, context, 0, 0)) [[unlikely]]
+			if (FALSE == DisconnectEx(target, srv::CreateAsynchron(srv::Operations::DISPOSE), 0, 0)) [[unlikely]]
 			{
 				std::cout << "비동기 연결 해제가 실패했습니다.\n";
 			}
@@ -149,7 +149,14 @@ void Framework::ProceedAccept(Asynchron *context)
 
 void Framework::ProceedDiconnect(Asynchron *context, ULONG_PTR key)
 {
+	const auto place = static_cast<unsigned>(key);
+	auto session = GetSession(place);
+	if (!session) [[unlikely]]
+	{
+		std::cout << "연결을 끊을 세션이 없음! (키: " << key << ")\n";
+	};
 
+	session->Disconnect();
 }
 
 void Framework::ProceedSent(Asynchron *context, ULONG_PTR key, unsigned bytes)
@@ -208,7 +215,7 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, unsigned bytes)
 		{
 			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 
-			Dispose(session.get());
+			Disconnect(session.get());
 		}
 		else
 		{
@@ -231,16 +238,17 @@ void Framework::ProceedDispose(Asynchron *context, ULONG_PTR key)
 	if (!session) [[unlikely]]
 	{
 		std::cout << "연결을 끊을 잘못된 세션을 참조함! (키: " << key << ")\n";
-	};
+	}
+	else
+	{
+		session->Acquire();
+		session->Dispose();
+		session->Release();
 
-	session->Acquire();
+		numberUsers--;
+	}
 
-	session->AssignID(0);
-	session->AssignSocket(NULL);
-	session->AssignState(srv::SessionStates::NONE);
 	delete context;
-
-	session->Release();
 }
 
 void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
@@ -341,16 +349,15 @@ shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
 	return session;
 }
 
-void Framework::Dispose(unsigned place)
+void Framework::Disconnect(unsigned place)
 {
-	Dispose(GetSession(place).get());
+	Disconnect(GetSession(place).get());
 }
 
-void Framework::Dispose(Session *session)
+void Framework::Disconnect(Session *session)
 {
 	session->Acquire();
 	session->Disconnect();
-	numberUsers--;
 	session->Release();
 
 	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수" << numberUsers << "명)\n";
