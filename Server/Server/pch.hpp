@@ -113,6 +113,7 @@ namespace srv
 		ACCEPT,
 		RECV,
 		SEND,
+		DISPOSE,
 
 		ENTITY_MOVE,
 	};
