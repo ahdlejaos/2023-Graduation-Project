@@ -23,7 +23,7 @@ Framework::~Framework()
 {
 	WSACleanup();
 
-	for (auto& th : myWorkers)
+	for (auto &th : myWorkers)
 	{
 		if (th.joinable())
 		{
@@ -56,7 +56,7 @@ void Framework::Start()
 
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
-		auto& th = myWorkers.emplace_back(Worker, std::ref(myPipelineBreaker), std::ref(*this), std::ref(myAsyncProvider));
+		auto &th = myWorkers.emplace_back(Worker, std::ref(myPipelineBreaker), std::ref(*this), std::ref(myAsyncProvider));
 	}
 
 	std::cout << "서버 시작\n";
@@ -71,7 +71,7 @@ void Framework::Update()
 			SleepEx(10, TRUE);
 		}
 	}
-	catch (std::exception& e)
+	catch (std::exception &e)
 	{
 		std::cout << "예외로 인한 서버 인터럽트: " << e.what() << std::endl;
 	}
@@ -154,13 +154,27 @@ void Framework::ProceedSent(Asynchron *context, ULONG_PTR key, int bytes)
 		std::cout << "송신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
 	};
 
-	if (0 < bytes)
+	if (0 < buffer_length)
 	{
-		session->Send(context, static_cast<unsigned>(bytes));
+		const auto left = buffer_length - bytes;
+		if (0 < left)
+		{
+			session->Send(context, static_cast<unsigned>(bytes));
+		}
+		else if (bytes <= 0)
+		{
+			std::cout << "송신 오류 발생: 보내는 바이트 수가 0임.\n";
+			delete context;
+		}
+		else [[likely]]
+		{
+			std::cout << "송신 완료.\n";
+			delete context;
+		}
 	}
 	else
 	{
-		std::cout << "송신 오류 발생: 보내는 바이트 수가 0임.\n";
+		delete context;
 	}
 }
 
@@ -181,6 +195,8 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, int bytes)
 	{
 		if (!context->isFirst) [[likely]]
 		{
+			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
+
 			Dispose(session.get());
 		}
 		else
@@ -249,7 +265,7 @@ void Framework::BuildSessions()
 	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
 
 	place = srv::NPC_ID_BEGIN;
-	for (auto& npc : npc_sessions)
+	for (auto &npc : npc_sessions)
 	{
 		npc = make_shared<Session>(place++);
 	}
@@ -316,7 +332,7 @@ void Framework::Dispose(Session *session)
 	numberUsers--;
 	session->Release();
 
-	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수" << numberUsers <<"명)\n";
+	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수" << numberUsers << "명)\n";
 }
 
 shared_ptr<Session> Framework::SeekNewbiePlace() const noexcept
