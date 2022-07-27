@@ -75,7 +75,8 @@ namespace srv
 
 		CS_CHAT, // 채팅 메시지
 
-		SC_SIGNIN_SUCCESS = 3000, // 로그인 성공 알림
+		SC_SERVER_INFO, // 서버 상태 알림
+		SC_SIGNIN_SUCCESS, // 로그인 성공 알림
 		SC_SIGNIN_FAILURE, // 로그인 실패 알림
 
 		SC_RESPOND_ROOMS, // 방 목록 응답
@@ -88,7 +89,7 @@ namespace srv
 
 		SC_ROOM_ENTERED, // 방에 입장했음을 응답
 
-		SC_GAME_START = 5000, // 게임 시작
+		SC_GAME_START, // 게임 시작
 		SC_CREATE_VFX, // 시작 효과 생성
 		SC_PLAY_SFX, // 효과음 재생
 		SC_PLAY_MUSIC, // 음악 재생
