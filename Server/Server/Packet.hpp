@@ -5,7 +5,7 @@ namespace srv
 	class Packet
 	{
 	public:
-		constexpr Packet(Protocol type, unsigned size)
+		constexpr Packet(Protocol type, std::uint32_t size)
 			: myProtocol(type), mySize(size)
 		{}
 
@@ -22,11 +22,26 @@ namespace srv
 	template<class Pk>
 	concept packets = std::derived_from<Pk, Packet>;
 
+	class SCPacketServerInfo : public Packet
+	{
+	public:
+		constexpr SCPacketServerInfo(unsigned users, unsigned max_users, std::span<wchar_t, 8> version)
+			: Packet(Protocol::SC_SERVER_INFO)
+			, usersCount(users), usersMax(max_users)
+			, gameVersion()
+		{
+			std::copy(version.begin(), version.end(), std::begin(gameVersion));
+		}
+
+		unsigned usersCount, usersMax;
+		wchar_t gameVersion[8];
+	};
+
 	class SCPacketSignUp : public Packet
 	{
 	public:
 		constexpr SCPacketSignUp()
-			: Packet(srv::Protocol::SC_SIGNIN_SUCCESS)
+			: Packet(Protocol::SC_SIGNIN_SUCCESS)
 		{}
 	};
 
