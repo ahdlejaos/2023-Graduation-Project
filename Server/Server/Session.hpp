@@ -14,6 +14,39 @@ public:
 	virtual ~Session()
 	{}
 
+	/// <summary>
+	/// 세션의 초기화를 수행합니다.
+	/// </summary>
+	/// <param name="id"></param>
+	/// <param name="sock">새로운 소켓</param>
+	inline void Ready(unsigned long long id, SOCKET sock)
+	{
+		AssignState(srv::SessionStates::ACCEPTED);
+		AssignID(id);
+		AssignSocket(sock);
+	}
+
+	/// <summary>
+	/// 세션의 상태를 연결됨으로 바꿉니다. 실제로 연결을 수행하지는 않습니다.
+	/// </summary>
+	inline void Connect()
+	{
+		AssignState(srv::SessionStates::CONNECTED);
+	}
+
+	inline void Swallow(unsigned size, unsigned bytes)
+	{
+
+
+		// 나머지 패킷을 수신
+		Recv(size, static_cast<unsigned>(bytes));
+	}
+
+	inline void Disconnect()
+	{
+		DisconnectEx(mySocket, srv::CreateAsynchron(srv::Operations::DISPOSE), 0, 0);
+	}
+
 	inline void Acquire() volatile
 	{
 		while (mySwitch.test_and_set(std::memory_order_acquire));
@@ -138,12 +171,6 @@ public:
 	inline void SetRoom(shared_ptr<Room> &&room)
 	{
 		myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_relaxed);
-	}
-
-	inline void Dispose()
-	{
-		DisconnectEx(mySocket, srv::CreateAsynchron(srv::Operations::DISPOSE), 0, 0);
-		SetID(0);
 	}
 
 	inline constexpr virtual bool IsUser() noexcept

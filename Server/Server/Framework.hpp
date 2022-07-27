@@ -14,11 +14,11 @@ public:
 	void Update();
 	void Release();
 
-	void ProceedAsync(Asynchron* context, ULONG_PTR key, int bytes);
+	void ProceedAsync(Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedConnect(Asynchron* context);
-	void ProceedSent(Asynchron* context, ULONG_PTR key, int bytes);
-	void ProceedRecv(Asynchron* context, ULONG_PTR key, int bytes);
-
+	void ProceedDiconnect(Asynchron *context, ULONG_PTR key);
+	void ProceedSent(Asynchron* context, ULONG_PTR key, unsigned bytes);
+	void ProceedRecv(Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedDispose(Asynchron* context, ULONG_PTR key);
 
 	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);

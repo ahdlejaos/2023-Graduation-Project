@@ -86,7 +86,7 @@ void Framework::Release()
 	std::cout << "서버 종료\n";
 }
 
-void Framework::ProceedAsync(Asynchron *context, ULONG_PTR key, int bytes)
+void Framework::ProceedAsync(Asynchron *context, ULONG_PTR key, unsigned bytes)
 {
 	const auto operation = context->myOperation;
 
@@ -107,6 +107,12 @@ void Framework::ProceedAsync(Asynchron *context, ULONG_PTR key, int bytes)
 		case srv::Operations::RECV:
 		{
 			ProceedRecv(context, key, bytes);
+		}
+		break;
+
+		case srv::Operations::DISPOSE:
+		{
+			ProceedDispose(context, key);
 		}
 		break;
 
@@ -141,7 +147,12 @@ void Framework::ProceedConnect(Asynchron *context)
 	}
 }
 
-void Framework::ProceedSent(Asynchron *context, ULONG_PTR key, int bytes)
+void Framework::ProceedDiconnect(Asynchron *context, ULONG_PTR key)
+{
+
+}
+
+void Framework::ProceedSent(Asynchron *context, ULONG_PTR key, unsigned bytes)
 {
 	auto &wbuffer = context->myBuffer;
 	auto &buffer = wbuffer.buf;
@@ -178,7 +189,7 @@ void Framework::ProceedSent(Asynchron *context, ULONG_PTR key, int bytes)
 	}
 }
 
-void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, int bytes)
+void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, unsigned bytes)
 {
 	auto &wbuffer = context->myBuffer;
 	auto &buffer = wbuffer.buf;
@@ -208,13 +219,28 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, int bytes)
 	}
 	else
 	{
-
+		// 패킷 처리
+		session->Swallow(BUFSIZ, bytes);
 	}
 }
 
 void Framework::ProceedDispose(Asynchron *context, ULONG_PTR key)
 {
+	const auto place = static_cast<unsigned>(key);
+	auto session = GetSession(place);
+	if (!session) [[unlikely]]
+	{
+		std::cout << "연결을 끊을 잘못된 세션을 참조함! (키: " << key << ")\n";
+	};
+
+	session->Acquire();
+
+	session->AssignID(0);
+	session->AssignSocket(NULL);
+	session->AssignState(srv::SessionStates::NONE);
 	delete context;
+
+	session->Release();
 }
 
 void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
@@ -245,7 +271,7 @@ void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
 		}
 		else
 		{
-			me.ProceedDispose(asynchron, key);
+			me.ProceedDiconnect(asynchron, key);
 		}
 	}
 
@@ -290,10 +316,7 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 
 	std::cout << "플레이어 접속: " << target << "\n";
 	session->Acquire();
-
-	session->SetState(srv::SessionStates::ACCEPTED);
-	session->SetSocket(target);
-	session->SetID(MakeNewbieID());
+	session->Ready(MakeNewbieID(), target);
 
 	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
 	session->BeginSend(asynchron);
@@ -311,8 +334,8 @@ shared_ptr<Session> Framework::ConnectPlayer(unsigned place)
 shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
 {
 	session->Acquire();
-
-	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
+	session->Connect();
+	//auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
 
 	session->Release();
 
@@ -327,8 +350,7 @@ void Framework::Dispose(unsigned place)
 void Framework::Dispose(Session *session)
 {
 	session->Acquire();
-	DisconnectEx(session->mySocket, nullptr, 0, 0);
-	session->SetID(0);
+	session->Disconnect();
 	numberUsers--;
 	session->Release();
 
