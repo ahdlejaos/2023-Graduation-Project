@@ -23,7 +23,7 @@ class Player;
 
 namespace srv
 {
-	constexpr wchar_t GAME_VERSION = L"0.0.1";
+	constexpr wchar_t GAME_VERSION[] = L"0.0.1";
 
 	// 서버 스레드 수
 	constexpr unsigned int THREADS_COUNT = 6;
