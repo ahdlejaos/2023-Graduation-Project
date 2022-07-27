@@ -94,7 +94,7 @@ void Framework::ProceedAsync(Asynchron *context, ULONG_PTR key, unsigned bytes)
 	{
 		case srv::Operations::ACCEPT:
 		{
-			ProceedConnect(context);
+			ProceedAccept(context);
 		}
 		break;
 
@@ -124,7 +124,7 @@ void Framework::ProceedAsync(Asynchron *context, ULONG_PTR key, unsigned bytes)
 	}
 }
 
-void Framework::ProceedConnect(Asynchron *context)
+void Framework::ProceedAccept(Asynchron *context)
 {
 	const SOCKET target = myEntryPoint.Update();
 
@@ -318,9 +318,6 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 	session->Acquire();
 	session->Ready(MakeNewbieID(), target);
 
-	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
-	session->BeginSend(asynchron);
-
 	session->Release();
 
 	return place;
@@ -334,8 +331,10 @@ shared_ptr<Session> Framework::ConnectPlayer(unsigned place)
 shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
 {
 	session->Acquire();
+
+	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
+	session->BeginSend(asynchron);
 	session->Connect();
-	//auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
 
 	session->Release();
 

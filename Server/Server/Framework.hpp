@@ -15,7 +15,7 @@ public:
 	void Release();
 
 	void ProceedAsync(Asynchron* context, ULONG_PTR key, unsigned bytes);
-	void ProceedConnect(Asynchron* context);
+	void ProceedAccept(Asynchron* context);
 	void ProceedDiconnect(Asynchron *context, ULONG_PTR key);
 	void ProceedSent(Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedRecv(Asynchron* context, ULONG_PTR key, unsigned bytes);
