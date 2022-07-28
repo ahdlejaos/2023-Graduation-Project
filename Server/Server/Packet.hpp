@@ -37,11 +37,19 @@ namespace srv
 		wchar_t gameVersion[8];
 	};
 
-	class SCPacketSignUp : public Packet
+	class SCPacketSignUpSucceed : public Packet
 	{
 	public:
-		constexpr SCPacketSignUp()
+		constexpr SCPacketSignUpSucceed()
 			: Packet(Protocol::SC_SIGNIN_SUCCESS)
+		{}
+	};
+
+	class SCPacketSignUpFailed : public Packet
+	{
+	public:
+		constexpr SCPacketSignUpFailed()
+			: Packet(Protocol::SC_SIGNIN_FAILURE)
 		{}
 	};
 
