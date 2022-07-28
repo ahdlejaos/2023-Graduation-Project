@@ -73,7 +73,7 @@ public:
 
 namespace srv
 {
-	inline Asynchron* CreateAsynchron(const Operations& op)
+	inline constexpr Asynchron* CreateAsynchron(const Operations& op)
 	{
 		return new Asynchron(op);
 	}
