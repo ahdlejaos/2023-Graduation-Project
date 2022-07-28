@@ -34,12 +34,22 @@ public:
 		AssignState(srv::SessionStates::CONNECTED);
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="size">작업이 끝나고 받을 바이트의 총량</param>
+	/// <param name="bytes"></param>
 	inline void Swallow(unsigned size, unsigned bytes)
 	{
+		Acquire();
+		auto &wbuffer = myReceiver->myBuffer;
+		auto &cbuffer = wbuffer.buf;
+		auto& cbuffer_length = wbuffer.len;
 
 
 		// 나머지 패킷을 수신
 		Recv(size, static_cast<unsigned>(bytes));
+		Release();
 	}
 
 	/// <summary>
