@@ -20,6 +20,16 @@ namespace srv
 		const Protocol myProtocol;
 		const std::uint32_t mySize;
 
+		friend constexpr Derived *CreatePacket(const Derived &);
+		friend constexpr Derived *CreatePacket(Derived &&);
+
+		template<typename... Args>
+		friend constexpr Derived *CreatePacket(Args&&... _Args)
+			requires std::constructible_from<Derived, Args...>;
+
+		template<typename... Args>
+		friend Derived CreateLocalPacket(Args&&... _Args);
+
 	protected:
 		[[nodiscard]] constexpr Derived &Cast() noexcept
 		{
@@ -97,20 +107,27 @@ namespace srv
 	};
 
 	template<packets Pk>
-	inline constexpr Pk *CreatePacket(Pk &&datagram)
+	[[nodiscard]] inline constexpr Pk *CreatePacket(const Pk &datagram)
+	{
+		return new Pk(datagram);
+	}
+
+	template<packets Pk>
+	[[nodiscard]] inline constexpr Pk *CreatePacket(Pk &&datagram)
 	{
 		return new Pk(std::forward<Pk>(datagram));
 	}
 
-	template<packets Pk>
-	inline constexpr Pk *CreatePacket()
+	template<packets Pk, typename... Args>
+	[[nodiscard]] inline constexpr Pk *CreatePacket(Args&& ...args)
+		requires std::constructible_from<Pk, Args...>
 	{
-		return new Pk();
+		return new Pk(std::forward<Args>(args)...);
 	}
 
-	template<packets Pk, typename... Ty>
-	inline constexpr Pk *CreatePacket(Ty&& ...args)
+	template<packets Pk, typename... Args>
+	[[nodiscard]] inline constexpr Pk CreateLocalPacket(Args&& ...args)
 	{
-		return new Pk(std::forward<decltype(args)>(args)...);
+		return Pk(std::forward<Args>(args)...);
 	}
 }

@@ -6,12 +6,14 @@
 class Framework
 {
 private:
-#pragma region ParamScrews
+#pragma region Screws
 	struct login_succeed_t { srv::SIGNIN_CAUSE cause; };
 	struct login_failure_t { srv::SIGNIN_CAUSE cause; };
 
 	login_succeed_t login_succeed;
 	login_failure_t login_failure;
+
+	srv::SCPacketServerInfo cached_pk_server_info;
 #pragma endregion
 
 public:
@@ -79,7 +81,23 @@ private:
 
 namespace srv
 {
-	template<packets Pk, typename ...Ty>
+	template<packets Pk>
+	inline constexpr std::pair<Pk *, Asynchron *> CreateTicket(const Pk &datagram)
+	{
+		Asynchron *asyncron = CreateAsynchron(Operations::SEND);
+
+		auto packet = srv::CreatePacket(datagram);
+
+		WSABUF wbuffer{};
+		wbuffer.buf = reinterpret_cast<char *>(packet);
+		wbuffer.len = packet->mySize;
+
+		asyncron->SetBuffer(wbuffer);
+
+		return make_pair(packet, asyncron);
+	}
+
+	template<packets Pk>
 	inline constexpr std::pair<Pk *, Asynchron *> CreateTicket(Pk&& datagram)
 	{
 		Asynchron *asyncron = CreateAsynchron(Operations::SEND);

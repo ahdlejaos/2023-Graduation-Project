@@ -14,7 +14,7 @@ Framework::Framework()
 	, numberRooms(0), numberUsers(0)
 	, lastPacketType(srv::Protocol::NONE)
 	, myPipelineBreaker()
-	, login_succeed(), login_failure()
+	, login_succeed(), login_failure(), cached_pk_server_info(0, srv::MAX_USERS, srv::GAME_VERSION)
 {
 	//std::cout.imbue(std::locale{ "KOREAN" });
 	std::cout.sync_with_stdio(false);
@@ -325,11 +325,18 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 	newbie->Ready(MakeNewbieID(), target);
 	std::cout << "예비 플레이어 접속: " << target << "\n";
 
+	// 유저 수 갱신
+	cached_pk_server_info.usersCount = numberUsers.load(std::memory_order_relaxed);
+
 	// 서버 상태 전송
-	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketServerInfo>(numberUsers.load(std::memory_order_relaxed), srv::MAX_USERS, srv::GAME_VERSION);
+	auto [ticket, asynchron] = srv::CreateTicket(cached_pk_server_info);
 	newbie->BeginSend(asynchron);
 	newbie->Release();
-	shared_ptr<srv::SCPacketServerInfo>();
+
+	auto bb = srv::CreatePacket<srv::SCPacketSignInSucceed>(srv::SIGNIN_CAUSE::SUCCEED);
+
+	auto cc = srv::CreateLocalPacket<srv::SCPacketSignInSucceed>(srv::SIGNIN_CAUSE::SUCCEED);
+
 	return newbie;
 }
 
