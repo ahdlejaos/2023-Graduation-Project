@@ -37,20 +37,48 @@ namespace srv
 		wchar_t gameVersion[8];
 	};
 
+	class SCPacketSignInSucceed : public Packet
+	{
+	public:
+		constexpr SCPacketSignInSucceed(SIGNIN_CAUSE cause)
+			: Packet(Protocol::SC_SIGNIN_SUCCESS)
+			, myCause(cause)
+		{}
+
+		const SIGNIN_CAUSE myCause;
+	};
+
+	class SCPacketSignInFailed : public Packet
+	{
+	public:
+		constexpr SCPacketSignInFailed(SIGNIN_CAUSE cause)
+			: Packet(Protocol::SC_SIGNIN_FAILURE)
+			, myCause(cause)
+		{}
+
+		const SIGNIN_CAUSE myCause;
+	};
+
 	class SCPacketSignUpSucceed : public Packet
 	{
 	public:
-		constexpr SCPacketSignUpSucceed()
-			: Packet(Protocol::SC_SIGNIN_SUCCESS)
+		constexpr SCPacketSignUpSucceed(SIGNUP_CAUSE cause)
+			: Packet(Protocol::SC_SIGNUP_SUCCESS)
+			, myCause(cause)
 		{}
+
+		const SIGNUP_CAUSE myCause;
 	};
 
 	class SCPacketSignUpFailed : public Packet
 	{
 	public:
-		constexpr SCPacketSignUpFailed()
-			: Packet(Protocol::SC_SIGNIN_FAILURE)
+		constexpr SCPacketSignUpFailed(SIGNUP_CAUSE cause)
+			: Packet(Protocol::SC_SIGNUP_FAILURE)
+			, myCause(cause)
 		{}
+
+		const SIGNUP_CAUSE myCause;
 	};
 
 	template<packets Pk, typename... Ty>
