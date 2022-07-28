@@ -14,6 +14,7 @@ Framework::Framework()
 	, numberRooms(0), numberUsers(0)
 	, lastPacketType(srv::Protocol::NONE)
 	, myPipelineBreaker()
+	, login_succeed(), login_failure()
 {
 	//std::cout.imbue(std::locale{ "KOREAN" });
 	std::cout.sync_with_stdio(false);
@@ -322,7 +323,7 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 	auto newbie = SeekNewbiePlace();
 	newbie->Acquire();
 	newbie->Ready(MakeNewbieID(), target);
-	std::cout << "플레이어 접속: " << target << "\n";
+	std::cout << "예비 플레이어 접속: " << target << "\n";
 
 	// 서버 상태 전송
 	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketServerInfo>(numberUsers.load(std::memory_order_relaxed), srv::MAX_USERS, srv::GAME_VERSION);
@@ -340,7 +341,9 @@ shared_ptr<Session> Framework::ConnectPlayer(unsigned place)
 shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
 {
 	session->Acquire();
+	std::cout << "플레이어 접속: " << session->myID << "\n";
 
+	// 로그인 성공 여부 전송
 	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
 	session->BeginSend(asynchron);
 	session->Connect();
@@ -353,6 +356,12 @@ shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
 void Framework::Disconnect(unsigned place)
 {
 	Disconnect(GetSession(place).get());
+}
+
+void Framework::Disconnect(shared_ptr<Session> session)
+{
+	Disconnect(session.get());
+
 }
 
 void Framework::Disconnect(Session *session)
@@ -385,6 +394,33 @@ shared_ptr<Session> Framework::SeekNewbiePlace() const noexcept
 unsigned long long Framework::MakeNewbieID() noexcept
 {
 	return playerIDs++;
+}
+
+template<std::unsigned_integral Integral>
+int Framework::SendTo(Session *session, void *const data, const Integral size)
+{
+	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
+
+	auto &wbuffer = asynchron->myBuffer;
+	wbuffer.buf = reinterpret_cast<char*>(data);
+	wbuffer.len = size;
+
+	return session->BeginSend(asynchron);
+}
+
+int Framework::SendServerStatus(Session *session)
+{
+	return 0;
+}
+
+int Framework::SendLoginResult(Session *session, login_succeed_t info)
+{
+	return 0;
+}
+
+int Framework::SendLoginResult(Session *session, login_failure_t info)
+{
+	return 0;
 }
 
 shared_ptr<Session> Framework::GetSession(unsigned place) const noexcept(false)
