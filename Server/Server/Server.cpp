@@ -20,8 +20,8 @@ int main()
 		const auto &valit = test_it.handle;
 		const auto &valid = test_it.index;
 
-		std::cout << "it: " << (*valit) << ", id: " << valid << "\n";
-		auto& [val, ind] = *test_it;
+		//std::cout << "it: " << (*valit) << ", id: " << valid << "\n";
+		auto [val, ind] = *test_it;
 
 		std::cout << "it: " << (*val) << ", id: " << ind << "\n";
 	}

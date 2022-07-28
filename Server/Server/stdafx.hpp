@@ -173,12 +173,14 @@ public:
 	constexpr index_enumerator()
 		requires std::default_initializable<Container> && std::default_initializable<iterator_type> = default;
 
-	constexpr index_enumerator(Container& container, std::integral npos = 0)
+	template<std::integral Integral>
+	constexpr index_enumerator(Container& container, Integral npos = 0)
 		: range(std::addressof(container)), handle(std::begin(container))
 		, index(static_cast<std::size_t>(npos))
 	{}
 
-	constexpr index_enumerator(iterator_type iter, std::integral npos = 0)
+	template<std::integral Integral>
+	constexpr index_enumerator(iterator_type iter, Integral npos = 0)
 		: range(nullptr), handle(iter)
 		, index(static_cast<std::size_t>(npos))
 	{}
@@ -216,12 +218,12 @@ public:
 		return temp;
 	}
 
-	inline constexpr const auto &operator *() const
+	inline constexpr const auto operator *() const
 	{
 		return make_pair(handle, index);
 	}
 
-	inline constexpr const auto &operator *()
+	inline constexpr const auto operator *()
 	{
 		return make_pair(handle, index);
 	}
