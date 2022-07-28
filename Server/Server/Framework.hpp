@@ -81,7 +81,7 @@ namespace srv
 	{
 		Asynchron *asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket<PACKET>(std::forward<decltype(args)>(args)...);
+		auto packet = srv::CreatePacket<PACKET>(std::forward<decltype((args))>(args)...);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char *>(packet);

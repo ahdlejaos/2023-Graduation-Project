@@ -80,6 +80,8 @@ namespace srv
 		SC_SERVER_INFO, // 서버 상태 알림
 		SC_SIGNIN_SUCCESS, // 로그인 성공 알림
 		SC_SIGNIN_FAILURE, // 로그인 실패 알림
+		SC_SIGNUP_SUCCESS, // 가입 성공 알림
+		SC_SIGNUP_FAILURE, // 가입 실패 알림
 
 		SC_RESPOND_ROOMS, // 방 목록 응답
 		SC_RESPOND_USERS, // 대기실에서 모든 유저의 목록 응답
@@ -150,11 +152,18 @@ namespace srv
 
 	enum class SIGNIN_CAUSE : unsigned char
 	{
-		SUCCEED = 0,
-		FAILURE_UNKNOWN_ERROR,
-		FAILURE_USER_EXCEED,
-		FAILURE_WRONG_SINGIN_INFOS,
-		FAILURE_WRONG = std::numeric_limits<unsigned char>::max(),
+		FAILURE_UNKNOWN_ERROR = 0, //알 수 없는 오류
+		FAILURE_USER_EXCEED, // 접속한 유저 수 초과
+		FAILURE_WRONG_SINGIN_INFOS, // 잘못된 ID나 비밀번호 입력으로 인한 로그인 실패
+		SUCCEED = std::numeric_limits<unsigned char>::max(),
+	};
+
+	enum class SIGNUP_CAUSE : unsigned char
+	{
+		FAILURE_UNKNOWN_ERROR = 0, // 알 수 없는 오류
+		FAILURE_DB_ERROR, // DB 서버 오류
+		FAILURE_USER_DUPLICATED, // ID 중복
+		SUCCEED = std::numeric_limits<unsigned char>::max(),
 	};
 
 	enum class ObjectTags : unsigned char // 충돌 식별 태그 (유니티 태그 아님)
