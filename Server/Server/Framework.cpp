@@ -329,7 +329,7 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketServerInfo>(numberUsers.load(std::memory_order_relaxed), srv::MAX_USERS, srv::GAME_VERSION);
 	newbie->BeginSend(asynchron);
 	newbie->Release();
-
+	shared_ptr<srv::SCPacketServerInfo>();
 	return newbie;
 }
 
@@ -344,7 +344,7 @@ shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
 	std::cout << "플레이어 접속: " << session->myID << "\n";
 
 	// 로그인 성공 여부 전송
-	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignUp>();
+	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignInSucceed>(srv::SIGNIN_CAUSE::SUCCEED);
 	session->BeginSend(asynchron);
 	session->Connect();
 
@@ -410,6 +410,8 @@ int Framework::SendTo(Session *session, void *const data, const Integral size)
 
 int Framework::SendServerStatus(Session *session)
 {
+	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
+
 	return 0;
 }
 

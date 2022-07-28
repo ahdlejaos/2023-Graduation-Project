@@ -173,14 +173,12 @@ public:
 	constexpr index_enumerator()
 		requires std::default_initializable<Container> && std::default_initializable<iterator_type> = default;
 
-	template<std::integral numeric>
-	constexpr index_enumerator(Container& container, numeric npos = 0)
+	constexpr index_enumerator(Container& container, std::integral npos = 0)
 		: range(std::addressof(container)), handle(std::begin(container))
 		, index(static_cast<std::size_t>(npos))
 	{}
 
-	template<std::integral numeric>
-	constexpr index_enumerator(iterator_type iter, numeric npos = 0)
+	constexpr index_enumerator(iterator_type iter, std::integral npos = 0)
 		: range(nullptr), handle(iter)
 		, index(static_cast<std::size_t>(npos))
 	{}

@@ -32,6 +32,9 @@ public:
 
 	friend void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool);
 
+	bool CanAcceptPlayer() const noexcept;
+	bool CanCreateRoom() const noexcept;
+
 	shared_ptr<Session> GetSession(unsigned place) const noexcept(false);
 
 private:

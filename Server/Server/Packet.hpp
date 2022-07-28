@@ -2,6 +2,8 @@
 
 namespace srv
 {
+	template <class Derived>
+		requires std::is_class_v<Derived> &&std::same_as<Derived, std::remove_cv_t<Derived>>
 	class Packet
 	{
 	public:
@@ -10,22 +12,35 @@ namespace srv
 		{}
 
 		constexpr Packet(Protocol type)
-			: Packet(type, sizeof(Packet))
+			: Packet(type, sizeof(Derived))
 		{}
 
 		constexpr virtual ~Packet() {}
 
 		const Protocol myProtocol;
 		const std::uint32_t mySize;
+
+	protected:
+		[[nodiscard]] constexpr Derived &Cast() noexcept
+		{
+			static_assert(std::derived_from<Derived, Packet>);
+			return static_cast<Derived &>(*this);
+		}
+
+		[[nodiscard]] constexpr const Derived &Cast() const noexcept
+		{
+			static_assert(std::derived_from<Derived, Packet>);
+			return static_cast<const Derived &>(*this);
+		}
 	};
 
-	template<class Pk>
-	concept packets = std::derived_from<Pk, Packet>;
+	template <class Pk>
+	concept packets = std::derived_from<Pk, Packet<Pk>> && std::is_class_v<Pk>;
 
-	class SCPacketServerInfo : public Packet
+	class SCPacketServerInfo : public Packet<SCPacketServerInfo>
 	{
 	public:
-		constexpr SCPacketServerInfo(unsigned users, unsigned max_users, std::span<wchar_t, 8> version)
+		constexpr SCPacketServerInfo(unsigned users, unsigned max_users, const std::span<const wchar_t> version)
 			: Packet(Protocol::SC_SERVER_INFO)
 			, usersCount(users), usersMax(max_users)
 			, gameVersion()
@@ -34,10 +49,10 @@ namespace srv
 		}
 
 		unsigned usersCount, usersMax;
-		wchar_t gameVersion[8];
+		wchar_t gameVersion[16];
 	};
 
-	class SCPacketSignInSucceed : public Packet
+	class SCPacketSignInSucceed : public Packet<SCPacketSignInSucceed>
 	{
 	public:
 		constexpr SCPacketSignInSucceed(SIGNIN_CAUSE cause)
@@ -48,7 +63,7 @@ namespace srv
 		const SIGNIN_CAUSE myCause;
 	};
 
-	class SCPacketSignInFailed : public Packet
+	class SCPacketSignInFailed : public Packet<SCPacketSignInFailed>
 	{
 	public:
 		constexpr SCPacketSignInFailed(SIGNIN_CAUSE cause)
@@ -59,7 +74,7 @@ namespace srv
 		const SIGNIN_CAUSE myCause;
 	};
 
-	class SCPacketSignUpSucceed : public Packet
+	class SCPacketSignUpSucceed : public Packet<SCPacketSignUpSucceed>
 	{
 	public:
 		constexpr SCPacketSignUpSucceed(SIGNUP_CAUSE cause)
@@ -70,7 +85,7 @@ namespace srv
 		const SIGNUP_CAUSE myCause;
 	};
 
-	class SCPacketSignUpFailed : public Packet
+	class SCPacketSignUpFailed : public Packet<SCPacketSignUpFailed>
 	{
 	public:
 		constexpr SCPacketSignUpFailed(SIGNUP_CAUSE cause)
@@ -82,13 +97,13 @@ namespace srv
 	};
 
 	template<packets Pk, typename... Ty>
-	inline constexpr Pk* CreatePacket(std::decay_t<Ty>&& ...args)
+	inline constexpr Pk *CreatePacket(Ty&& ...args)
 	{
 		return new Pk(std::forward<decltype(args)>(args)...);
 	}
 
 	template<packets Pk>
-	inline constexpr Pk* CreatePacket()
+	inline constexpr Pk *CreatePacket()
 	{
 		return new Pk();
 	}
