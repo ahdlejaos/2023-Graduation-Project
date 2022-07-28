@@ -125,8 +125,8 @@ namespace srv
 	{
 		NONE = 0,
 
-		CONNECTED,
 		ACCEPTED,
+		CONNECTED,
 
 		ROOMS = 100,
 		ROOM_MAIN,
@@ -146,6 +146,15 @@ namespace srv
 		IN_READY,
 		IN_GAME,
 		IN_COMPLETE,
+	};
+
+	enum class SIGNIN_CAUSE : unsigned char
+	{
+		SUCCEED = 0,
+		FAILURE_UNKNOWN_ERROR,
+		FAILURE_USER_EXCEED,
+		FAILURE_WRONG_SINGIN_INFOS,
+		FAILURE_WRONG = std::numeric_limits<unsigned char>::max(),
 	};
 
 	enum class ObjectTags : unsigned char // 충돌 식별 태그 (유니티 태그 아님)
