@@ -96,15 +96,21 @@ namespace srv
 		const SIGNUP_CAUSE myCause;
 	};
 
-	template<packets Pk, typename... Ty>
-	inline constexpr Pk *CreatePacket(Ty&& ...args)
+	template<packets Pk>
+	inline constexpr Pk *CreatePacket(Pk &&datagram)
 	{
-		return new Pk(std::forward<decltype(args)>(args)...);
+		return new Pk(std::forward<Pk>(datagram));
 	}
 
 	template<packets Pk>
 	inline constexpr Pk *CreatePacket()
 	{
 		return new Pk();
+	}
+
+	template<packets Pk, typename... Ty>
+	inline constexpr Pk *CreatePacket(Ty&& ...args)
+	{
+		return new Pk(std::forward<decltype(args)>(args)...);
 	}
 }

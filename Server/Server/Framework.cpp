@@ -344,7 +344,7 @@ shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
 	std::cout << "플레이어 접속: " << session->myID << "\n";
 
 	// 로그인 성공 여부 전송
-	auto [ticket, asynchron] = srv::CreateTicket<srv::SCPacketSignInSucceed>(srv::SIGNIN_CAUSE::SUCCEED);
+	auto [ticket, asynchron] = srv::CreateTicket(srv::SCPacketSignInSucceed{ srv::SIGNIN_CAUSE::SUCCEED });
 	session->BeginSend(asynchron);
 	session->Connect();
 

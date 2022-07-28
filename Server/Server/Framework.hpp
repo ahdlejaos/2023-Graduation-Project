@@ -79,12 +79,28 @@ private:
 
 namespace srv
 {
-	template<packets PACKET, typename ...Ty>
-	inline std::pair<PACKET *, Asynchron *> CreateTicket(Ty&& ...args)
+	template<packets Pk, typename ...Ty>
+	inline constexpr std::pair<Pk *, Asynchron *> CreateTicket(Pk&& datagram)
 	{
 		Asynchron *asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket<PACKET>(std::forward<decltype((args))>(args)...);
+		auto packet = srv::CreatePacket(std::forward<Pk>(datagram));
+
+		WSABUF wbuffer{};
+		wbuffer.buf = reinterpret_cast<char *>(packet);
+		wbuffer.len = packet->mySize;
+
+		asyncron->SetBuffer(wbuffer);
+
+		return make_pair(packet, asyncron);
+	}
+
+	template<packets Pk, typename ...Ty>
+	inline constexpr std::pair<Pk *, Asynchron *> CreateTicket(Ty&& ...args)
+	{
+		Asynchron *asyncron = CreateAsynchron(Operations::SEND);
+
+		auto packet = srv::CreatePacket<Pk>(std::forward<decltype((args))>(args)...);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char *>(packet);
