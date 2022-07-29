@@ -20,11 +20,11 @@ namespace srv
 		const Protocol myProtocol;
 		const std::uint32_t mySize;
 
-		friend constexpr Derived *CreatePacket(const Derived &);
-		friend constexpr Derived *CreatePacket(Derived &&);
+		friend inline constexpr Derived *CreatePacket(const Derived&);
+		friend inline constexpr Derived *CreatePacket(Derived&&);
 
 		template<typename... Args>
-		friend constexpr Derived *CreatePacket(Args&&... _Args)
+		friend inline constexpr Derived *CreatePacket(Args&&... _Args)
 			requires std::constructible_from<Derived, Args...>;
 
 		template<typename... Args>

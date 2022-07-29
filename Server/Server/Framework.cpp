@@ -131,10 +131,9 @@ void Framework::ProceedAccept(Asynchron *context)
 
 	if (NULL != target) [[likely]]
 	{
-		if (numberUsers < srv::MAX_USERS) [[likely]]
+		if (CanAcceptPlayer()) [[likely]]
 		{
 			AcceptPlayer(target);
-			numberUsers++;
 		}
 		else
 		{
@@ -325,14 +324,17 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 	newbie->Ready(MakeNewbieID(), target);
 	std::cout << "예비 플레이어 접속: " << target << "\n";
 
+	auto users_number = numberUsers.load(std::memory_order_acquire);
+
 	// 유저 수 갱신
-	cached_pk_server_info.usersCount = numberUsers.load(std::memory_order_relaxed);
+	cached_pk_server_info.usersCount = users_number;
 
 	// 서버 상태 전송
 	auto [ticket, asynchron] = srv::CreateTicket(cached_pk_server_info);
 	newbie->BeginSend(asynchron);
 	newbie->Release();
 
+	numberUsers.store(users_number + 1, std::memory_order_release);
 	auto bb = srv::CreatePacket<srv::SCPacketSignInSucceed>(srv::SIGNIN_CAUSE::SUCCEED);
 
 	auto cc = srv::CreateLocalPacket<srv::SCPacketSignInSucceed>(srv::SIGNIN_CAUSE::SUCCEED);
@@ -430,6 +432,16 @@ int Framework::SendLoginResult(Session *session, login_succeed_t info)
 int Framework::SendLoginResult(Session *session, login_failure_t info)
 {
 	return 0;
+}
+
+bool Framework::CanAcceptPlayer() const noexcept
+{
+	return numberUsers.load(std::memory_order_acq_rel) < srv::MAX_USERS;
+}
+
+bool Framework::CanCreateRoom() const noexcept
+{
+	return numberRooms.load(std::memory_order_acq_rel) < srv::MAX_ROOMS;
 }
 
 shared_ptr<Session> Framework::GetSession(unsigned place) const noexcept(false)
