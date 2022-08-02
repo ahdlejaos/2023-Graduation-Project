@@ -105,8 +105,14 @@ using Sentence = std::string_view;
 using Clock = std::chrono::system_clock::time_point;
 using Duration = std::chrono::system_clock::duration;
 
+template<typename Fun, typename Ty1, typename Ty2>
+concept predicate_comparing = std::strict_weak_order<Fun, Ty1, Ty2>;
+
 template<typename Ty, typename Allocator = std::allocator<Ty>>
 using ConcurrentVector = concurrency::concurrent_vector<Ty, Allocator>;
+
+template<std::totally_ordered Ty, predicate_comparing<Ty, Ty> Comparator = std::less<Ty>, typename Allocator = std::allocator<Ty>>
+using ConcurrentQueue = concurrency::concurrent_priority_queue<Ty, Comparator, Allocator>;
 
 using std::atomic;
 using std::atomic_flag;
@@ -182,10 +188,10 @@ public:
 	using reference = iterator_type::reference;
 
 	constexpr index_enumerator()
-		requires std::default_initializable<Container> && std::default_initializable<iterator_type> = default;
+		requires std::default_initializable<Container> &&std::default_initializable<iterator_type> = default;
 
 	template<std::integral Integral>
-	constexpr index_enumerator(Container& container, Integral npos = 0)
+	constexpr index_enumerator(Container &container, Integral npos = 0)
 		: range(std::addressof(container)), handle(std::begin(container))
 		, index(static_cast<std::size_t>(npos))
 	{}
@@ -249,17 +255,17 @@ public:
 		return this->handle == _other.handle;
 	}
 
-	inline constexpr bool operator==(const iterator_type&_other) const
+	inline constexpr bool operator==(const iterator_type &_other) const
 	{
 		return this->handle == _other;
 	}
 
-	inline constexpr bool operator==(iterator_type&&_other) const
+	inline constexpr bool operator==(iterator_type &&_other) const
 	{
 		return this->handle == std::forward<iterator_type>(_other);
 	}
 
-	Container* range;
+	Container *range;
 	iterator_type handle;
 	std::size_t index;
 };

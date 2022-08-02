@@ -10,7 +10,7 @@ public:
 		, connectBytes(), connectBuffer()
 		, connectNewbie(NULL)
 		, connectSize(sizeof(SOCKADDR_IN) + 16)
-		, everySockets(srv::MAX_USERS)
+		, socketsPool(srv::MAX_USERS)
 	{
 		WSABUF buffer{};
 		buffer.buf = connectBuffer;
@@ -67,7 +67,7 @@ public:
 			srv::RaiseSystemError(std::errc::not_supported);
 		}
 
-		for (auto& place : everySockets)
+		for (auto& place : socketsPool)
 		{
 			//place = srv::CreateSocket();
 		}
@@ -114,6 +114,19 @@ public:
 		return connectNewbie.load(std::memory_order_relaxed);
 	}
 
+	inline SOCKET Pop() noexcept
+	{
+		std::scoped_lock locken{ socketPoolLock };
+
+	}
+
+	inline void Push() noexcept
+	{
+		std::scoped_lock locken{ socketPoolLock };
+
+
+	}
+
 	SOCKET serverSocket;
 	SOCKADDR_IN serverEndPoint;
 
@@ -152,6 +165,6 @@ private:
 		}
 	}
 
-	std::vector<SOCKET> everySockets;
+	std::vector<SOCKET> socketsPool;
 	std::mutex socketPoolLock;
 };
