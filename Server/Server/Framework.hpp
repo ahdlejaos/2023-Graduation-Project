@@ -66,7 +66,7 @@ private:
 	AsyncPoolService myAsyncProvider;
 
 	unsigned int concurrentsNumber;
-	std::vector<std::thread> myWorkers;
+	std::vector<std::jthread> myWorkers;
 	std::stop_source myPipelineBreaker;
 	std::priority_queue<int> timerQueue;
 

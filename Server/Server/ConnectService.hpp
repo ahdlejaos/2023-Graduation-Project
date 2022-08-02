@@ -4,7 +4,7 @@
 class ConnectService
 {
 public:
-	constexpr ConnectService()
+	ConnectService()
 		: serverSocket(NULL), serverEndPoint()
 		, connectWorker(srv::Operations::ACCEPT)
 		, connectBytes(), connectBuffer()
@@ -76,13 +76,13 @@ public:
 	inline void Start()
 	{
 		BOOL option = TRUE;
-		if (SOCKET_ERROR == setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR
-			, reinterpret_cast<char*>(&option), sizeof(option))) [[unlikely]]
+		if (srv::CheckError(setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR
+			, reinterpret_cast<char*>(&option), sizeof(option)))) [[unlikely]]
 		{
 			srv::RaiseSystemError(std::errc::operation_not_permitted);
 		}
 
-		if (SOCKET_ERROR == listen(serverSocket, srv::MAX_USERS)) [[unlikely]]
+		if (srv::CheckError(listen(serverSocket, srv::MAX_USERS))) [[unlikely]]
 		{
 			srv::RaiseSystemError(std::errc::network_unreachable);
 			return;
@@ -94,7 +94,7 @@ public:
 		Accept(newbie);
 	}
 
-	inline SOCKET Update()
+	inline SOCKET Update() noexcept
 	{
 		// 货肺款 立加
 		auto newbie = connectNewbie.load(std::memory_order_seq_cst);
@@ -125,7 +125,7 @@ public:
 	atomic<SOCKET> connectNewbie;
 
 private:
-	inline void Accept(SOCKET target) noexcept(false)
+	inline void Accept(SOCKET target) noexcept
 	{
 		auto result = AcceptEx(serverSocket, target, connectBuffer
 			, 0
@@ -145,8 +145,13 @@ private:
 				std::cout << "立加 荐侩 坷幅!\n";
 				//ErrorDisplay("AcceptEx()");
 			}
+			else
+			{
+				std::cout << "立加: " << target << "\n";
+			}
 		}
 	}
 
-	ConcurrentVector<SOCKET> everySockets;
+	std::vector<SOCKET> everySockets;
+	std::mutex socketPoolLock;
 };
