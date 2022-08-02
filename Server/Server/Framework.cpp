@@ -22,6 +22,8 @@ Framework::Framework()
 
 Framework::~Framework()
 {
+	Release();
+
 	WSACleanup();
 
 	for (auto &th : myWorkers)
@@ -77,12 +79,12 @@ void Framework::Update()
 	{
 		std::cout << "예외로 인한 서버 인터럽트: " << e.what() << std::endl;
 	}
-
-	std::cout << "서버 종료 중...\n";
 }
 
 void Framework::Release()
 {
+	std::cout << "서버 종료 중...\n";
+
 	myPipelineBreaker.request_stop();
 
 	std::cout << "서버 종료\n";

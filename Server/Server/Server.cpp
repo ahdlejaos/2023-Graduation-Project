@@ -29,5 +29,7 @@ int main()
 	globalFramework.Awake(srv::THREADS_COUNT, srv::SERVER_PORT_TCP);
 	globalFramework.Start();
 	globalFramework.Update();
-	globalFramework.Release();
+	
+	// Release가 호출됨
+	return 0;
 }

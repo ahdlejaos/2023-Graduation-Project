@@ -68,6 +68,7 @@ private:
 	unsigned int concurrentsNumber;
 	std::vector<std::jthread> myWorkers;
 	std::stop_source myPipelineBreaker;
+
 	std::priority_queue<int> timerQueue;
 
 	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
