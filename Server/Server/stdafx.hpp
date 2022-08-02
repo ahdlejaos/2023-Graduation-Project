@@ -25,6 +25,14 @@
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 
+namespace srv
+{
+	inline constexpr bool CheckError(const int socket_result) noexcept
+	{
+		return SOCKET_ERROR == socket_result;
+	}
+}
+
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
@@ -96,6 +104,9 @@ using Sentence = std::string_view;
 
 using Clock = std::chrono::system_clock::time_point;
 using Duration = std::chrono::system_clock::duration;
+
+template<typename Ty, typename Allocator = std::allocator<Ty>>
+using ConcurrentVector = concurrency::concurrent_vector<Ty, Allocator>;
 
 using std::atomic;
 using std::atomic_flag;
