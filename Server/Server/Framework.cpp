@@ -222,9 +222,9 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, unsigned bytes)
 			context->isFirst = false; // Page lock 해제
 
 			const auto result = session->Recv(BUFSIZ); // 실질적인 첫번째 수신
-			if (SOCKET_ERROR == result)
+			if (srv::CheckError(result))
 			{
-
+				std::cout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
 			}
 		}
 	}
@@ -415,7 +415,7 @@ int Framework::SendTo(Session *session, void *const data, const Integral size)
 	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
 
 	auto &wbuffer = asynchron->myBuffer;
-	wbuffer.buf = reinterpret_cast<char*>(data);
+	wbuffer.buf = reinterpret_cast<char *>(data);
 	wbuffer.len = size;
 
 	return session->BeginSend(asynchron);
