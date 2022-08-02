@@ -163,7 +163,7 @@ private:
 		if (FALSE == result) [[unlikely]]
 		{
 			auto error = WSAGetLastError();
-			if (ERROR_IO_PENDING != error)
+			if (!srv::CheckPending(error))
 			{
 				connectWorker.Clear();
 

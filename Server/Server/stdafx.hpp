@@ -31,6 +31,11 @@ namespace srv
 	{
 		return SOCKET_ERROR == socket_result;
 	}
+
+	inline constexpr bool CheckPending(const int socket_error) noexcept
+	{
+		return ERROR_IO_PENDING == socket_error;
+	}
 }
 
 #include <DirectXMath.h>
