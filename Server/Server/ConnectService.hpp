@@ -118,13 +118,26 @@ public:
 	{
 		std::scoped_lock locken{ socketPoolLock };
 
+		if (0 < socketsPool.size())
+		{
+			const auto last = socketsPool.back();
+
+			socketsPool.pop_back();
+
+			return last;
+		}
+		else
+		{
+			return NULL;
+		}
 	}
 
-	inline void Push() noexcept
+	// 소켓을 반환합니다.
+	inline void Push(const SOCKET sk) noexcept
 	{
 		std::scoped_lock locken{ socketPoolLock };
 
-
+		socketsPool.push_front(sk);
 	}
 
 	SOCKET serverSocket;
@@ -165,6 +178,6 @@ private:
 		}
 	}
 
-	std::vector<SOCKET> socketsPool;
-	std::mutex socketPoolLock;
+	std::deque<SOCKET> socketsPool;
+	Spinlock socketPoolLock;
 };
