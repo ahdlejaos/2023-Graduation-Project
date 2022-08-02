@@ -168,7 +168,7 @@ void Framework::ProceedDiconnect(Asynchron *context, ULONG_PTR key)
 		std::cout << "연결을 끊을 세션이 없음! (키: " << key << ")\n";
 	};
 
-	session->Disconnect();
+	Disconnect(session);
 }
 
 void Framework::ProceedSent(Asynchron *context, ULONG_PTR key, unsigned bytes)
@@ -236,7 +236,11 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, unsigned bytes)
 			const auto result = session->Recv(BUFSIZ); // 실질적인 첫번째 수신
 			if (srv::CheckError(result))
 			{
-				std::cout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
+				const int error = WSAGetLastError();
+				if (!srv::CheckPending(error))
+				{
+						std::cout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
+				}
 			}
 		}
 	}
@@ -388,7 +392,6 @@ void Framework::Disconnect(unsigned place)
 void Framework::Disconnect(shared_ptr<Session> session)
 {
 	Disconnect(session.get());
-
 }
 
 void Framework::Disconnect(Session *session)
