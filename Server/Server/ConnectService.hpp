@@ -67,9 +67,10 @@ public:
 			srv::RaiseSystemError(std::errc::not_supported);
 		}
 
+		std::cout << "家南 钱 积己 吝... (" << socketsPool.size() << "俺)\n";
 		for (auto& place : socketsPool)
 		{
-			//place = srv::CreateSocket();
+			place = srv::CreateSocket();
 		}
 	}
 
@@ -88,7 +89,7 @@ public:
 			return;
 		}
 
-		SOCKET newbie = srv::CreateSocket();
+		SOCKET newbie = Pop();
 		connectNewbie.store(newbie, std::memory_order_relaxed);
 
 		Accept(newbie);
@@ -97,10 +98,10 @@ public:
 	inline SOCKET Update() noexcept
 	{
 		// 货肺款 立加
-		auto newbie = connectNewbie.load(std::memory_order_seq_cst);
+		auto newbie = connectNewbie.load(std::memory_order_acquire);
 
 		// 促澜 立加阑 困茄 货肺款 TCP 家南
-		connectNewbie.store(srv::CreateSocket(), std::memory_order_release);
+		connectNewbie.store(Pop(), std::memory_order_release);
 		connectWorker.Clear();
 
 		// 促澜 立加 罐扁
@@ -173,7 +174,7 @@ private:
 			}
 			else
 			{
-				std::cout << "立加: " << target << "\n";
+				std::cout << "立加 措扁 吝: " << target << "\n";
 			}
 		}
 	}

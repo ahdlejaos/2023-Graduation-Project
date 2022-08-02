@@ -139,9 +139,14 @@ void Framework::ProceedAccept(Asynchron *context)
 		{
 			std::cout << "유저 수가 초과하여 더 이상 접속을 받을 수 없습니다.\n";
 
-			if (FALSE == DisconnectEx(target, srv::CreateAsynchron(srv::Operations::DISPOSE), 0, 0)) [[unlikely]]
+			// 동기식으로 접속 종료
+			if (FALSE == DisconnectEx(target, nullptr, 0, 0)) [[unlikely]]
 			{
-				std::cout << "비동기 연결 해제가 실패했습니다.\n";
+				std::cout << "연결을 받을 수 없는 와중에 접속 종료가 실패했습니다.\n";
+			}
+			else
+			{
+				myEntryPoint.Push(target);
 			}
 		}
 	}
