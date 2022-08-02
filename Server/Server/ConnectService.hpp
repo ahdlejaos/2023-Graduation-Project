@@ -10,7 +10,7 @@ public:
 		, connectBytes(), connectBuffer()
 		, connectNewbie(NULL)
 		, connectSize(sizeof(SOCKADDR_IN) + 16)
-		, everySockets()
+		, everySockets(srv::MAX_USERS)
 	{
 		WSABUF buffer{};
 		buffer.buf = connectBuffer;
@@ -51,17 +51,18 @@ public:
 		serverEndPoint.sin_addr.s_addr = htonl(INADDR_ANY);
 		serverEndPoint.sin_port = htons(server_port_tcp);
 
-		if (SOCKET_ERROR == bind(serverSocket, (SOCKADDR*)(&serverEndPoint), szAddress)) [[unlikely]]
+		auto end_point_ptr = reinterpret_cast<SOCKADDR *>(&serverEndPoint);
+		if (srv::CheckError(bind(serverSocket, end_point_ptr, szAddress))) [[unlikely]]
 		{
 			srv::RaiseSystemError(std::errc::bad_address);
 		}
 
 		GUID guidDisconnectEx = WSAID_DISCONNECTEX;
 		DWORD cbBytesReturned = 0;
-		if (SOCKET_ERROR == WSAIoctl(serverSocket, SIO_GET_EXTENSION_FUNCTION_POINTER
+		if (srv::CheckError(WSAIoctl(serverSocket, SIO_GET_EXTENSION_FUNCTION_POINTER
 			, &guidDisconnectEx, sizeof(guidDisconnectEx)
 			, &DisconnectEx, sizeof(DisconnectEx), &cbBytesReturned
-			, NULL, NULL))
+			, NULL, NULL))) [[unlikely]]
 		{
 			srv::RaiseSystemError(std::errc::not_supported);
 		}
@@ -147,5 +148,5 @@ private:
 		}
 	}
 
-	std::array<SOCKET, srv::MAX_USERS> everySockets;
+	ConcurrentVector<SOCKET> everySockets;
 };
