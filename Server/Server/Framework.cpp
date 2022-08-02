@@ -35,22 +35,23 @@ Framework::~Framework()
 
 void Framework::Awake(unsigned int concurrent_hint, unsigned short port_tcp)
 {
-	std::cout << "서버 시동 중...\n";
+	std::cout << "서버를 준비하는 중...\n";
 
 	concurrentsNumber = concurrent_hint;
 
 	myAsyncProvider.Awake(concurrentsNumber);
 	myEntryPoint.Awake(port_tcp);
 
-	std::cout << "자원 생성 중...\n";
+	std::cout << "자원을 불러오는 중...\n";
 	BuildSessions();
 	BuildRooms();
 	BuildResources();
+	std::cout << "자원의 불러오기 완료\n";
 }
 
 void Framework::Start()
 {
-	std::cout << "서버 시작하는 중...\n";
+	std::cout << "서버를 시작하는 중...\n";
 
 	myAsyncProvider.Link(myEntryPoint.serverSocket, myID);
 	myEntryPoint.Start();
@@ -60,7 +61,7 @@ void Framework::Start()
 		auto &th = myWorkers.emplace_back(Worker, std::ref(myPipelineBreaker), std::ref(*this), std::ref(myAsyncProvider));
 	}
 
-	std::cout << "서버 시작\n";
+	std::cout << "서버 시작됨!\n";
 }
 
 void Framework::Update()

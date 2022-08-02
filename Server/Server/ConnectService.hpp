@@ -67,7 +67,7 @@ public:
 			srv::RaiseSystemError(std::errc::not_supported);
 		}
 
-		std::cout << "소켓 풀 생성 중... (" << socketsPool.size() << "개)\n";
+		std::cout << "소켓 풀을 구축하는 중... (" << socketsPool.size() << "개)\n";
 		for (auto& place : socketsPool)
 		{
 			place = srv::CreateSocket();
