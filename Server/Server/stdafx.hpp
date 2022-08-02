@@ -201,17 +201,20 @@ public:
 		: myLatch()
 	{}
 
+	Spinlock(const Spinlock &) = delete;
+	Spinlock &operator=(const Spinlock &) = delete;
+
 	~Spinlock()
 	{
 		myLatch.clear();
 	}
-
-	inline void Lock(const std::memory_order order = std::memory_order::memory_order_seq_cst) volatile noexcept
+	
+	inline void lock(const std::memory_order order = std::memory_order::memory_order_acquire) volatile noexcept
 	{
 		while (myLatch.test_and_set(order));
 	}
 
-	inline void Unlock(const std::memory_order order = std::memory_order::memory_order_seq_cst) volatile noexcept
+	inline void unlock(const std::memory_order order = std::memory_order::memory_order_release) volatile noexcept
 	{
 		myLatch.clear(order);
 	}
