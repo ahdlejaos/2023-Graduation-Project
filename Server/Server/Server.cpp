@@ -1,7 +1,7 @@
 ﻿#include "pch.hpp"
 #include "Framework.hpp"
 
-Framework globalFramework{};
+Framework globalFramework{ srv::THREADS_COUNT };
 
 constexpr int test_list[]{ 1, 2, 3, 4, 5, 6, 7, 8 };
 
@@ -26,7 +26,7 @@ int main()
 		std::cout << "it: " << (*val) << ", id: " << ind << "\n";
 	}
 
-	globalFramework.Awake(srv::THREADS_COUNT, srv::SERVER_PORT_TCP);
+	globalFramework.Awake(srv::SERVER_PORT_TCP);
 	globalFramework.Start();
 	globalFramework.Update();
 	

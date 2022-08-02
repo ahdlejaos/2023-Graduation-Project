@@ -52,6 +52,7 @@ using namespace DirectX::PackedVector;
 #include <numeric>
 #include <chrono>
 #include <atomic>
+#include <latch>
 #include <thread>
 #include <future>
 #include <stop_token>

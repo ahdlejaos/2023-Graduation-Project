@@ -7,13 +7,14 @@
 
 void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool);
 
-Framework::Framework()
+Framework::Framework(unsigned int concurrent_hint)
 	: myID(srv::SERVER_ID)
-	, myEntryPoint(), myAsyncProvider(), concurrentsNumber(0), myWorkers()
+	, myEntryPoint(), myAsyncProvider()
+	, concurrentsNumber(concurrent_hint), concurrentWatcher(concurrent_hint)
+	, myWorkers(), workersBreaker()
 	, everyRooms(), everySessions()
 	, numberRooms(0), numberUsers(0)
 	, lastPacketType(srv::Protocol::NONE)
-	, myPipelineBreaker()
 	, login_succeed(), login_failure(), cached_pk_server_info(0, srv::MAX_USERS, srv::GAME_VERSION)
 {
 	//std::cout.imbue(std::locale{ "KOREAN" });
@@ -22,6 +23,8 @@ Framework::Framework()
 
 Framework::~Framework()
 {
+	workersBreaker.request_stop();
+
 	Release();
 
 	WSACleanup();
@@ -35,12 +38,10 @@ Framework::~Framework()
 	}
 }
 
-void Framework::Awake(unsigned int concurrent_hint, unsigned short port_tcp)
+void Framework::Awake(unsigned short port_tcp)
 {
 	std::cout << "서버를 준비하는 중...\n";
-
-	concurrentsNumber = concurrent_hint;
-
+	
 	myAsyncProvider.Awake(concurrentsNumber);
 	myEntryPoint.Awake(port_tcp);
 
@@ -60,7 +61,7 @@ void Framework::Start()
 
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
-		auto &th = myWorkers.emplace_back(Worker, std::ref(myPipelineBreaker), std::ref(*this), std::ref(myAsyncProvider));
+		auto &th = myWorkers.emplace_back(Worker, std::ref(workersBreaker), std::ref(*this), std::ref(myAsyncProvider));
 	}
 
 	std::cout << "서버 시작됨!\n";
@@ -72,6 +73,13 @@ void Framework::Update()
 	{
 		while (true)
 		{
+			if (concurrentWatcher.try_wait())
+			{
+				std::cout << "서버 종료 중...\n";
+
+				break;
+			}
+
 			SleepEx(10, TRUE);
 		}
 	}
@@ -83,10 +91,6 @@ void Framework::Update()
 
 void Framework::Release()
 {
-	std::cout << "서버 종료 중...\n";
-
-	myPipelineBreaker.request_stop();
-
 	std::cout << "서버 종료\n";
 }
 
@@ -296,6 +300,8 @@ void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
 	}
 
 	std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
+
+	me.concurrentWatcher.arrive_and_wait();
 }
 
 void Framework::BuildSessions()

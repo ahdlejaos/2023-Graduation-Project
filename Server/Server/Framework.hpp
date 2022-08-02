@@ -17,10 +17,10 @@ private:
 #pragma endregion
 
 public:
-	Framework();
+	Framework(unsigned int concurrent_hint);
 	~Framework();
 
-	void Awake(unsigned int concurrent_hint, unsigned short port_tcp);
+	void Awake(unsigned short port_tcp);
 	void Start();
 	void Update();
 	void Release();
@@ -66,8 +66,9 @@ private:
 	AsyncPoolService myAsyncProvider;
 
 	unsigned int concurrentsNumber;
+	std::latch concurrentWatcher;
 	std::vector<std::jthread> myWorkers;
-	std::stop_source myPipelineBreaker;
+	std::stop_source workersBreaker;
 
 	std::priority_queue<int> timerQueue;
 
