@@ -221,7 +221,11 @@ void Framework::ProceedRecv(Asynchron *context, ULONG_PTR key, unsigned bytes)
 		{
 			context->isFirst = false; // Page lock 해제
 
-			session->Recv(BUFSIZ); // 실질적인 첫번째 수신
+			const auto result = session->Recv(BUFSIZ); // 실질적인 첫번째 수신
+			if (SOCKET_ERROR == result)
+			{
+
+			}
 		}
 	}
 	else

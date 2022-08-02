@@ -57,6 +57,7 @@
     <None Include="통신 구조.md">
       <Filter>리소스 파일</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.hpp">

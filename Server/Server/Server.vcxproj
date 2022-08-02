@@ -160,6 +160,7 @@
     <ClInclude Include="Arithmetics.inl">
       <FileType>Document</FileType>
     </ClInclude>
+    <None Include="cpp.hint" />
     <None Include="packages.config" />
     <None Include="통신 구조.md" />
   </ItemGroup>
