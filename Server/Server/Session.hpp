@@ -1,5 +1,6 @@
 #pragma once
 #include "Asynchron.hpp"
+#include "Packet.hpp"
 #include "Room.hpp"
 
 class Session
@@ -39,17 +40,24 @@ public:
 	/// </summary>
 	/// <param name="size">작업이 끝나고 받을 바이트의 총량</param>
 	/// <param name="bytes"></param>
-	inline void Swallow(unsigned size, unsigned bytes)
+	template<srv::packets pk>
+	inline std::optional<pk*> Swallow(unsigned size, unsigned bytes)
 	{
 		Acquire();
+
+		std::optional<pk*> result{};
 		auto &wbuffer = myReceiver->myBuffer;
 		auto &cbuffer = wbuffer.buf;
 		auto& cbuffer_length = wbuffer.len;
 
 
+
+
 		// 나머지 패킷을 수신
 		Recv(size, static_cast<unsigned>(bytes));
 		Release();
+
+		return result;
 	}
 
 	/// <summary>
@@ -85,20 +93,20 @@ public:
 		mySwitch.clear(std::memory_order_release);
 	}
 
-	inline int BeginSend(Asynchron *asynchron)
+	inline int BeginSend(srv::Asynchron *asynchron)
 	{
 		return asynchron->Send(mySocket, nullptr, 0);
 	}
 
 	inline int BeginRecv()
 	{
-		myReceiver = make_shared<Asynchron>(srv::Operations::RECV);
+		myReceiver = make_shared<srv::Asynchron>(srv::Operations::RECV);
 		myReceiver->SetBuffer(myRecvBuffer, 0); // Page 락을 줄이기 위해 맨 처음에 0으로 받음
 
 		return myReceiver->Recv(mySocket, nullptr, 0);
 	}
 
-	inline int Send(Asynchron *asynchron, char *const buffer, unsigned size, unsigned offset = 0)
+	inline int Send(srv::Asynchron *asynchron, char *const buffer, unsigned size, unsigned offset = 0)
 	{
 		auto &wbuffer = asynchron->myBuffer;
 		wbuffer.buf = buffer + offset;
@@ -108,7 +116,7 @@ public:
 	}
 
 	template<unsigned original_size>
-	inline int Send(Asynchron *asynchron, const char(&buffer)[original_size], unsigned offset = 0)
+	inline int Send(srv::Asynchron *asynchron, const char(&buffer)[original_size], unsigned offset = 0)
 	{
 		auto &wbuffer = asynchron->myBuffer;
 		wbuffer.buf = buffer + offset;
@@ -118,7 +126,7 @@ public:
 	}
 
 	template<std::unsigned_integral Integral>
-	inline int Send(Asynchron *asynchron, Integral additional_offsets)
+	inline int Send(srv::Asynchron *asynchron, Integral additional_offsets)
 	{
 		auto &wbuffer = asynchron->myBuffer;
 		wbuffer.buf += additional_offsets;
@@ -214,6 +222,6 @@ public:
 	atomic<unsigned long long> myID;
 	atomic<shared_ptr<Room>> myRoom;
 
-	shared_ptr<Asynchron> myReceiver;
+	shared_ptr<srv::Asynchron> myReceiver;
 	char myRecvBuffer[BUFSIZ];
 };

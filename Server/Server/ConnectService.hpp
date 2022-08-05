@@ -144,7 +144,7 @@ public:
 	SOCKET serverSocket;
 	SOCKADDR_IN serverEndPoint;
 
-	Asynchron connectWorker;
+	srv::Asynchron connectWorker;
 	DWORD connectBytes;
 	char connectBuffer[BUFSIZ];
 	const int connectSize;
