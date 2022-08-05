@@ -15,9 +15,6 @@ class Room;
 namespace srv
 {
 	class Asynchron;
-	template <class Derived>
-		requires std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
-	class Packet;
 }
 
 class GameObject;

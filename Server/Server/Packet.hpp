@@ -2,13 +2,26 @@
 
 namespace srv
 {
-	template <class Derived>
-		requires std::is_class_v<Derived> &&std::same_as<Derived, std::remove_cv_t<Derived>>
-	class Packet
+	class BasisPacket
 	{
 	public:
-		constexpr Packet(Protocol type, std::uint32_t size)
+		constexpr BasisPacket(const Protocol type, const std::uint32_t size)
 			: myProtocol(type), mySize(size)
+		{}
+
+		constexpr virtual ~BasisPacket() {}
+
+		const Protocol myProtocol;
+		const std::uint32_t mySize;
+	};
+
+	template <class Derived>
+		requires std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
+	class Packet : public BasisPacket
+	{
+	public:
+		constexpr Packet(const Protocol type, const std::uint32_t size)
+			: BasisPacket(type, size)
 		{}
 
 		constexpr Packet(Protocol type)
@@ -17,30 +30,27 @@ namespace srv
 
 		constexpr virtual ~Packet() {}
 
-		const Protocol myProtocol;
-		const std::uint32_t mySize;
-
-		friend inline constexpr Derived *CreatePacket(const Derived&);
-		friend inline constexpr Derived *CreatePacket(Derived&&);
+		friend inline constexpr Derived* CreatePacket(const Derived&);
+		friend inline constexpr Derived* CreatePacket(Derived&&);
 
 		template<typename... Args>
-		friend inline constexpr Derived *CreatePacket(Args&&... _Args)
+		friend inline constexpr Derived* CreatePacket(Args&&... _Args)
 			requires std::constructible_from<Derived, Args...>;
 
 		template<typename... Args>
 		friend Derived CreateLocalPacket(Args&&... _Args);
 
 	protected:
-		[[nodiscard]] constexpr Derived &Cast() noexcept
+		[[nodiscard]] constexpr Derived& Cast() noexcept
 		{
 			static_assert(std::derived_from<Derived, Packet>);
-			return static_cast<Derived &>(*this);
+			return static_cast<Derived&>(*this);
 		}
 
-		[[nodiscard]] constexpr const Derived &Cast() const noexcept
+		[[nodiscard]] constexpr const Derived& Cast() const noexcept
 		{
 			static_assert(std::derived_from<Derived, Packet>);
-			return static_cast<const Derived &>(*this);
+			return static_cast<const Derived&>(*this);
 		}
 	};
 
@@ -107,19 +117,19 @@ namespace srv
 	};
 
 	template<packets Pk>
-	[[nodiscard]] inline constexpr Pk *CreatePacket(const Pk &datagram)
+	[[nodiscard]] inline constexpr Pk* CreatePacket(const Pk& datagram)
 	{
 		return new Pk(datagram);
 	}
 
 	template<packets Pk>
-	[[nodiscard]] inline constexpr Pk *CreatePacket(Pk &&datagram)
+	[[nodiscard]] inline constexpr Pk* CreatePacket(Pk&& datagram)
 	{
 		return new Pk(std::forward<Pk>(datagram));
 	}
 
 	template<packets Pk, typename... Args>
-	[[nodiscard]] inline constexpr Pk *CreatePacket(Args&& ...args)
+	[[nodiscard]] inline constexpr Pk* CreatePacket(Args&& ...args)
 		requires std::constructible_from<Pk, Args...>
 	{
 		return new Pk(std::forward<Args>(args)...);
