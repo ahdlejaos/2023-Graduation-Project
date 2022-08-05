@@ -39,13 +39,12 @@ public:
 	/// 
 	/// </summary>
 	/// <param name="size">작업이 끝나고 받을 바이트의 총량</param>
-	/// <param name="bytes"></param>
-	template<srv::packets pk>
-	inline std::optional<pk*> Swallow(unsigned size, unsigned bytes)
+	/// <param name="bytes">수신받은 바이트의 수</param>
+	inline std::optional<srv::BasisPacket*> Swallow(const unsigned size, _In_ const unsigned bytes)
 	{
 		Acquire();
 
-		std::optional<pk*> result{};
+		std::optional<srv::BasisPacket*> result{};
 		auto &wbuffer = myReceiver->myBuffer;
 		auto &cbuffer = wbuffer.buf;
 		auto& cbuffer_length = wbuffer.len;
