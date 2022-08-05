@@ -256,6 +256,74 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 			const auto& pk_type = packet->myProtocol;
 			const auto& pk_size = packet->mySize;
 
+			switch (pk_type)
+			{
+				// 로그인
+				case srv::Protocol::CS_SIGNIN:
+				{}
+				break;
+
+				// 로그아웃
+				case srv::Protocol::CS_SIGNOUT:
+				{}
+				break;
+
+				// 회원 가입
+				case srv::Protocol::CS_SIGNUP:
+				{}
+				break;
+
+				// 범용 종료
+				case srv::Protocol::CS_DISPOSE:
+				{}
+				break;
+
+				// 버전
+				case srv::Protocol::CS_REQUEST_VERSION:
+				{}
+				break;
+
+				// 유저 목록
+				case srv::Protocol::CS_REQUEST_USERS:
+				{}
+				break;
+
+				// 방 목록
+				case srv::Protocol::CS_REQUEST_ROOMS:
+				{}
+				break;
+
+				// 대화 메시지
+				case srv::Protocol::CS_CHAT:
+				{}
+				break;
+
+				// 방 생성
+				case srv::Protocol::CS_CREATE_A_ROOM:
+				{}
+				break;
+
+				// 방 나감
+				case srv::Protocol::CS_LEAVE_A_ROOM:
+				{}
+				break;
+
+				// 방폭 (방의 유저들은 방 나가기)
+				case srv::Protocol::CS_DESTROY_A_ROOM:
+				{}
+				break;
+
+				// 방 선택 후 입장
+				case srv::Protocol::CS_PICK_A_ROOM:
+				{}
+				break;
+
+				// 자동 방 매치
+				case srv::Protocol::CS_MATCH_A_ROOM:
+				{}
+				break;
+			}
+
 			if (0 < pk_size) // [[likely]]
 			{
 
