@@ -238,7 +238,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 			if (srv::CheckError(result))
 			{
 				const int error = WSAGetLastError();
-				if (!srv::CheckPending(error))
+				if (!srv::CheckPending(error)) [[unlikely]]
 				{
 					std::cout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
 				}
@@ -253,8 +253,17 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 		if (result)
 		{
 			const auto& packet = result.value();
-			const auto& pk_type = packet->;
+			const auto& pk_type = packet->myProtocol;
+			const auto& pk_size = packet->mySize;
 
+			if (0 < pk_size) // [[likely]]
+			{
+
+			}
+			else
+			{
+
+			}
 		}
 	}
 }
