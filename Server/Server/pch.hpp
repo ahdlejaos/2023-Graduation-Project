@@ -78,6 +78,7 @@ namespace srv
 		CS_MATCH_A_ROOM, // 유저가 무작위 방에 입장 요청
 
 		CS_CHAT, // 채팅 메시지
+		CS_INPUT, // 게임 조작 입력
 
 		SC_SERVER_INFO, // 서버 상태 알림
 		SC_SIGNIN_SUCCESS, // 로그인 성공 알림
@@ -166,6 +167,16 @@ namespace srv
 		FAILURE_DB_ERROR, // DB 서버 오류
 		FAILURE_USER_DUPLICATED, // ID 중복
 		SUCCEED = std::numeric_limits<unsigned char>::max(),
+	};
+
+	enum class GameInputs : unsigned char
+	{
+		MOVE_LT, MOVE_RT, MOVE_UP, MOVE_DW, // WASD 키
+		ATTACK, // 마우스 왼쪽 클릭
+		ACTION, // 마우스 오른쪽 클릭
+		SUBACTION, // E 또는 F 키
+		JUMP, // 스페이스 키
+		SIGHT_TILT, // 마우스로 시야 전환 (roll-yaw-pitch)
 	};
 
 	enum class ObjectTags : unsigned char // 충돌 식별 태그 (유니티 태그 아님)
