@@ -45,6 +45,7 @@ public:
 		Acquire();
 
 		std::optional<srv::BasisPacket*> result{};
+
 		auto &wbuffer = myReceiver->myBuffer;
 		auto &cbuffer = wbuffer.buf;
 		auto& cbuffer_length = wbuffer.len;

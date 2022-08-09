@@ -55,7 +55,7 @@ namespace srv
 	};
 
 	template <class Pk>
-	concept packets = std::derived_from<Pk, Packet<Pk>> && std::is_class_v<Pk>;
+	concept packets = std::is_class_v<Pk> && std::derived_from<Pk, Packet<Pk>>;
 
 	class SCPacketServerInfo : public Packet<SCPacketServerInfo>
 	{

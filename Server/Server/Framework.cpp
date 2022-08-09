@@ -260,12 +260,16 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 			{
 				// 로그인
 				case srv::Protocol::CS_SIGNIN:
-				{}
+				{
+					const auto real_pk = reinterpret_cast<srv::SCPacketSignInSucceed*>(packet);
+				}
 				break;
 
 				// 로그아웃
 				case srv::Protocol::CS_SIGNOUT:
-				{}
+				{
+					const auto real_pk = reinterpret_cast<srv::SCPacketSignInSucceed *>(packet);
+				}
 				break;
 
 				// 회원 가입
@@ -280,7 +284,18 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 				// 버전
 				case srv::Protocol::CS_REQUEST_VERSION:
-				{}
+				{
+					// 패킷 정보는 필요없다.
+					auto users_number = numberUsers.load(std::memory_order_acq_rel);
+
+					// 유저 수 갱신
+					cached_pk_server_info.usersCount = users_number;
+
+					// 서버 상태 전송
+					auto [ticket, asynchron] = srv::CreateTicket(cached_pk_server_info);
+					session->BeginSend(asynchron);
+					session->Release();
+				}
 				break;
 
 				// 유저 목록
