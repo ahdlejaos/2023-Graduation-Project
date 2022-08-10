@@ -25,14 +25,14 @@ public:
 	void Update();
 	void Release();
 
-	void ProceedAsync(srv::Asynchron *context, ULONG_PTR key, unsigned bytes);
-	void ProceedAccept(srv::Asynchron *context);
-	void ProceedDiconnect(srv::Asynchron *context, ULONG_PTR key);
-	void ProceedSent(srv::Asynchron *context, ULONG_PTR key, unsigned bytes);
-	void ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned bytes);
-	void ProceedDispose(srv::Asynchron *context, ULONG_PTR key);
+	void ProceedAsync(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
+	void ProceedAccept(srv::Asynchron* context);
+	void ProceedDiconnect(srv::Asynchron* context, ULONG_PTR key);
+	void ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
+	void ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
+	void ProceedDispose(srv::Asynchron* context, ULONG_PTR key);
 
-	friend void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool);
+	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 
 	bool CanAcceptPlayer() const noexcept;
 	bool CanCreateRoom() const noexcept;
@@ -49,16 +49,16 @@ private:
 	shared_ptr<Session> ConnectPlayer(shared_ptr<Session> session);
 	void Disconnect(unsigned place);
 	void Disconnect(shared_ptr<Session> session);
-	void Disconnect(Session *session);
+	void Disconnect(Session* session);
 
 	shared_ptr<Session> SeekNewbiePlace() const noexcept;
 	unsigned long long MakeNewbieID() noexcept;
 
 	template<std::unsigned_integral Integral>
-	int SendTo(Session *session, void *const data, const Integral size);
-	int SendServerStatus(Session *session);
-	int SendLoginResult(Session *session, login_succeed_t info);
-	int SendLoginResult(Session *session, login_failure_t info);
+	int SendTo(Session* session, void* const data, const Integral size);
+	int SendServerStatus(Session* session);
+	int SendLoginResult(Session* session, login_succeed_t info);
+	int SendLoginResult(Session* session, login_failure_t info);
 
 	ULONG_PTR myID;
 
@@ -67,7 +67,7 @@ private:
 
 	unsigned int concurrentsNumber;
 	std::latch concurrentWatcher;
-	std::vector<std::jthread> myWorkers;
+	std::vector<Thread> myWorkers;
 	std::stop_source workersBreaker;
 
 	std::priority_queue<int> timerQueue;
@@ -84,15 +84,15 @@ private:
 namespace srv
 {
 	template<packets Pk>
-	inline constexpr std::pair<Pk *, Asynchron *> CreateTicket(const Pk &datagram)
+	inline constexpr Pair<Pk*, Asynchron*> CreateTicket(const Pk& datagram)
 	{
-		Asynchron *asyncron = CreateAsynchron(Operations::SEND);
+		Asynchron* asyncron=CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket(datagram);
+		auto packet=srv::CreatePacket(datagram);
 
 		WSABUF wbuffer{};
-		wbuffer.buf = reinterpret_cast<char *>(packet);
-		wbuffer.len = packet->mySize;
+		wbuffer.buf=reinterpret_cast<char*>(packet);
+		wbuffer.len=packet->mySize;
 
 		asyncron->SetBuffer(wbuffer);
 
@@ -100,15 +100,15 @@ namespace srv
 	}
 
 	template<packets Pk>
-	inline constexpr std::pair<Pk *, Asynchron *> CreateTicket(Pk&& datagram)
+	inline constexpr Pair<Pk*, Asynchron*> CreateTicket(Pk&& datagram)
 	{
-		Asynchron *asyncron = CreateAsynchron(Operations::SEND);
+		Asynchron* asyncron=CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket(std::forward<Pk>(datagram));
+		auto packet=srv::CreatePacket(std::forward<Pk>(datagram));
 
 		WSABUF wbuffer{};
-		wbuffer.buf = reinterpret_cast<char *>(packet);
-		wbuffer.len = packet->mySize;
+		wbuffer.buf=reinterpret_cast<char*>(packet);
+		wbuffer.len=packet->mySize;
 
 		asyncron->SetBuffer(wbuffer);
 
@@ -116,15 +116,15 @@ namespace srv
 	}
 
 	template<packets Pk, typename ...Ty>
-	inline constexpr std::pair<Pk *, Asynchron *> CreateTicket(Ty&& ...args)
+	inline constexpr Pair<Pk*, Asynchron*> CreateTicket(Ty&& ...args)
 	{
-		Asynchron *asyncron = CreateAsynchron(Operations::SEND);
+		Asynchron* asyncron=CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket<Pk>(std::forward<decltype((args))>(args)...);
+		auto packet=srv::CreatePacket<Pk>(std::forward<decltype((args))>(args)...);
 
 		WSABUF wbuffer{};
-		wbuffer.buf = reinterpret_cast<char *>(packet);
-		wbuffer.len = packet->mySize;
+		wbuffer.buf=reinterpret_cast<char*>(packet);
+		wbuffer.len=packet->mySize;
 
 		asyncron->SetBuffer(wbuffer);
 
