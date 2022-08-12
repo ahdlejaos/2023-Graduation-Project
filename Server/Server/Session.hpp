@@ -178,7 +178,6 @@ public:
 	/// </summary>
 	/// <param name="asynchron"></param>
 	/// <param name="buffer"></param>
-	/// <param name="size"></param>
 	/// <param name="offset"></param>
 	/// <returns>WSASend의 결과값</returns>
 	template<unsigned original_size>
@@ -195,9 +194,7 @@ public:
 	/// 동기화 객체를 통해 송신을 처리합니다. 동기화 객체의 내부에서 버퍼의 위치를 조정합니다.
 	/// </summary>
 	/// <param name="asynchron"></param>
-	/// <param name="buffer"></param>
-	/// <param name="size"></param>
-	/// <param name="offset"></param>
+	/// <param name="additional_offsets"></param>
 	/// <returns>WSASend의 결과값</returns>
 	template<std::integral Integral>
 	inline int Send(srv::Asynchron *asynchron, Integral additional_offsets)
