@@ -12,13 +12,11 @@ namespace srv
 		constexpr Asynchron(const Operations& service, const WSABUF& wbuffer)
 			: myOperation(service)
 			, myBuffer(wbuffer)
-			, isFirst(true)
 		{}
 
 		constexpr Asynchron(const Operations& service, WSABUF&& wbuffer)
 			: myOperation(service)
 			, myBuffer(std::forward<WSABUF>(wbuffer))
-			, isFirst(true)
 		{}
 
 		~Asynchron()
@@ -70,7 +68,6 @@ namespace srv
 
 		const Operations myOperation;
 		WSABUF myBuffer;
-		bool isFirst;
 	};
 
 	inline constexpr Asynchron* CreateAsynchron(const Operations& op)

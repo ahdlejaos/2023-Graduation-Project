@@ -224,7 +224,7 @@ void Framework::ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned byt
 
 	if (0 == bytes) [[unlikely]] // 연결 끊김은 이미 GetQueueCompletionStatus에서 거른다
 	{
-		if (!context->isFirst) [[likely]]
+		if (!session->isFirst) [[likely]]
 		{
 			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 
@@ -234,7 +234,7 @@ void Framework::ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned byt
 		{
 			session->Acquire();
 
-			context->isFirst = false; // Page lock 해제
+			session->SetReceiveVirgin(false); // Page lock 해제
 
 			const auto result = session->Recv(BUFSIZ); // 실질적인 첫번째 수신
 			if (srv::CheckError(result))

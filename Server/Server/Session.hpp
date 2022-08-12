@@ -7,7 +7,7 @@ class Session
 {
 public:
 	constexpr Session(unsigned place)
-		: mySwitch()
+		: isFirst(false), mySwitch()
 		, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
 		, myReceiver(nullptr), myRecvBuffer()
 	{}
@@ -73,6 +73,7 @@ public:
 	/// </summary>
 	inline void Dispose()
 	{
+		SetReceiveVirgin(true);
 		AssignState(srv::SessionStates::NONE);
 		AssignID(0);
 		AssignSocket(NULL);
@@ -106,7 +107,7 @@ public:
 	/// <summary>
 	/// 패킷 수신을 시작합니다.
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>WSARecv의 결과값</returns>
 	inline int BeginRecv()
 	{
 		myReceiver = make_shared<srv::Asynchron>(srv::Operations::RECV);
@@ -120,9 +121,9 @@ public:
 	/// </summary>
 	/// <param name="size"></param>
 	/// <param name="additional_offsets"></param>
-	/// <returns></returns>
+	/// <returns>WSARecv의 결과값</returns>
 	template<std::integral Integral>
-	inline int Recv(unsigned size, Integral additional_offsets = 0)
+	inline int Recv(unsigned size, Integral additional_offsets)
 	{
 		auto &wbuffer = myReceiver->myBuffer;
 		wbuffer.buf = (myRecvBuffer)+additional_offsets;
@@ -132,10 +133,24 @@ public:
 	}
 
 	/// <summary>
+	/// 세션 내부에서 수신을 처리합니다.
+	/// </summary>
+	/// <param name="size"></param>
+	/// <returns>WSARecv의 결과값</returns>
+	inline int Recv(unsigned size)
+	{
+		auto &wbuffer = myReceiver->myBuffer;
+		wbuffer.buf = myRecvBuffer;
+		wbuffer.len = static_cast<unsigned long>(size);
+
+		return myReceiver->Recv(mySocket, nullptr, 0);
+	}
+
+	/// <summary>
 	/// 패킷 송신을 시작합니다.
 	/// </summary>
 	/// <param name="asynchron"></param>
-	/// <returns></returns>
+	/// <returns>WSASend의 결과값</returns>
 	inline int BeginSend(srv::Asynchron *asynchron)
 	{
 		return asynchron->Send(mySocket, nullptr, 0);
@@ -224,6 +239,11 @@ public:
 		myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_acq_rel);
 	}
 
+	inline void SetReceiveVirgin(const bool flag)
+	{
+		isFirst.store(flag, std::memory_order_relaxed);
+	}
+
 	inline void SetState(const srv::SessionStates state)
 	{
 		myState.store(state, std::memory_order_relaxed);
@@ -266,6 +286,7 @@ public:
 
 	const unsigned int myPlace;
 
+	atomic<bool> isFirst;
 	atomic_flag mySwitch;
 	atomic<srv::SessionStates> myState;
 	atomic<SOCKET> mySocket;
