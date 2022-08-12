@@ -70,7 +70,11 @@ private:
 	std::vector<Thread> myWorkers;
 	std::stop_source workersBreaker;
 
+	unique_ptr<Thread> timerWorker;
 	std::priority_queue<int> timerQueue;
+
+	unique_ptr<Thread> databaseWorker;
+	std::priority_queue<int> databaseQueue;
 
 	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, srv::MAX_ENTITIES> everySessions;
