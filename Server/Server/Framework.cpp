@@ -232,6 +232,8 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 		}
 		else
 		{
+			session->Acquire();
+
 			context->isFirst = false; // Page lock 해제
 
 			const auto result = session->Recv(BUFSIZ); // 실질적인 첫번째 수신
@@ -243,6 +245,8 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 					std::cout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
 				}
 			}
+
+			session->Release();
 		}
 	}
 	else
@@ -252,6 +256,8 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 		if (result)
 		{
+			session->Acquire();
+
 			const auto& packet = result.value();
 			const auto& pk_type = packet->myProtocol;
 			const auto& pk_size = packet->mySize;
@@ -336,6 +342,12 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 				// 자동 방 매치
 				case srv::Protocol::CS_MATCH_A_ROOM:
 				{}
+				break;
+
+				default:
+				{
+					session->Release();
+				}
 				break;
 			}
 
