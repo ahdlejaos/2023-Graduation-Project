@@ -73,7 +73,7 @@ public:
 	/// </summary>
 	inline void Dispose()
 	{
-		SetReceiveVirgin(true);
+		AssignReceiveVirgin(true);
 		AssignState(srv::SessionStates::NONE);
 		AssignID(0);
 		AssignSocket(NULL);
@@ -207,6 +207,11 @@ public:
 		wbuffer.len -= additional_offsets;
 
 		return asynchron->Send(mySocket, nullptr, 0);
+	}
+
+	inline void AssignReceiveVirgin(const bool flag)
+	{
+		isFirst.store(flag, std::memory_order_acq_rel);
 	}
 
 	inline void AssignState(const srv::SessionStates state)

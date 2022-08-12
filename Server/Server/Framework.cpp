@@ -26,8 +26,9 @@ Framework::~Framework()
 {
 	workersBreaker.request_stop();
 
-	Release();
+	SleepEx(1000, TRUE);
 
+	Release();
 	WSACleanup();
 
 	for (auto &th : myWorkers)
