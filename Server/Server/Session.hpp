@@ -36,19 +36,19 @@ public:
 	}
 
 	/// <summary>
-	/// 
+	/// 수신한 버퍼의 내용을 정리하고 완성된 패킷은 반환합니다.
 	/// </summary>
 	/// <param name="size">작업이 끝나고 받을 바이트의 총량</param>
 	/// <param name="bytes">수신받은 바이트의 수</param>
-	inline std::optional<srv::BasisPacket*> Swallow(const unsigned size, _In_ const unsigned bytes)
+	inline std::optional<srv::BasisPacket *> Swallow(const unsigned size, _In_ const unsigned bytes)
 	{
 		Acquire();
 
-		std::optional<srv::BasisPacket*> result{};
+		std::optional<srv::BasisPacket *> result{};
 
 		auto &wbuffer = myReceiver->myBuffer;
 		auto &cbuffer = wbuffer.buf;
-		auto& cbuffer_length = wbuffer.len;
+		auto &cbuffer_length = wbuffer.len;
 
 
 
@@ -69,7 +69,7 @@ public:
 	}
 
 	/// <summary>
-	/// 세션 정리
+	/// 세션의 내용을 초기화합니다. 실제 연결 해제를 수행하진 않습니다.
 	/// </summary>
 	inline void Dispose()
 	{
@@ -78,26 +78,35 @@ public:
 		AssignSocket(NULL);
 	}
 
+	/// <summary>
+	/// 세션의 소유권을 획득합니다.
+	/// </summary>
 	inline void Acquire() volatile
 	{
 		while (mySwitch.test_and_set(std::memory_order_acquire));
 	}
 
+	/// <summary>
+	/// 한번 소유권 획득을 시도합니다.
+	/// </summary>
+	/// <returns>성공 여부</returns>
 	inline bool TryAcquire() volatile
 	{
 		return !mySwitch.test_and_set(std::memory_order_acquire);
 	}
 
+	/// <summary>
+	/// 소유권을 해제합니다.
+	/// </summary>
 	inline void Release() volatile
 	{
 		mySwitch.clear(std::memory_order_release);
 	}
 
-	inline int BeginSend(srv::Asynchron *asynchron)
-	{
-		return asynchron->Send(mySocket, nullptr, 0);
-	}
-
+	/// <summary>
+	/// 패킷 수신을 시작합니다.
+	/// </summary>
+	/// <returns></returns>
 	inline int BeginRecv()
 	{
 		myReceiver = make_shared<srv::Asynchron>(srv::Operations::RECV);
@@ -106,6 +115,40 @@ public:
 		return myReceiver->Recv(mySocket, nullptr, 0);
 	}
 
+	/// <summary>
+	/// 세션 내부에서 수신을 처리합니다.
+	/// </summary>
+	/// <param name="size"></param>
+	/// <param name="additional_offsets"></param>
+	/// <returns></returns>
+	template<std::integral Integral>
+	inline int Recv(unsigned size, Integral additional_offsets = 0)
+	{
+		auto &wbuffer = myReceiver->myBuffer;
+		wbuffer.buf = (myRecvBuffer)+additional_offsets;
+		wbuffer.len = static_cast<unsigned long>(size - additional_offsets);
+
+		return myReceiver->Recv(mySocket, nullptr, 0);
+	}
+
+	/// <summary>
+	/// 패킷 송신을 시작합니다.
+	/// </summary>
+	/// <param name="asynchron"></param>
+	/// <returns></returns>
+	inline int BeginSend(srv::Asynchron *asynchron)
+	{
+		return asynchron->Send(mySocket, nullptr, 0);
+	}
+
+	/// <summary>
+	/// 동기화 객체를 통해 송신을 처리합니다. 송신할 원본 자료가 필요합니다.
+	/// </summary>
+	/// <param name="asynchron"></param>
+	/// <param name="buffer"></param>
+	/// <param name="size"></param>
+	/// <param name="offset"></param>
+	/// <returns>WSASend의 결과값</returns>
 	inline int Send(srv::Asynchron *asynchron, char *const buffer, unsigned size, unsigned offset = 0)
 	{
 		auto &wbuffer = asynchron->myBuffer;
@@ -115,6 +158,14 @@ public:
 		return asynchron->Send(mySocket, nullptr, 0);
 	}
 
+	/// <summary>
+	/// 동기화 객체를 통해 송신을 처리합니다. 송신할 원본 자료가 필요합니다.
+	/// </summary>
+	/// <param name="asynchron"></param>
+	/// <param name="buffer"></param>
+	/// <param name="size"></param>
+	/// <param name="offset"></param>
+	/// <returns>WSASend의 결과값</returns>
 	template<unsigned original_size>
 	inline int Send(srv::Asynchron *asynchron, const char(&buffer)[original_size], unsigned offset = 0)
 	{
@@ -125,7 +176,15 @@ public:
 		return asynchron->Send(mySocket, nullptr, 0);
 	}
 
-	template<std::unsigned_integral Integral>
+	/// <summary>
+	/// 동기화 객체를 통해 송신을 처리합니다. 동기화 객체의 내부에서 버퍼의 위치를 조정합니다.
+	/// </summary>
+	/// <param name="asynchron"></param>
+	/// <param name="buffer"></param>
+	/// <param name="size"></param>
+	/// <param name="offset"></param>
+	/// <returns>WSASend의 결과값</returns>
+	template<std::integral Integral>
 	inline int Send(srv::Asynchron *asynchron, Integral additional_offsets)
 	{
 		auto &wbuffer = asynchron->myBuffer;
@@ -133,15 +192,6 @@ public:
 		wbuffer.len -= additional_offsets;
 
 		return asynchron->Send(mySocket, nullptr, 0);
-	}
-
-	inline int Recv(unsigned size, unsigned offset = 0)
-	{
-		auto &wbuffer = myReceiver->myBuffer;
-		wbuffer.buf = (myRecvBuffer)+offset;
-		wbuffer.len = static_cast<unsigned long>(size - offset);
-
-		return myReceiver->Recv(mySocket, nullptr, 0);
 	}
 
 	inline void AssignState(const srv::SessionStates state)
