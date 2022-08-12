@@ -6,7 +6,7 @@
 #include "PlayingSession.hpp"
 #include "Packet.hpp"
 
-void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
+void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool);
 
 Framework::Framework(unsigned int concurrent_hint)
 	: myID(srv::SERVER_ID)
@@ -30,7 +30,7 @@ Framework::~Framework()
 
 	WSACleanup();
 
-	for (auto& th : myWorkers)
+	for (auto &th : myWorkers)
 	{
 		if (th.joinable())
 		{
@@ -62,7 +62,7 @@ void Framework::Start()
 
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
-		auto& th = myWorkers.emplace_back(Worker, std::ref(workersBreaker), std::ref(*this), std::ref(myAsyncProvider));
+		auto &th = myWorkers.emplace_back(Worker, std::ref(workersBreaker), std::ref(*this), std::ref(myAsyncProvider));
 	}
 
 	std::cout << "서버 시작됨!\n";
@@ -84,7 +84,7 @@ void Framework::Update()
 			SleepEx(10, TRUE);
 		}
 	}
-	catch (std::exception& e)
+	catch (std::exception &e)
 	{
 		std::cout << "예외로 인한 서버 인터럽트: " << e.what() << std::endl;
 	}
@@ -95,7 +95,7 @@ void Framework::Release()
 	std::cout << "서버 종료\n";
 }
 
-void Framework::ProceedAsync(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+void Framework::ProceedAsync(srv::Asynchron *context, ULONG_PTR key, unsigned bytes)
 {
 	const auto operation = context->myOperation;
 
@@ -133,7 +133,7 @@ void Framework::ProceedAsync(srv::Asynchron* context, ULONG_PTR key, unsigned by
 	}
 }
 
-void Framework::ProceedAccept(srv::Asynchron* context)
+void Framework::ProceedAccept(srv::Asynchron *context)
 {
 	const SOCKET target = myEntryPoint.Update();
 
@@ -160,7 +160,7 @@ void Framework::ProceedAccept(srv::Asynchron* context)
 	}
 }
 
-void Framework::ProceedDiconnect(srv::Asynchron* context, ULONG_PTR key)
+void Framework::ProceedDiconnect(srv::Asynchron *context, ULONG_PTR key)
 {
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
@@ -172,11 +172,11 @@ void Framework::ProceedDiconnect(srv::Asynchron* context, ULONG_PTR key)
 	Disconnect(session);
 }
 
-void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+void Framework::ProceedSent(srv::Asynchron *context, ULONG_PTR key, unsigned bytes)
 {
-	auto& wbuffer = context->myBuffer;
-	auto& buffer = wbuffer.buf;
-	auto& buffer_length = wbuffer.len;
+	auto &wbuffer = context->myBuffer;
+	auto &buffer = wbuffer.buf;
+	auto &buffer_length = wbuffer.len;
 
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
@@ -209,11 +209,11 @@ void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 	}
 }
 
-void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+void Framework::ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned bytes)
 {
-	auto& wbuffer = context->myBuffer;
-	auto& buffer = wbuffer.buf;
-	auto& buffer_length = wbuffer.len;
+	auto &wbuffer = context->myBuffer;
+	auto &buffer = wbuffer.buf;
+	auto &buffer_length = wbuffer.len;
 
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
@@ -258,16 +258,16 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 		{
 			session->Acquire();
 
-			const auto& packet = result.value();
-			const auto& pk_type = packet->myProtocol;
-			const auto& pk_size = packet->mySize;
+			const auto &packet = result.value();
+			const auto &pk_type = packet->myProtocol;
+			const auto &pk_size = packet->mySize;
 
 			switch (pk_type)
 			{
 				// 로그인
 				case srv::Protocol::CS_SIGNIN:
 				{
-					const auto real_pk = reinterpret_cast<srv::SCPacketSignInSucceed*>(packet);
+					const auto real_pk = reinterpret_cast<srv::SCPacketSignInSucceed *>(packet);
 				}
 				break;
 
@@ -280,12 +280,59 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 				// 회원 가입
 				case srv::Protocol::CS_SIGNUP:
-				{}
+				{
+				}
 				break;
 
 				// 범용 종료
 				case srv::Protocol::CS_DISPOSE:
-				{}
+				{
+					auto session_state = session->myState.load(std::memory_order_acquire);
+
+					switch (session_state)
+					{
+						case srv::SessionStates::ROOM_INGAME:
+						{ }
+						break;
+
+						case srv::SessionStates::ROOM_COMPLETE:
+						{
+						}
+						break;
+
+						case srv::SessionStates::ROOM_LOBBY:
+						{
+						}
+						break;
+
+						case srv::SessionStates::ROOM_MAIN:
+						{
+						}
+						break;
+
+						case srv::SessionStates::CONNECTED:
+						{
+							// 클라이언트의 접속 종료 (알림)
+						}
+						break;
+
+						case srv::SessionStates::ACCEPTED:
+						{
+							// 클라이언트의 접속 종료 (알리지 않고 조용히)
+							session->Disconnect();
+							session->Release();
+						}
+						break;
+
+						case srv::SessionStates::NONE:
+						{
+							// 오류!
+						}
+						break;
+					}
+
+					session->myState.store(session_state, std::memory_order_release);
+				}
 				break;
 
 				// 버전
@@ -306,42 +353,50 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 				// 유저 목록
 				case srv::Protocol::CS_REQUEST_USERS:
-				{}
+				{
+				}
 				break;
 
 				// 방 목록
 				case srv::Protocol::CS_REQUEST_ROOMS:
-				{}
+				{
+				}
 				break;
 
 				// 대화 메시지
 				case srv::Protocol::CS_CHAT:
-				{}
+				{
+				}
 				break;
 
 				// 방 생성
 				case srv::Protocol::CS_CREATE_A_ROOM:
-				{}
+				{
+				}
 				break;
 
 				// 방 나감
 				case srv::Protocol::CS_LEAVE_A_ROOM:
-				{}
+				{
+				}
 				break;
 
 				// 방폭 (방의 유저들은 방 나가기)
 				case srv::Protocol::CS_DESTROY_A_ROOM:
-				{}
+				{
+				}
 				break;
 
 				// 방 선택 후 입장
 				case srv::Protocol::CS_PICK_A_ROOM:
-				{}
+				{
+				}
 				break;
 
 				// 자동 방 매치
 				case srv::Protocol::CS_MATCH_A_ROOM:
-				{}
+				{
+				}
 				break;
 
 				default:
@@ -363,7 +418,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 	}
 }
 
-void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
+void Framework::ProceedDispose(srv::Asynchron *context, ULONG_PTR key)
 {
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
@@ -383,12 +438,12 @@ void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 	delete context;
 }
 
-void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
+void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
 {
 	auto token = stopper.get_token();
 	DWORD bytes = 0;
 	ULONG_PTR key = 0;
-	WSAOVERLAPPED* overlap = nullptr;
+	WSAOVERLAPPED *overlap = nullptr;
 
 	BOOL result{};
 
@@ -404,7 +459,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 			break;
 		}
 
-		auto asynchron = static_cast<srv::Asynchron*>(overlap);
+		auto asynchron = static_cast<srv::Asynchron *>(overlap);
 		if (TRUE == result) [[likely]]
 		{
 			me.ProceedAsync(asynchron, key, static_cast<int>(bytes));
@@ -425,7 +480,7 @@ void Framework::BuildSessions()
 	auto user_sessions = everySessions | std::views::take(srv::MAX_USERS);
 
 	unsigned place = srv::USERS_ID_BEGIN;
-	for (auto& user : user_sessions)
+	for (auto &user : user_sessions)
 	{
 		user = static_pointer_cast<Session>(make_shared<PlayingSession>(place++));
 	}
@@ -433,7 +488,7 @@ void Framework::BuildSessions()
 	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
 
 	place = srv::NPC_ID_BEGIN;
-	for (auto& npc : npc_sessions)
+	for (auto &npc : npc_sessions)
 	{
 		npc = make_shared<Session>(place++);
 	}
@@ -443,7 +498,7 @@ void Framework::BuildRooms()
 {
 	for (unsigned i = 0; i < srv::MAX_ROOMS; i++)
 	{
-		auto& room = everyRooms[i];
+		auto &room = everyRooms[i];
 		room = make_shared<Room>(i);
 	}
 }
@@ -506,7 +561,7 @@ void Framework::Disconnect(shared_ptr<Session> session)
 	Disconnect(session.get());
 }
 
-void Framework::Disconnect(Session* session)
+void Framework::Disconnect(Session *session)
 {
 	session->Acquire();
 	session->Disconnect();
@@ -519,7 +574,7 @@ shared_ptr<Session> Framework::SeekNewbiePlace() const noexcept
 {
 	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
 	auto it = std::find_if(std::execution::par, players_view.begin(), players_view.end()
-		, [&](const shared_ptr<Session>& ptr) {
+		, [&](const shared_ptr<Session> &ptr) {
 		return ptr->myState == srv::SessionStates::NONE;
 	});
 
@@ -539,30 +594,30 @@ unsigned long long Framework::MakeNewbieID() noexcept
 }
 
 template<std::unsigned_integral Integral>
-int Framework::SendTo(Session* session, void* const data, const Integral size)
+int Framework::SendTo(Session *session, void *const data, const Integral size)
 {
 	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
 
-	auto& wbuffer = asynchron->myBuffer;
-	wbuffer.buf = reinterpret_cast<char*>(data);
+	auto &wbuffer = asynchron->myBuffer;
+	wbuffer.buf = reinterpret_cast<char *>(data);
 	wbuffer.len = size;
 
 	return session->BeginSend(asynchron);
 }
 
-int Framework::SendServerStatus(Session* session)
+int Framework::SendServerStatus(Session *session)
 {
 	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
 
 	return 0;
 }
 
-int Framework::SendLoginResult(Session* session, login_succeed_t info)
+int Framework::SendLoginResult(Session *session, login_succeed_t info)
 {
 	return 0;
 }
 
-int Framework::SendLoginResult(Session* session, login_failure_t info)
+int Framework::SendLoginResult(Session *session, login_failure_t info)
 {
 	return 0;
 }
