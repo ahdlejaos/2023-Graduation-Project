@@ -89,7 +89,7 @@ private:
 namespace srv
 {
 	template<packets Pk>
-	inline constexpr Pair<Pk*, Asynchron*> CreateTicket(const Pk& datagram)
+	let Pair<Pk*, Asynchron*> CreateTicket(const Pk& datagram)
 	{
 		Asynchron* asyncron=CreateAsynchron(Operations::SEND);
 
@@ -105,7 +105,7 @@ namespace srv
 	}
 
 	template<packets Pk>
-	inline constexpr Pair<Pk*, Asynchron*> CreateTicket(Pk&& datagram)
+	let Pair<Pk*, Asynchron*> CreateTicket(Pk&& datagram)
 	{
 		Asynchron* asyncron=CreateAsynchron(Operations::SEND);
 
@@ -121,7 +121,7 @@ namespace srv
 	}
 
 	template<packets Pk, typename ...Ty>
-	inline constexpr Pair<Pk*, Asynchron*> CreateTicket(Ty&& ...args)
+	let Pair<Pk*, Asynchron*> CreateTicket(Ty&& ...args)
 	{
 		Asynchron* asyncron=CreateAsynchron(Operations::SEND);
 
