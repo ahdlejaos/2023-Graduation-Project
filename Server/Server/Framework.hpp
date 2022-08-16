@@ -38,6 +38,7 @@ public:
 	bool CanCreateRoom() const noexcept;
 
 	shared_ptr<Session> GetSession(unsigned place) const noexcept(false);
+	shared_ptr<Session> FindSession(unsigned long long id) const noexcept(false);
 
 private:
 	void BuildSessions();

@@ -639,3 +639,13 @@ shared_ptr<Session> Framework::GetSession(unsigned place) const noexcept(false)
 {
 	return everySessions.at(place);
 }
+
+shared_ptr<Session> Framework::FindSession(unsigned long long id) const noexcept(false)
+{
+	auto it = std::find_if(std::execution::par_unseq
+		, everySessions.begin(), everySessions.end()
+		, [id](const shared_ptr<Session> &session) -> bool {
+		return (id == session->myID.load(std::memory_order_relaxed));
+	});
+	return shared_ptr<Session>();
+}
