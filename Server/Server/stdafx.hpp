@@ -68,6 +68,7 @@ using namespace DirectX::PackedVector;
 #include <unordered_map>
 #include <unordered_set>
 #include <queue>
+#include <variant>
 #include <array>
 #include <concurrent_priority_queue.h>
 #include <concurrent_vector.h>
@@ -94,6 +95,8 @@ using RandomDistributionInteger = std::uniform_int_distribution<int>;
 using RandomDistributionLong = std::uniform_int_distribution<long>;
 using RandomDistributionLLong = std::uniform_int_distribution<long long>;
 using RandomDistributionFloat = std::uniform_real_distribution<float>;
+
+#define let inline constexpr 
 
 template<typename ...Ty>
 using Tuple = std::tuple<Ty...>;
@@ -146,7 +149,7 @@ template <class _Ty>
 concept Arithmetic = std::is_arithmetic_v<_Ty>;
 
 template<Arithmetic Ty1, Arithmetic Ty2>
-inline constexpr auto operator+(std::pair<Ty1, Ty2> &&lhs, std::pair<Ty1, Ty2> &&rhs)
+let auto operator+(std::pair<Ty1, Ty2> &&lhs, std::pair<Ty1, Ty2> &&rhs)
 -> std::pair<std::remove_cvref_t<Ty1>, std::remove_cvref_t<Ty2>>
 {
 	return std::make_pair<Ty1, Ty2>(
@@ -155,14 +158,14 @@ inline constexpr auto operator+(std::pair<Ty1, Ty2> &&lhs, std::pair<Ty1, Ty2> &
 }
 
 template<Arithmetic Ty1, Arithmetic Ty2>
-constexpr auto operator+(const std::pair<Ty1, Ty2> &lhs, const std::pair<Ty1, Ty2> &rhs)
+let auto operator+(const std::pair<Ty1, Ty2> &lhs, const std::pair<Ty1, Ty2> &rhs)
 -> std::pair<std::remove_cvref_t<Ty1>, std::remove_cvref_t<Ty2>>
 {
 	return std::make_pair<Ty1, Ty2>(lhs.first + rhs.first, lhs.second + rhs.second);
 }
 
 template<Arithmetic Ty>
-constexpr auto operator+(std::pair<Ty, Ty> &&lhs, std::pair<Ty, Ty> &&rhs)
+let auto operator+(std::pair<Ty, Ty> &&lhs, std::pair<Ty, Ty> &&rhs)
 -> std::pair<std::remove_cvref_t<Ty>, std::remove_cvref_t<Ty>>
 {
 	return std::make_pair<Ty, Ty>(
