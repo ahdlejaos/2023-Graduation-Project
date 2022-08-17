@@ -27,10 +27,10 @@ public:
 
 	void ProceedAsync(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedAccept(srv::Asynchron* context);
-	void ProceedDiconnect(srv::Asynchron* context, ULONG_PTR key);
 	void ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedDispose(srv::Asynchron* context, ULONG_PTR key);
+	void ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key);
 
 	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 
@@ -48,9 +48,9 @@ private:
 	shared_ptr<Session> AcceptPlayer(SOCKET target);
 	shared_ptr<Session> ConnectPlayer(unsigned place);
 	shared_ptr<Session> ConnectPlayer(shared_ptr<Session> session);
-	void Disconnect(unsigned place);
-	void Disconnect(shared_ptr<Session> session);
-	void Disconnect(Session* session);
+	void BeginDisconnect(unsigned place);
+	void BeginDisconnect(shared_ptr<Session> session);
+	void BeginDisconnect(Session* session);
 
 	shared_ptr<Session> SeekNewbiePlace() const noexcept;
 	unsigned long long MakeNewbieID() noexcept;

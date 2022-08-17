@@ -163,18 +163,6 @@ void Framework::ProceedAccept(srv::Asynchron *context)
 	}
 }
 
-void Framework::ProceedDiconnect(srv::Asynchron *context, ULONG_PTR key)
-{
-	const auto place = static_cast<unsigned>(key);
-	auto session = GetSession(place);
-	if (!session) [[unlikely]]
-	{
-		std::cout << "연결을 끊을 세션이 없음! (키: " << key << ")\n";
-	};
-
-	Disconnect(session);
-}
-
 void Framework::ProceedSent(srv::Asynchron *context, ULONG_PTR key, unsigned bytes)
 {
 	auto &wbuffer = context->myBuffer;
@@ -231,7 +219,7 @@ void Framework::ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned byt
 		{
 			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 
-			Disconnect(session.get());
+			BeginDisconnect(session.get());
 		}
 		else
 		{
@@ -322,7 +310,7 @@ void Framework::ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned byt
 						case srv::SessionStates::ACCEPTED:
 						{
 							// 클라이언트의 접속 종료 (알리지 않고 조용히)
-							session->Disconnect();
+							session->BeginDisconnect();
 							session->Release();
 						}
 						break;
@@ -432,13 +420,24 @@ void Framework::ProceedDispose(srv::Asynchron *context, ULONG_PTR key)
 	else
 	{
 		session->Acquire();
-		session->Dispose();
+		session->Cleanup();
 		session->Release();
 
 		numberUsers--;
 	}
 
 	delete context;
+}
+
+void Framework::ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key)
+{
+	const auto place = static_cast<unsigned>(key);
+	auto session = GetSession(place);
+	if (!session) [[unlikely]] {
+		std::cout << "연결을 끊을 세션이 없음! (키: " << key << ")\n";
+	};
+
+	BeginDisconnect(session);
 }
 
 void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
@@ -469,7 +468,7 @@ void Worker(std::stop_source &stopper, Framework &me, AsyncPoolService &pool)
 		}
 		else
 		{
-			me.ProceedDiconnect(asynchron, key);
+			me.ProceedBeginDiconnect(asynchron, key);
 		}
 	}
 
@@ -554,20 +553,20 @@ shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
 	return session;
 }
 
-void Framework::Disconnect(unsigned place)
+void Framework::BeginDisconnect(unsigned place)
 {
-	Disconnect(GetSession(place).get());
+	BeginDisconnect(GetSession(place).get());
 }
 
-void Framework::Disconnect(shared_ptr<Session> session)
+void Framework::BeginDisconnect(shared_ptr<Session> session)
 {
-	Disconnect(session.get());
+	BeginDisconnect(session.get());
 }
 
-void Framework::Disconnect(Session *session)
+void Framework::BeginDisconnect(Session *session)
 {
 	session->Acquire();
-	session->Disconnect();
+	session->BeginDisconnect();
 	session->Release();
 
 	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수" << numberUsers << "명)\n";

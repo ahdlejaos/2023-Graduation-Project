@@ -50,7 +50,7 @@ public:
 		auto &cbuffer = wbuffer.buf;
 		auto &cbuffer_length = wbuffer.len;
 
-
+		
 
 
 		// 나머지 패킷을 수신
@@ -61,9 +61,9 @@ public:
 	}
 
 	/// <summary>
-	/// 비동기 연결 해제를 요청합니다. 나중에 Dispose()를 호출하도록 합니다.
+	/// 비동기 연결 해제를 요청합니다. 나중에 Cleanup()를 호출하도록 합니다.
 	/// </summary>
-	inline void Disconnect()
+	inline void BeginDisconnect()
 	{
 		DisconnectEx(mySocket, srv::CreateAsynchron(srv::Operations::DISPOSE), 0, 0);
 	}
@@ -71,7 +71,7 @@ public:
 	/// <summary>
 	/// 세션의 내용을 초기화합니다. 실제 연결 해제를 수행하진 않습니다.
 	/// </summary>
-	inline void Dispose()
+	inline void Cleanup()
 	{
 		AssignReceiveVirgin(true);
 		AssignState(srv::SessionStates::NONE);
