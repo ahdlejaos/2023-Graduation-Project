@@ -251,7 +251,6 @@ void Framework::ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned byt
 
 			const auto &packet = result.value();
 			const auto &pk_type = packet->myProtocol;
-			const auto &pk_size = packet->mySize;
 
 			switch (pk_type)
 			{
@@ -395,15 +394,6 @@ void Framework::ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned byt
 					session->Release();
 				}
 				break;
-			}
-
-			if (0 < pk_size) // [[likely]]
-			{
-
-			}
-			else
-			{
-
 			}
 		}
 	}
