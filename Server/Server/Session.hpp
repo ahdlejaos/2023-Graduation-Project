@@ -82,6 +82,14 @@ public:
 	}
 
 	/// <summary>
+	/// 접속 종료를 위해 세션이 속한 게임, 방, 대기실을 나갑니다.
+	/// </summary>
+	inline void BeginCleanup()
+	{
+
+	}
+
+	/// <summary>
 	/// 세션의 내용을 초기화합니다. 실제 연결 해제를 수행하진 않습니다.
 	/// </summary>
 	inline void Cleanup()
