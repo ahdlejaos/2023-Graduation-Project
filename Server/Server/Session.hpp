@@ -190,6 +190,11 @@ public:
 		return myReceiver->Recv(mySocket, nullptr, 0);
 	}
 
+	inline constexpr void ClearRecvBuffer(unsigned begin_offset = 0)
+	{
+		std::fill(std::begin(myRecvBuffer) + begin_offset, std::end(myRecvBuffer), 0);
+	}
+
 	/// <summary>
 	/// 패킷 송신을 시작합니다.
 	/// </summary>
@@ -240,8 +245,7 @@ public:
 	/// <param name="asynchron"></param>
 	/// <param name="additional_offsets"></param>
 	/// <returns>WSASend의 결과값</returns>
-	template<std::integral Integral>
-	inline int Send(srv::Asynchron* asynchron, Integral additional_offsets)
+	inline int Send(srv::Asynchron* asynchron, std::integral auto additional_offsets)
 	{
 		auto& wbuffer = asynchron->myBuffer;
 		wbuffer.buf += additional_offsets;
