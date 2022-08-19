@@ -129,12 +129,12 @@ namespace srv
 		const SIGNUP_CAUSE myCause;
 	};
 
+	/// <summary>
+	/// 로그인 패킷
+	/// </summary>
 	class CSPacketSignIn : public Packet<CSPacketSignIn>
 	{
 	public:
-		/// <summary>
-		/// 로그인 패킷
-		/// </summary>
 		/// <param name="user_id">사용자의 아이디 또는 전자메일 주소 (유일)</param>
 		/// <param name="user_pw">사용자의 비밀번호, 부호화됨</param>
 		constexpr CSPacketSignIn(
