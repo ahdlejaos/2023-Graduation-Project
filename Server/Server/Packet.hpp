@@ -116,6 +116,21 @@ namespace srv
 		const SIGNUP_CAUSE myCause;
 	};
 
+	class CSPacketSignIn : public Packet<CSPacketSignIn>
+	{
+	public:
+		constexpr CSPacketSignIn(const std::span<wchar_t, 30> user_id, const std::span<wchar_t, 30> user_pw)
+			: Packet(Protocol::CS_SIGNIN)
+			, userID(), userPN()
+		{
+			std::copy(user_id.begin(), user_id.end(), userID);
+			std::copy(user_pw.begin(), user_pw.end(), userPN);
+		}
+
+		wchar_t userID[30]; // 사용자의 아이디
+		wchar_t userPN[30]; // 사용자의 비밀번호, 부호화됨
+	};
+
 	template<packets Pk>
 	[[nodiscard]] inline constexpr Pk* CreatePacket(const Pk& datagram)
 	{
