@@ -167,7 +167,7 @@ namespace srv
 			const std::span<wchar_t, 10> user_nick
 		)
 			: Packet(Protocol::CS_SIGNUP)
-			, userID(), userPN()
+			, userID(), userPN(), userName()
 		{
 			std::copy(user_email.begin(), user_email.end(), userID);
 			std::copy(user_pw.begin(), user_pw.end(), userPN);
