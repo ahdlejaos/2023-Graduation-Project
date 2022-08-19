@@ -40,27 +40,26 @@ public:
 	/// </summary>
 	/// <param name="size">작업이 끝나고 받을 바이트의 총량</param>
 	/// <param name="bytes">수신받은 바이트의 수</param>
-	inline std::optional<srv::BasisPacket *> Swallow(const unsigned size, _In_ const unsigned bytes)
+	inline std::optional<srv::BasisPacket*> Swallow(const unsigned size, _In_ const unsigned bytes)
 	{
 		Acquire();
 
-		std::optional<srv::BasisPacket *> result{};
+		std::optional<srv::BasisPacket*> result{};
 
-		auto &wbuffer = myReceiver->myBuffer;
-		auto &cbuffer = wbuffer.buf;
-		auto &cbuffer_length = wbuffer.len;
+		auto& wbuffer = myReceiver->myBuffer;
+		auto& cbuffer = wbuffer.buf;
+		auto& cbuffer_length = wbuffer.len;
 
 		// 패킷 조립
 		constexpr auto min_size = sizeof(srv::BasisPacket);
-		//myLastPacket.wait()
+
+
 
 		// 나머지 패킷을 수신
 		const int op = Recv(size, static_cast<unsigned>(bytes));
 
-		if (srv::CheckError(op)) [[unlikely]]
-		{
-			if (!srv::CheckPending(op)) [[unlikely]]
-			{
+		if (srv::CheckError(op)) [[unlikely]] {
+			if (!srv::CheckPending(op)) [[unlikely]] {
 				std::cout << "세션 " << myID.load(std::memory_order_relaxed) << "에서 수신 오류 발생!\n";
 
 				BeginDisconnect();
@@ -143,11 +142,10 @@ public:
 	/// <param name="size"></param>
 	/// <param name="additional_offsets"></param>
 	/// <returns>WSARecv의 결과값</returns>
-	template<std::integral Integral>
-	inline int Recv(unsigned size, Integral additional_offsets)
+	inline int Recv(unsigned size, std::integral auto additional_offsets)
 	{
-		auto &wbuffer = myReceiver->myBuffer;
-		wbuffer.buf = (myRecvBuffer)+additional_offsets;
+		auto& wbuffer = myReceiver->myBuffer;
+		wbuffer.buf = (myRecvBuffer) + additional_offsets;
 		wbuffer.len = static_cast<unsigned long>(size - additional_offsets);
 
 		return myReceiver->Recv(mySocket, nullptr, 0);
@@ -160,7 +158,7 @@ public:
 	/// <returns>WSARecv의 결과값</returns>
 	inline int Recv(unsigned size)
 	{
-		auto &wbuffer = myReceiver->myBuffer;
+		auto& wbuffer = myReceiver->myBuffer;
 		wbuffer.buf = myRecvBuffer;
 		wbuffer.len = static_cast<unsigned long>(size);
 
@@ -172,7 +170,7 @@ public:
 	/// </summary>
 	/// <param name="asynchron"></param>
 	/// <returns>WSASend의 결과값</returns>
-	inline int BeginSend(srv::Asynchron *asynchron)
+	inline int BeginSend(srv::Asynchron* asynchron)
 	{
 		return asynchron->Send(mySocket, nullptr, 0);
 	}
@@ -185,9 +183,9 @@ public:
 	/// <param name="size"></param>
 	/// <param name="offset"></param>
 	/// <returns>WSASend의 결과값</returns>
-	inline int Send(srv::Asynchron *asynchron, char *const buffer, unsigned size, unsigned offset = 0)
+	inline int Send(srv::Asynchron* asynchron, char* const buffer, unsigned size, unsigned offset = 0)
 	{
-		auto &wbuffer = asynchron->myBuffer;
+		auto& wbuffer = asynchron->myBuffer;
 		wbuffer.buf = buffer + offset;
 		wbuffer.len = static_cast<unsigned long>(size - offset);
 
@@ -202,9 +200,9 @@ public:
 	/// <param name="offset"></param>
 	/// <returns>WSASend의 결과값</returns>
 	template<unsigned original_size>
-	inline int Send(srv::Asynchron *asynchron, const char(&buffer)[original_size], unsigned offset = 0)
+	inline int Send(srv::Asynchron* asynchron, const char(&buffer)[original_size], unsigned offset = 0)
 	{
-		auto &wbuffer = asynchron->myBuffer;
+		auto& wbuffer = asynchron->myBuffer;
 		wbuffer.buf = buffer + offset;
 		wbuffer.len = static_cast<unsigned long>(original_size - offset);
 
@@ -218,9 +216,9 @@ public:
 	/// <param name="additional_offsets"></param>
 	/// <returns>WSASend의 결과값</returns>
 	template<std::integral Integral>
-	inline int Send(srv::Asynchron *asynchron, Integral additional_offsets)
+	inline int Send(srv::Asynchron* asynchron, Integral additional_offsets)
 	{
-		auto &wbuffer = asynchron->myBuffer;
+		auto& wbuffer = asynchron->myBuffer;
 		wbuffer.buf += additional_offsets;
 		wbuffer.len -= additional_offsets;
 
@@ -237,12 +235,12 @@ public:
 		myState.store(state, std::memory_order_acq_rel);
 	}
 
-	inline void AssignSocket(const SOCKET &sock)
+	inline void AssignSocket(const SOCKET& sock)
 	{
 		mySocket.store(sock, std::memory_order_acq_rel);
 	}
 
-	inline void AssignSocket(SOCKET &&sock)
+	inline void AssignSocket(SOCKET&& sock)
 	{
 		mySocket.store(std::forward<SOCKET>(sock), std::memory_order_acq_rel);
 	}
@@ -252,12 +250,12 @@ public:
 		myID.store(id, std::memory_order_acq_rel);
 	}
 
-	inline void AssignRoom(const shared_ptr<Room> &room)
+	inline void AssignRoom(const shared_ptr<Room>& room)
 	{
 		myRoom.store(room, std::memory_order_acq_rel);
 	}
 
-	inline void AssignRoom(shared_ptr<Room> &&room)
+	inline void AssignRoom(shared_ptr<Room>&& room)
 	{
 		myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_acq_rel);
 	}
@@ -272,12 +270,12 @@ public:
 		myState.store(state, std::memory_order_relaxed);
 	}
 
-	inline void SetSocket(const SOCKET &sock)
+	inline void SetSocket(const SOCKET& sock)
 	{
 		mySocket.store(sock, std::memory_order_relaxed);
 	}
 
-	inline void SetSocket(SOCKET &&sock)
+	inline void SetSocket(SOCKET&& sock)
 	{
 		mySocket.store(std::forward<SOCKET>(sock), std::memory_order_relaxed);
 	}
@@ -287,12 +285,12 @@ public:
 		myID.store(id, std::memory_order_relaxed);
 	}
 
-	inline void SetRoom(const shared_ptr<Room> &room)
+	inline void SetRoom(const shared_ptr<Room>& room)
 	{
 		myRoom.store(room, std::memory_order_relaxed);
 	}
 
-	inline void SetRoom(shared_ptr<Room> &&room)
+	inline void SetRoom(shared_ptr<Room>&& room)
 	{
 		myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_relaxed);
 	}
