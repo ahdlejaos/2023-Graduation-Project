@@ -108,9 +108,9 @@ namespace srv
 		/// <summary>
 		/// 접속 종료를 위해 세션이 속한 게임, 방, 대기실을 나갑니다.
 		/// </summary>
-		inline void BeginCleanup()
+		let void BeginCleanup()
 		{
-			ZeroMemory(myLastPacket, sizeof(myLastPacket));
+			Clear(myLastPacket, 0);
 		}
 
 		/// <summary>
@@ -169,10 +169,10 @@ namespace srv
 		/// <param name="size"></param>
 		/// <param name="additional_offsets"></param>
 		/// <returns>WSARecv의 결과값</returns>
-		inline int Recv(unsigned size, std::integral auto additional_offsets)
+		inline int Recv(unsigned size, const std::integral auto additional_offsets)
 		{
 			auto& wbuffer = myReceiver->myBuffer;
-			wbuffer.buf = (myRecvBuffer) +additional_offsets;
+			wbuffer.buf = myRecvBuffer + additional_offsets;
 			wbuffer.len = static_cast<unsigned long>(size - additional_offsets);
 
 			return myReceiver->Recv(mySocket, nullptr, 0);

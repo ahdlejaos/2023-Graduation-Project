@@ -150,7 +150,7 @@ template <class _Ty>
 concept Arithmetic = std::is_arithmetic_v<_Ty>;
 
 template<Arithmetic Ty1, Arithmetic Ty2>
-let auto operator+(std::pair<Ty1, Ty2> &&lhs, std::pair<Ty1, Ty2> &&rhs)
+let auto operator+(std::pair<Ty1, Ty2>&& lhs, std::pair<Ty1, Ty2>&& rhs)
 -> std::pair<std::remove_cvref_t<Ty1>, std::remove_cvref_t<Ty2>>
 {
 	return std::make_pair<Ty1, Ty2>(
@@ -159,14 +159,14 @@ let auto operator+(std::pair<Ty1, Ty2> &&lhs, std::pair<Ty1, Ty2> &&rhs)
 }
 
 template<Arithmetic Ty1, Arithmetic Ty2>
-let auto operator+(const std::pair<Ty1, Ty2> &lhs, const std::pair<Ty1, Ty2> &rhs)
+let auto operator+(const std::pair<Ty1, Ty2>& lhs, const std::pair<Ty1, Ty2>& rhs)
 -> std::pair<std::remove_cvref_t<Ty1>, std::remove_cvref_t<Ty2>>
 {
 	return std::make_pair<Ty1, Ty2>(lhs.first + rhs.first, lhs.second + rhs.second);
 }
 
 template<Arithmetic Ty>
-let auto operator+(std::pair<Ty, Ty> &&lhs, std::pair<Ty, Ty> &&rhs)
+let auto operator+(std::pair<Ty, Ty>&& lhs, std::pair<Ty, Ty>&& rhs)
 -> std::pair<std::remove_cvref_t<Ty>, std::remove_cvref_t<Ty>>
 {
 	return std::make_pair<Ty, Ty>(
@@ -179,10 +179,11 @@ struct std::default_delete<WSABUF>
 {
 	constexpr default_delete() noexcept = default;
 
-	template <class _Ty2, enable_if_t<is_convertible_v<_Ty2 *, WSABUF *>, int> = 0>
-	default_delete(const default_delete<_Ty2> &) noexcept {}
+	template <class _Ty2, enable_if_t<is_convertible_v<_Ty2*, WSABUF*>, int> = 0>
+	default_delete(const default_delete<_Ty2>&) noexcept
+	{}
 
-	void operator()(WSABUF *_Ptr) const noexcept /* strengthened */
+	void operator()(WSABUF* _Ptr) const noexcept /* strengthened */
 	{ // delete a pointer
 		static_assert(0 < sizeof(WSABUF), "can't delete an incomplete type");
 
@@ -211,14 +212,14 @@ public:
 		: myLatch()
 	{}
 
-	Spinlock(const Spinlock &) = delete;
-	Spinlock &operator=(const Spinlock &) = delete;
+	Spinlock(const Spinlock&) = delete;
+	Spinlock& operator=(const Spinlock&) = delete;
 
 	~Spinlock()
 	{
 		myLatch.clear();
 	}
-	
+
 	inline void lock(const std::memory_order order = std::memory_order::memory_order_acquire) volatile noexcept
 	{
 		while (myLatch.test_and_set(order));
@@ -246,10 +247,10 @@ public:
 	using reference = iterator_type::reference;
 
 	constexpr index_enumerator()
-		requires std::default_initializable<Container> &&std::default_initializable<iterator_type> = default;
+		requires std::default_initializable<Container>&& std::default_initializable<iterator_type> = default;
 
 	template<std::integral Integral>
-	constexpr index_enumerator(Container &container, Integral npos = 0)
+	constexpr index_enumerator(Container& container, Integral npos = 0)
 		: range(std::addressof(container)), handle(std::begin(container))
 		, index(static_cast<std::size_t>(npos))
 	{}
@@ -260,7 +261,7 @@ public:
 		, index(static_cast<std::size_t>(npos))
 	{}
 
-	inline constexpr index_enumerator &operator++()
+	inline constexpr index_enumerator& operator++()
 	{
 		// weakly_incrementable да╪а
 		++handle;
@@ -277,7 +278,7 @@ public:
 		return temp;
 	}
 
-	inline constexpr index_enumerator &operator--()
+	inline constexpr index_enumerator& operator--()
 	{
 		--handle;
 		--index;
@@ -308,22 +309,22 @@ public:
 		return this->handle;
 	}
 
-	inline constexpr bool operator==(const index_enumerator &_other) const
+	inline constexpr bool operator==(const index_enumerator& _other) const
 	{
 		return this->handle == _other.handle;
 	}
 
-	inline constexpr bool operator==(const iterator_type &_other) const
+	inline constexpr bool operator==(const iterator_type& _other) const
 	{
 		return this->handle == _other;
 	}
 
-	inline constexpr bool operator==(iterator_type &&_other) const
+	inline constexpr bool operator==(iterator_type&& _other) const
 	{
 		return this->handle == std::forward<iterator_type>(_other);
 	}
 
-	Container *range;
+	Container* range;
 	iterator_type handle;
 	std::size_t index;
 };
@@ -347,13 +348,13 @@ public:
 	: myBase(std::move(ranged))
 	{}
 
-	constexpr index_view(View &&ranged)
+	constexpr index_view(View&& ranged)
 		noexcept(std::is_nothrow_move_constructible_v<View>)
 		requires std::ranges::range<const View>
 	: myBase(std::forward(ranged))
 	{}
 
-	[[nodiscard]] constexpr View base() const &
+	[[nodiscard]] constexpr View base() const&
 		noexcept(std::is_nothrow_copy_constructible_v<View>)
 		requires std::copy_constructible<View>
 	{
@@ -419,13 +420,13 @@ namespace srv
 	}
 
 	[[noreturn]]
-	inline void RaisePlainError(const std::string_view &description) noexcept(false)
+	inline void RaisePlainError(const std::string_view& description) noexcept(false)
 	{
 		throw std::exception(description.data());
 	}
 
 	[[noreturn]]
-	inline void RaiseRuntimeError(const std::string_view &description) noexcept(false)
+	inline void RaiseRuntimeError(const std::string_view& description) noexcept(false)
 	{
 		throw std::runtime_error(description.data());
 	}
@@ -435,7 +436,7 @@ namespace srv
 	{
 		throw std::system_error(std::make_error_code(code));
 	}
-	
+
 	class UserPassword
 	{
 	public:
@@ -446,17 +447,17 @@ namespace srv
 class XYZWrapper
 {
 public:
-	constexpr XYZWrapper(float &x, float &y, float &z)
+	constexpr XYZWrapper(float& x, float& y, float& z)
 		: x(x), y(y), z(z)
 	{}
 
-	constexpr XYZWrapper(XMFLOAT3 &position)
+	constexpr XYZWrapper(XMFLOAT3& position)
 		: XYZWrapper(position.x, position.y, position.z)
 	{}
 
-	XYZWrapper(XMFLOAT3 &&position) = delete;
+	XYZWrapper(XMFLOAT3&& position) = delete;
 
-	inline constexpr XYZWrapper &operator=(float(&list)[3])
+	inline constexpr XYZWrapper& operator=(float(&list)[3])
 	{
 		x = list[0];
 		y = list[1];
@@ -464,7 +465,7 @@ public:
 		return *this;
 	}
 
-	inline constexpr XYZWrapper &operator=(std::span<float, 3> list)
+	inline constexpr XYZWrapper& operator=(std::span<float, 3> list)
 	{
 		x = list[0];
 		y = list[1];
@@ -472,7 +473,7 @@ public:
 		return *this;
 	}
 
-	inline constexpr XYZWrapper &operator=(const XMFLOAT3 &vector)
+	inline constexpr XYZWrapper& operator=(const XMFLOAT3& vector)
 	{
 		x = vector.x;
 		y = vector.y;
@@ -480,7 +481,7 @@ public:
 		return *this;
 	}
 
-	inline constexpr XYZWrapper &operator=(XMFLOAT3 &&vector)
+	inline constexpr XYZWrapper& operator=(XMFLOAT3&& vector)
 	{
 		x = std::forward<float>(vector.x);
 		y = std::forward<float>(vector.y);
@@ -493,7 +494,31 @@ public:
 		return XMFLOAT3(x, y, z);
 	}
 
-	float &x;
-	float &y;
-	float &z;
+	float& x;
+	float& y;
+	float& z;
 };
+
+template<std::copyable Ty>
+inline constexpr void Clear(std::span<Ty>& buffer, const Ty& value)
+{
+	std::fill(buffer.begin(), buffer.end(), value);
+}
+
+template<>
+inline constexpr void Clear(std::span<char>& buffer, const char& value)
+{
+	std::fill(buffer.begin(), buffer.end(), value);
+}
+
+template<std::copyable Ty, std::size_t Length>
+inline constexpr void Clear(Ty(&buffer)[Length], const Ty& value)
+{
+	std::fill(buffer, buffer + Length, value);
+}
+
+template<std::size_t Length>
+inline constexpr void Clear(char (&buffer)[Length], const char& value)
+{
+	std::fill(buffer, buffer + Length, value);
+}
