@@ -18,5 +18,5 @@ public:
 
 	atomic<srv::RoomStates> myState;
 
-	std::array<shared_ptr<Session>, srv::MAX_PLAYERS_PER_ROOM> myPlayers;
+	std::array<shared_ptr<srv::Session>, srv::MAX_PLAYERS_PER_ROOM> myPlayers;
 };

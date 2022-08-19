@@ -470,7 +470,7 @@ void Framework::BuildSessions()
 	unsigned place = srv::USERS_ID_BEGIN;
 	for (auto& user : user_sessions)
 	{
-		user = static_pointer_cast<Session>(make_shared<PlayingSession>(place++));
+		user = static_pointer_cast<srv::Session>(make_shared<PlayingSession>(place++));
 	}
 
 	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
@@ -478,7 +478,7 @@ void Framework::BuildSessions()
 	place = srv::NPC_ID_BEGIN;
 	for (auto& npc : npc_sessions)
 	{
-		npc = make_shared<Session>(place++);
+		npc = make_shared<srv::Session>(place++);
 	}
 }
 
@@ -494,7 +494,7 @@ void Framework::BuildRooms()
 void Framework::BuildResources()
 {}
 
-shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
+shared_ptr<srv::Session> Framework::AcceptPlayer(SOCKET target)
 {
 	auto newbie = SeekNewbiePlace();
 	newbie->Acquire();
@@ -519,12 +519,12 @@ shared_ptr<Session> Framework::AcceptPlayer(SOCKET target)
 	return newbie;
 }
 
-shared_ptr<Session> Framework::ConnectPlayer(unsigned place)
+shared_ptr<srv::Session> Framework::ConnectPlayer(unsigned place)
 {
 	return ConnectPlayer(GetSession(place));
 }
 
-shared_ptr<Session> Framework::ConnectPlayer(shared_ptr<Session> session)
+shared_ptr<srv::Session> Framework::ConnectPlayer(shared_ptr<srv::Session> session)
 {
 	session->Acquire();
 	std::cout << "플레이어 접속: " << session->myID << "\n";
@@ -562,7 +562,7 @@ shared_ptr<srv::Session> Framework::SeekNewbiePlace() const noexcept
 {
 	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
 	auto it = std::find_if(std::execution::par, players_view.begin(), players_view.end()
-		, [&](const shared_ptr<Session>& ptr) {
+		, [&](const shared_ptr<srv::Session>& ptr) {
 		return ptr->myState == srv::SessionStates::NONE;
 	});
 
@@ -619,17 +619,25 @@ bool Framework::CanCreateRoom() const noexcept
 	return numberRooms.load(std::memory_order_acq_rel) < srv::MAX_ROOMS;
 }
 
-shared_ptr<Session> Framework::GetSession(unsigned place) const noexcept(false)
+shared_ptr<srv::Session> Framework::GetSession(unsigned place) const noexcept(false)
 {
 	return everySessions.at(place);
 }
 
-shared_ptr<Session> Framework::FindSession(unsigned long long id) const noexcept(false)
+shared_ptr<srv::Session> Framework::FindSession(unsigned long long id) const noexcept(false)
 {
 	auto it = std::find_if(std::execution::par_unseq
-		, everySessions.begin(), everySessions.end()
-		, [id](const shared_ptr<Session>& session) -> bool {
+		, everySessions.cbegin(), everySessions.cend()
+		, [id](const shared_ptr<srv::Session>& session) -> bool {
 		return (id == session->myID.load(std::memory_order_relaxed));
 	});
-	return shared_ptr<Session>();
+
+	if (it != everySessions.cend())
+	{
+		return *it;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
