@@ -11,6 +11,16 @@ namespace srv
 
 		constexpr virtual ~BasisPacket() {}
 
+		inline constexpr const auto& GetProtocol() const noexcept
+		{
+			return myProtocol;
+		}
+
+		inline constexpr const auto& GetSize() const noexcept
+		{
+			return mySize;
+		}
+
 		const Protocol myProtocol;
 		const std::uint32_t mySize;
 	};
