@@ -9,7 +9,8 @@ namespace srv
 			: myProtocol(type), mySize(size)
 		{}
 
-		constexpr virtual ~BasisPacket() {}
+		constexpr virtual ~BasisPacket()
+		{}
 
 		inline constexpr const auto& GetProtocol() const noexcept
 		{
@@ -30,6 +31,19 @@ namespace srv
 		requires std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
 	class Packet : public BasisPacket
 	{
+	protected:
+		[[nodiscard]] constexpr Derived& Cast() noexcept
+		{
+			static_assert(std::derived_from<Derived, Packet>);
+			return static_cast<Derived&>(*this);
+		}
+
+		[[nodiscard]] constexpr const Derived& Cast() const noexcept
+		{
+			static_assert(std::derived_from<Derived, Packet>);
+			return static_cast<const Derived&>(*this);
+		}
+
 	public:
 		constexpr Packet(const Protocol type, const std::uint32_t size)
 			: BasisPacket(type, size)
@@ -39,7 +53,8 @@ namespace srv
 			: Packet(type, sizeof(Derived))
 		{}
 
-		constexpr virtual ~Packet() {}
+		constexpr virtual ~Packet()
+		{}
 
 		friend inline constexpr Derived* CreatePacket(const Derived&);
 		friend inline constexpr Derived* CreatePacket(Derived&&);
@@ -117,7 +132,15 @@ namespace srv
 	class CSPacketSignIn : public Packet<CSPacketSignIn>
 	{
 	public:
-		constexpr CSPacketSignIn(const std::span<wchar_t, 30> user_id, const std::span<wchar_t, 30> user_pw)
+		/// <summary>
+		/// 로그인 패킷
+		/// </summary>
+		/// <param name="user_id">사용자의 아이디 또는 전자메일 주소 (유일)</param>
+		/// <param name="user_pw">사용자의 비밀번호, 부호화됨</param>
+		constexpr CSPacketSignIn(
+			const std::span<wchar_t, 30> user_id,
+			const std::span<wchar_t, 30> user_pw
+		)
 			: Packet(Protocol::CS_SIGNIN)
 			, userID(), userPN()
 		{
@@ -125,8 +148,38 @@ namespace srv
 			std::copy(user_pw.begin(), user_pw.end(), userPN);
 		}
 
-		wchar_t userID[30]; // 사용자의 아이디
-		wchar_t userPN[30]; // 사용자의 비밀번호, 부호화됨
+		wchar_t userID[30];
+		wchar_t userPN[30];
+	};
+
+	/// <summary>
+	/// 가입 패킷
+	/// </summary>
+	class CSPacketSignUp : public Packet<CSPacketSignUp>
+	{
+	public:
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="user_email">사용자의 전자메일 주소 (유일)</param>
+		/// <param name="user_pw">사용자의 비밀번호, 부호화됨</param>
+		/// <param name="user_nick">사용자의 별명</param>
+		constexpr CSPacketSignUp(
+			const std::span<wchar_t, 30> user_email,
+			const std::span<wchar_t, 30> user_pw,
+			const std::span<wchar_t, 10> user_nick
+		)
+			: Packet(Protocol::CS_SIGNUP)
+			, userID(), userPN()
+		{
+			std::copy(user_email.begin(), user_email.end(), userID);
+			std::copy(user_pw.begin(), user_pw.end(), userPN);
+			std::copy(user_nick.begin(), user_nick.end(), userName);
+		}
+
+		wchar_t userID[30];
+		wchar_t userPN[30];
+		wchar_t userName[10];
 	};
 
 	template<packets Pk>

@@ -257,20 +257,21 @@ void Framework::ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned byt
 				// 로그인
 				case srv::Protocol::CS_SIGNIN:
 				{
-					const auto real_pk = reinterpret_cast<srv::SCPacketSignInSucceed *>(packet);
+					const auto real_pk = reinterpret_cast<srv::CSPacketSignIn *>(packet);
 				}
 				break;
 
 				// 로그아웃
 				case srv::Protocol::CS_SIGNOUT:
 				{
-					const auto real_pk = reinterpret_cast<srv::SCPacketSignInSucceed *>(packet);
+					//const auto real_pk = reinterpret_cast<srv::CSPacketSignUp *>(packet);
 				}
 				break;
 
 				// 회원 가입
 				case srv::Protocol::CS_SIGNUP:
 				{
+					const auto real_pk = reinterpret_cast<srv::CSPacketSignUp *>(packet);
 				}
 				break;
 
