@@ -50,11 +50,24 @@ public:
 		auto &cbuffer = wbuffer.buf;
 		auto &cbuffer_length = wbuffer.len;
 
-		
+		// 패킷 조립
+		constexpr auto min_size = sizeof(srv::BasisPacket);
 
 
 		// 나머지 패킷을 수신
-		Recv(size, static_cast<unsigned>(bytes));
+		const int op = Recv(size, static_cast<unsigned>(bytes));
+
+		if (srv::CheckError(op)) [[unlikely]]
+		{
+			if (!srv::CheckPending(op)) [[unlikely]]
+			{
+				std::cout << "세션 " << myID.load(std::memory_order_relaxed) << "에서 수신 오류 발생!\n";
+
+				BeginDisconnect();
+
+				result.reset();
+			}
+		}
 		Release();
 
 		return result;
