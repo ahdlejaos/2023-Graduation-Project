@@ -9,7 +9,7 @@ public:
 	constexpr Session(unsigned place)
 		: isFirst(false), mySwitch()
 		, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
-		, myReceiver(nullptr), myRecvBuffer(), myLastPacket()
+		, myReceiver(nullptr), myRecvBuffer(), myRecvSize(), myLastPacket()
 	{}
 
 	virtual ~Session()
@@ -97,6 +97,8 @@ public:
 		AssignState(srv::SessionStates::NONE);
 		AssignID(0);
 		AssignSocket(NULL);
+
+		myRecvSize = 0;
 	}
 
 	/// <summary>
@@ -316,5 +318,6 @@ public:
 
 	shared_ptr<srv::Asynchron> myReceiver;
 	char myRecvBuffer[BUFSIZ];
+	unsigned short myRecvSize;
 	char myLastPacket[200];
 };
