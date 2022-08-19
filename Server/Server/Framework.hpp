@@ -43,8 +43,8 @@ public:
 	bool CanAcceptPlayer() const noexcept;
 	bool CanCreateRoom() const noexcept;
 
-	shared_ptr<Session> GetSession(unsigned place) const noexcept(false);
-	shared_ptr<Session> FindSession(unsigned long long id) const noexcept(false);
+	shared_ptr<srv::Session> GetSession(unsigned place) const noexcept(false);
+	shared_ptr<srv::Session> FindSession(unsigned long long id) const noexcept(false);
 
 	using DBinUsersSearcher = bool(const Sentence user_id);
 
@@ -53,21 +53,20 @@ private:
 	void BuildRooms();
 	void BuildResources();
 
-	shared_ptr<Session> AcceptPlayer(SOCKET target);
-	shared_ptr<Session> ConnectPlayer(unsigned place);
-	shared_ptr<Session> ConnectPlayer(shared_ptr<Session> session);
+	shared_ptr<srv::Session> AcceptPlayer(SOCKET target);
+	shared_ptr<srv::Session> ConnectPlayer(unsigned place);
+	shared_ptr<srv::Session> ConnectPlayer(shared_ptr<srv::Session> session);
 	void BeginDisconnect(unsigned place);
-	void BeginDisconnect(shared_ptr<Session> session);
-	void BeginDisconnect(Session* session);
+	void BeginDisconnect(shared_ptr<srv::Session> session);
+	void BeginDisconnect(srv::Session* session);
 
-	shared_ptr<Session> SeekNewbiePlace() const noexcept;
+	shared_ptr<srv::Session> SeekNewbiePlace() const noexcept;
 	unsigned long long MakeNewbieID() noexcept;
 
-	template<std::unsigned_integral Integral>
-	int SendTo(Session* session, void* const data, const Integral size);
-	int SendServerStatus(Session* session);
-	int SendLoginResult(Session* session, login_succeed_t info);
-	int SendLoginResult(Session* session, login_failure_t info);
+	int SendTo(srv::Session* session, void* const data, const std::unsigned_integral auto size);
+	int SendServerStatus(srv::Session* session);
+	int SendLoginResult(srv::Session* session, login_succeed_t info);
+	int SendLoginResult(srv::Session* session, login_failure_t info);
 
 	ULONG_PTR myID;
 
@@ -85,10 +84,10 @@ private:
 	unique_ptr<Thread> databaseWorker;
 	std::priority_queue<int> databaseQueue;
 	std::packaged_task<bool(const Sentence user_id)> databaseUserSearcher;
-	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> databaseUserSearcher;
+	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> databaseUserCertifier;
 
 	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
-	std::array<shared_ptr<Session>, srv::MAX_ENTITIES> everySessions;
+	std::array<shared_ptr<srv::Session>, srv::MAX_ENTITIES> everySessions;
 	atomic<unsigned> numberRooms;
 	atomic<unsigned> numberUsers;
 
@@ -103,7 +102,7 @@ namespace srv
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket(datagram);
+		auto packet = CreatePacket(datagram);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);
@@ -119,7 +118,7 @@ namespace srv
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket(std::forward<Pk>(datagram));
+		auto packet = CreatePacket(std::forward<Pk>(datagram));
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);
@@ -135,7 +134,7 @@ namespace srv
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket<Pk>(std::forward<decltype((args))>(args)...);
+		auto packet = CreatePacket<Pk>(std::forward<decltype((args))>(args)...);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);

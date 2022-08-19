@@ -435,6 +435,12 @@ namespace srv
 	{
 		throw std::system_error(std::make_error_code(code));
 	}
+	
+	class UserPassword
+	{
+	public:
+
+	};
 }
 
 class XYZWrapper

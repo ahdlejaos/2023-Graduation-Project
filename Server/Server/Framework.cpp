@@ -544,12 +544,12 @@ void Framework::BeginDisconnect(unsigned place)
 	BeginDisconnect(GetSession(place).get());
 }
 
-void Framework::BeginDisconnect(shared_ptr<Session> session)
+void Framework::BeginDisconnect(shared_ptr<srv::Session> session)
 {
 	BeginDisconnect(session.get());
 }
 
-void Framework::BeginDisconnect(Session* session)
+void Framework::BeginDisconnect(srv::Session* session)
 {
 	session->Acquire();
 	session->BeginDisconnect();
@@ -558,7 +558,7 @@ void Framework::BeginDisconnect(Session* session)
 	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수" << numberUsers << "명)\n";
 }
 
-shared_ptr<Session> Framework::SeekNewbiePlace() const noexcept
+shared_ptr<srv::Session> Framework::SeekNewbiePlace() const noexcept
 {
 	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
 	auto it = std::find_if(std::execution::par, players_view.begin(), players_view.end()
@@ -581,8 +581,7 @@ unsigned long long Framework::MakeNewbieID() noexcept
 	return playerIDs++;
 }
 
-template<std::unsigned_integral Integral>
-int Framework::SendTo(Session* session, void* const data, const Integral size)
+int Framework::SendTo(srv::Session* session, void* const data, const std::unsigned_integral auto size)
 {
 	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
 
@@ -593,19 +592,19 @@ int Framework::SendTo(Session* session, void* const data, const Integral size)
 	return session->BeginSend(asynchron);
 }
 
-int Framework::SendServerStatus(Session* session)
+int Framework::SendServerStatus(srv::Session* session)
 {
 	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
 
 	return 0;
 }
 
-int Framework::SendLoginResult(Session* session, login_succeed_t info)
+int Framework::SendLoginResult(srv::Session* session, login_succeed_t info)
 {
 	return 0;
 }
 
-int Framework::SendLoginResult(Session* session, login_failure_t info)
+int Framework::SendLoginResult(srv::Session* session, login_failure_t info)
 {
 	return 0;
 }
