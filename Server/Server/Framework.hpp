@@ -46,6 +46,8 @@ public:
 	shared_ptr<Session> GetSession(unsigned place) const noexcept(false);
 	shared_ptr<Session> FindSession(unsigned long long id) const noexcept(false);
 
+	using DBinUsersSearcher = bool(const Sentence user_id);
+
 private:
 	void BuildSessions();
 	void BuildRooms();
@@ -82,6 +84,8 @@ private:
 
 	unique_ptr<Thread> databaseWorker;
 	std::priority_queue<int> databaseQueue;
+	std::packaged_task<bool(const Sentence user_id)> databaseUserSearcher;
+	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> databaseUserSearcher;
 
 	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<Session>, srv::MAX_ENTITIES> everySessions;
