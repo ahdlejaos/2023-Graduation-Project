@@ -50,19 +50,6 @@ namespace srv
 
 		template<typename... Args>
 		friend Derived CreateLocalPacket(Args&&... _Args);
-
-	protected:
-		[[nodiscard]] constexpr Derived& Cast() noexcept
-		{
-			static_assert(std::derived_from<Derived, Packet>);
-			return static_cast<Derived&>(*this);
-		}
-
-		[[nodiscard]] constexpr const Derived& Cast() const noexcept
-		{
-			static_assert(std::derived_from<Derived, Packet>);
-			return static_cast<const Derived&>(*this);
-		}
 	};
 
 	template <class Pk>
