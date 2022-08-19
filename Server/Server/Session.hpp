@@ -9,7 +9,7 @@ public:
 	constexpr Session(unsigned place)
 		: isFirst(false), mySwitch()
 		, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
-		, myReceiver(nullptr), myRecvBuffer()
+		, myReceiver(nullptr), myRecvBuffer(), myLastPacket(nullptr)
 	{}
 
 	virtual ~Session()
@@ -86,7 +86,7 @@ public:
 	/// </summary>
 	inline void BeginCleanup()
 	{
-
+		myLastPacket.store(nullptr, std::memory_order_acq_rel);
 	}
 
 	/// <summary>
@@ -318,4 +318,5 @@ public:
 
 	shared_ptr<srv::Asynchron> myReceiver;
 	char myRecvBuffer[BUFSIZ];
+	atomic<shared_ptr<srv::BasisPacket>> myLastPacket;
 };
