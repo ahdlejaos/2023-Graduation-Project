@@ -50,13 +50,36 @@ public:
 		auto& cbuffer = wbuffer.buf;
 		auto& cbuffer_length = wbuffer.len;
 
+		// 받은 바이트 수 증가
+		myRecvSize += bytes;
+
 		// 패킷 조립
-		constexpr auto min_size = sizeof(srv::BasisPacket);
+		constexpr unsigned min_size = sizeof(srv::BasisPacket);
 
+		if (min_size <= myRecvSize)
+		{
+			// 받은 버퍼를 패킷으로 해석
+			const auto& pk_proto = reinterpret_cast<srv::BasisPacket*>(cbuffer);
+			const auto& pk_size = pk_proto->GetSize();
 
+			if (pk_size <= myRecvSize)
+			{
+				result = pk_proto;
+
+				myRecvSize -= pk_size;
+			}
+			else
+			{
+				std::cout << "세션 " << myID.load(std::memory_order_relaxed) << "에서 패킷을 조립하지 못했습니다.\n";
+			}
+		}
+		else
+		{
+			std::cout << "세션 " << myID.load(std::memory_order_relaxed) << "에서 최소 요건이 맞지 않아서 패킷을 조립하지 못했습니다.\n";
+		}
 
 		// 나머지 패킷을 수신
-		const int op = Recv(size, static_cast<unsigned>(bytes));
+		const int op = Recv(size, myRecvSize);
 
 		if (srv::CheckError(op)) [[unlikely]] {
 			if (!srv::CheckPending(op)) [[unlikely]] {
@@ -318,6 +341,6 @@ public:
 
 	shared_ptr<srv::Asynchron> myReceiver;
 	char myRecvBuffer[BUFSIZ];
-	unsigned short myRecvSize;
+	unsigned myRecvSize;
 	char myLastPacket[200];
 };
