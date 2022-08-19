@@ -320,12 +320,12 @@ public:
 		myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_relaxed);
 	}
 
-	inline constexpr virtual bool IsUser() noexcept
+	inline constexpr virtual bool IsUser() const noexcept
 	{
 		return false;
 	}
 
-	inline constexpr virtual bool IsNotUser() noexcept
+	inline constexpr virtual bool IsNotUser() const noexcept
 	{
 		return true;
 	}
