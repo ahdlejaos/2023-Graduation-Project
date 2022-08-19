@@ -21,6 +21,7 @@ namespace srv
 			return mySize;
 		}
 
+	protected:
 		const Protocol myProtocol;
 		const std::uint32_t mySize;
 	};

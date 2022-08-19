@@ -250,7 +250,7 @@ void Framework::ProceedRecv(srv::Asynchron *context, ULONG_PTR key, unsigned byt
 			session->Acquire();
 
 			const auto &packet = result.value();
-			const auto &pk_type = packet->myProtocol;
+			const auto &pk_type = packet->GetProtocol();
 
 			switch (pk_type)
 			{
