@@ -7,8 +7,14 @@ class Framework
 {
 private:
 #pragma region Screws
-	struct login_succeed_t { srv::SIGNIN_CAUSE cause; };
-	struct login_failure_t { srv::SIGNIN_CAUSE cause; };
+	struct login_succeed_t
+	{
+		srv::SIGNIN_CAUSE cause;
+	};
+	struct login_failure_t
+	{
+		srv::SIGNIN_CAUSE cause;
+	};
 
 	login_succeed_t login_succeed;
 	login_failure_t login_failure;
@@ -91,13 +97,13 @@ namespace srv
 	template<packets Pk>
 	let Pair<Pk*, Asynchron*> CreateTicket(const Pk& datagram)
 	{
-		Asynchron* asyncron=CreateAsynchron(Operations::SEND);
+		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet=srv::CreatePacket(datagram);
+		auto packet = srv::CreatePacket(datagram);
 
 		WSABUF wbuffer{};
-		wbuffer.buf=reinterpret_cast<char*>(packet);
-		wbuffer.len=packet->mySize;
+		wbuffer.buf = reinterpret_cast<char*>(packet);
+		wbuffer.len = packet->GetSize();
 
 		asyncron->SetBuffer(wbuffer);
 
@@ -107,13 +113,13 @@ namespace srv
 	template<packets Pk>
 	let Pair<Pk*, Asynchron*> CreateTicket(Pk&& datagram)
 	{
-		Asynchron* asyncron=CreateAsynchron(Operations::SEND);
+		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet=srv::CreatePacket(std::forward<Pk>(datagram));
+		auto packet = srv::CreatePacket(std::forward<Pk>(datagram));
 
 		WSABUF wbuffer{};
-		wbuffer.buf=reinterpret_cast<char*>(packet);
-		wbuffer.len=packet->mySize;
+		wbuffer.buf = reinterpret_cast<char*>(packet);
+		wbuffer.len = packet->GetSize();
 
 		asyncron->SetBuffer(wbuffer);
 
@@ -123,13 +129,13 @@ namespace srv
 	template<packets Pk, typename ...Ty>
 	let Pair<Pk*, Asynchron*> CreateTicket(Ty&& ...args)
 	{
-		Asynchron* asyncron=CreateAsynchron(Operations::SEND);
+		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet=srv::CreatePacket<Pk>(std::forward<decltype((args))>(args)...);
+		auto packet = srv::CreatePacket<Pk>(std::forward<decltype((args))>(args)...);
 
 		WSABUF wbuffer{};
-		wbuffer.buf=reinterpret_cast<char*>(packet);
-		wbuffer.len=packet->mySize;
+		wbuffer.buf = reinterpret_cast<char*>(packet);
+		wbuffer.len = packet->GetSize();
 
 		asyncron->SetBuffer(wbuffer);
 
