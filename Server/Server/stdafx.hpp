@@ -54,6 +54,7 @@ using namespace DirectX::PackedVector;
 #include <concepts>
 #include <execution>
 #include <random>
+#include <cmath>
 #include <numeric>
 #include <chrono>
 #include <atomic>
