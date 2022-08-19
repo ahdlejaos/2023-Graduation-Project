@@ -9,7 +9,7 @@ public:
 	constexpr Session(unsigned place)
 		: isFirst(false), mySwitch()
 		, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
-		, myReceiver(nullptr), myRecvBuffer(), myLastPacket(nullptr)
+		, myReceiver(nullptr), myRecvBuffer(), myLastPacket()
 	{}
 
 	virtual ~Session()
@@ -52,7 +52,7 @@ public:
 
 		// 패킷 조립
 		constexpr auto min_size = sizeof(srv::BasisPacket);
-
+		//myLastPacket.wait()
 
 		// 나머지 패킷을 수신
 		const int op = Recv(size, static_cast<unsigned>(bytes));
@@ -86,7 +86,7 @@ public:
 	/// </summary>
 	inline void BeginCleanup()
 	{
-		myLastPacket.store(nullptr, std::memory_order_acq_rel);
+		ZeroMemory(myLastPacket, sizeof(myLastPacket));
 	}
 
 	/// <summary>
@@ -318,5 +318,5 @@ public:
 
 	shared_ptr<srv::Asynchron> myReceiver;
 	char myRecvBuffer[BUFSIZ];
-	atomic<shared_ptr<srv::BasisPacket>> myLastPacket;
+	char myLastPacket[200];
 };
