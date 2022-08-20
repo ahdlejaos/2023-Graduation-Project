@@ -1,22 +1,25 @@
 #pragma once
 #include "Session.hpp"
 
-class Room
+namespace srv
 {
-public:
-	constexpr Room(unsigned place)
-		: myPlace(place)
-		, myState(srv::RoomStates::IDLE)
+	class Room
 	{
+	public:
+		constexpr Room(unsigned place)
+			: myPlace(place)
+			, myState(RoomStates::IDLE)
+		{
 
-	}
+		}
 
-	~Room()
-	{}
+		~Room()
+		{}
 
-	const unsigned myPlace;
+		const unsigned myPlace;
 
-	atomic<srv::RoomStates> myState;
+		atomic<RoomStates> myState;
 
-	std::array<shared_ptr<srv::Session>, srv::MAX_PLAYERS_PER_ROOM> myPlayers;
-};
+		std::array<shared_ptr<Session>, MAX_PLAYERS_PER_ROOM> myPlayers;
+	};
+}

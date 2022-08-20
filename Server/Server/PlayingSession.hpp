@@ -1,23 +1,26 @@
 #pragma once
 #include "Session.hpp"
 
-class PlayingSession :public Session
+namespace srv
 {
-public:
-	constexpr PlayingSession(unsigned place)
-		: Session(place)
-	{}
-
-	virtual ~PlayingSession()
-	{}
-
-	inline constexpr bool IsUser() const noexcept override
+	class PlayingSession :public Session
 	{
-		return true;
-	}
+	public:
+		constexpr PlayingSession(unsigned place)
+			: Session(place)
+		{}
 
-	inline constexpr bool IsNotUser() const noexcept override
-	{
-		return false;
-	}
-};
+		virtual ~PlayingSession()
+		{}
+
+		inline constexpr bool IsUser() const noexcept override
+		{
+			return true;
+		}
+
+		inline constexpr bool IsNotUser() const noexcept override
+		{
+			return false;
+		}
+	};
+}

@@ -1,5 +1,6 @@
 #pragma once
 #include "Transformer.inl"
+#include "Room.hpp"
 
 class GameObject
 {
@@ -12,7 +13,7 @@ public:
 	void Attach(GameObject* pChild);
 	void BuildCollider();
 
-	virtual void Awake(shared_ptr<Room> room, shared_ptr<Session> owner);
+	virtual void Awake(shared_ptr<srv::Room> room, shared_ptr<srv::Session> owner);
 	void Animate(float delta_time);
 	void Animate(float delta_time, const XMFLOAT4X4& parent);
 	virtual void Update(float delta_time);
