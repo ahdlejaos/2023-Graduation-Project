@@ -2,6 +2,7 @@
 #include "AsyncPoolService.hpp"
 #include "ConnectService.hpp"
 #include "Packet.hpp"
+#include "Asynchron.hpp"
 
 class Framework
 {
@@ -86,7 +87,7 @@ private:
 	std::packaged_task<bool(const Sentence user_id)> databaseUserSearcher;
 	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> databaseUserCertifier;
 
-	std::array<shared_ptr<Room>, srv::MAX_ROOMS> everyRooms;
+	std::array<shared_ptr<srv::Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<srv::Session>, srv::MAX_ENTITIES> everySessions;
 	atomic<unsigned> numberRooms;
 	atomic<unsigned> numberUsers;
@@ -98,11 +99,11 @@ private:
 namespace srv
 {
 	template<packets Pk>
-	let Pair<Pk*, Asynchron*> CreateTicket(const Pk& datagram)
+	let auto CreateTicket(const Pk& datagram)
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = CreatePacket(datagram);
+		auto packet = srv::CreatePacket(datagram);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);
@@ -114,11 +115,11 @@ namespace srv
 	}
 
 	template<packets Pk>
-	let Pair<Pk*, Asynchron*> CreateTicket(Pk&& datagram)
+	let auto CreateTicket(Pk&& datagram)
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = CreatePacket(std::forward<Pk>(datagram));
+		auto packet = srv::CreatePacket(std::forward<Pk>(datagram));
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);
@@ -130,11 +131,11 @@ namespace srv
 	}
 
 	template<packets Pk, typename ...Ty>
-	let Pair<Pk*, Asynchron*> CreateTicket(Ty&& ...args)
+	let auto CreateTicket(Ty&& ...args)
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = CreatePacket<Pk>(std::forward<decltype((args))>(args)...);
+		auto packet = srv::CreatePacket<Pk>(std::forward<Ty>(args)...);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);

@@ -1,6 +1,5 @@
 #include "pch.hpp"
 #include "Framework.hpp"
-#include "Asynchron.hpp"
 #include "Room.hpp"
 #include "Session.hpp"
 #include "PlayingSession.hpp"
@@ -470,7 +469,7 @@ void Framework::BuildSessions()
 	unsigned place = srv::USERS_ID_BEGIN;
 	for (auto& user : user_sessions)
 	{
-		user = static_pointer_cast<srv::Session>(make_shared<PlayingSession>(place++));
+		user = static_pointer_cast<srv::Session>(make_shared<srv::PlayingSession>(place++));
 	}
 
 	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
@@ -487,7 +486,7 @@ void Framework::BuildRooms()
 	for (unsigned i = 0; i < srv::MAX_ROOMS; i++)
 	{
 		auto& room = everyRooms[i];
-		room = make_shared<Room>(i);
+		room = make_shared<srv::Room>(i);
 	}
 }
 
