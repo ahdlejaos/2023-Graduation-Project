@@ -27,7 +27,7 @@ protected:
 public:
 	constexpr Encryptor() = default;
 
-	let auto operator() const noexcept
+	let auto operator()() const noexcept
 	{
 		return (this->Cast())();
 	}

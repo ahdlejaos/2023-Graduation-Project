@@ -148,6 +148,7 @@
     <ClCompile Include="ConnectService.cpp" />
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="MD5.cpp" />
     <ClCompile Include="Packet.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PlayingSession.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="ConnectService.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="GameObject.hpp" />
+    <ClInclude Include="MD5.hpp" />
     <ClInclude Include="Packet.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="PlayingSession.hpp" />
