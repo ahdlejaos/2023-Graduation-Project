@@ -5,6 +5,9 @@
 #include "stdafx.hpp"
 
 class Framework;
+class TimedJob;
+class DatabaseJob;
+
 class ConnectService;
 class AsyncPoolService;
 

@@ -80,10 +80,10 @@ private:
 	std::stop_source workersBreaker;
 
 	unique_ptr<Thread> timerWorker;
-	std::priority_queue<int> timerQueue;
+	std::priority_queue<TimedJob> timerQueue;
 
 	unique_ptr<Thread> databaseWorker;
-	std::priority_queue<int> databaseQueue;
+	std::priority_queue<DatabaseJob> databaseQueue;
 	std::packaged_task<bool(const Sentence user_id)> databaseUserSearcher;
 	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> databaseUserCertifier;
 
@@ -94,6 +94,24 @@ private:
 
 	atomic<unsigned long long> playerIDs;
 	srv::Protocol lastPacketType;
+};
+
+class TimedJob
+{
+public:
+	constexpr TimedJob() = default;
+
+	let bool operator==(const TimedJob& rhs) const noexcept;
+	let bool operator<(const TimedJob& rhs) const noexcept;
+};
+
+class DatabaseJob
+{
+public:
+	constexpr DatabaseJob() = default;
+
+	let bool operator==(const DatabaseJob& rhs) const noexcept;
+	let bool operator<(const DatabaseJob& rhs) const noexcept;
 };
 
 namespace srv
