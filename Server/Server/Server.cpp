@@ -1,9 +1,19 @@
 ﻿#include "pch.hpp"
 #include "Framework.hpp"
+#include "MD5.hpp"
 
 Framework globalFramework{ srv::THREADS_COUNT };
 
 constexpr int test_list[]{ 1, 2, 3, 4, 5, 6, 7, 8 };
+
+void TestEncrypt()
+{
+	MD5 encryptor{};
+
+	const auto crypted = encryptor("10");
+
+	std::cout << crypted << "\n";
+}
 
 int main()
 {
@@ -25,6 +35,9 @@ int main()
 
 		std::cout << "it: " << (*val) << ", id: " << ind << "\n";
 	}
+
+	std::cout << "MD5 테스트\n";
+	TestEncrypt();
 
 	globalFramework.Awake(srv::SERVER_PORT_TCP);
 	globalFramework.Start();
