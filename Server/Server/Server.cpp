@@ -6,13 +6,11 @@ Framework globalFramework{ srv::THREADS_COUNT };
 
 constexpr int test_list[]{ 1, 2, 3, 4, 5, 6, 7, 8 };
 
-void TestEncrypt()
+constexpr auto TestEncrypt()
 {
 	MD5 encryptor{};
 
-	const auto crypted = encryptor("10");
-
-	std::cout << crypted << "\n";
+	return encryptor("10");
 }
 
 int main()
@@ -37,7 +35,9 @@ int main()
 	}
 
 	std::cout << "MD5 테스트\n";
-	TestEncrypt();
+
+	const auto temp = TestEncrypt();
+	std::cout << temp << "\n";
 
 	globalFramework.Awake(srv::SERVER_PORT_TCP);
 	globalFramework.Start();
