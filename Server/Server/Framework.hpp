@@ -40,6 +40,8 @@ public:
 	void ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key);
 
 	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
+	friend void TimerWorker(std::stop_source& stopper, Framework& me);
+	friend void DBaseWorker(std::stop_source& stopper, Framework& me);
 
 	bool CanAcceptPlayer() const noexcept;
 	bool CanCreateRoom() const noexcept;

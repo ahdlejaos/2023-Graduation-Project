@@ -6,6 +6,8 @@
 #include "Packet.hpp"
 
 void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
+void TimerWorker(std::stop_source& stopper, Framework& me);
+void DBaseWorker(std::stop_source& stopper, Framework& me);
 
 Framework::Framework(unsigned int concurrent_hint)
 	: myID(srv::SERVER_ID)
@@ -62,10 +64,21 @@ void Framework::Start()
 	myAsyncProvider.Link(myEntryPoint.serverSocket, myID);
 	myEntryPoint.Start();
 
+	auto stopper = std::ref(workersBreaker);
+	auto me = std::ref(*this);
+
+	std::cout << "주 작업 스레드를 시동하는 중...";
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
-		auto& th = myWorkers.emplace_back(Worker, std::ref(workersBreaker), std::ref(*this), std::ref(myAsyncProvider));
+		auto& th = myWorkers.emplace_back(Worker, stopper, me, std::ref(myAsyncProvider));
 	}
+	std::cout << std::ios::right << "주 작업 스레드의 수: " << concurrentsNumber << "개\n";
+
+	std::cout << "타이머 작업 스레드를 시동하는 중...\n";
+	auto& timer_thread = myWorkers.emplace_back(TimerWorker, stopper, me, std::ref(myAsyncProvider));
+
+	std::cout << "데이터베이스 스레드를 시동하는 중...\n";
+	auto& db_thread = myWorkers.emplace_back(DBaseWorker, stopper, me, std::ref(myAsyncProvider));
 
 	std::cout << "서버 시작됨!\n";
 }
@@ -460,6 +473,16 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 	std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
 
 	me.concurrentWatcher.arrive_and_wait();
+}
+
+void TimerWorker(std::stop_source& stopper, Framework& me)
+{
+
+}
+
+void DBaseWorker(std::stop_source & stopper, Framework & me)
+{
+
 }
 
 void Framework::BuildSessions()
