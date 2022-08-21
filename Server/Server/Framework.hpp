@@ -83,7 +83,7 @@ private:
 	std::priority_queue<TimedJob> timerQueue;
 
 	unique_ptr<Thread> databaseWorker;
-	std::vector<DatabaseJob> databaseQueue;
+	std::unordered_set<DatabaseJob> databaseQueue;
 	std::packaged_task<bool(const Sentence user_id)> databaseUserSearcher;
 	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> databaseUserCertifier;
 
@@ -111,6 +111,7 @@ public:
 	constexpr DatabaseJob() = default;
 
 	let bool operator==(const DatabaseJob& rhs) const noexcept;
+	let bool operator<(const DatabaseJob& rhs) const noexcept;
 };
 
 namespace srv
