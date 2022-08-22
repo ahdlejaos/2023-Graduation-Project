@@ -4,6 +4,15 @@
 #include "Packet.hpp"
 #include "Asynchron.hpp"
 
+template<>
+struct std::hash<DatabaseJob>
+{
+	[[nodiscard]] size_t operator()(const DatabaseJob& _Keyval) const noexcept
+	{
+		return _Hash_representation(reinterpret_cast<const void*>(std::addressof(_Keyval)));
+	}
+};
+
 class Framework
 {
 private:

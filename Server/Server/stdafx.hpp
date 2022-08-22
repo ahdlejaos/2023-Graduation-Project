@@ -53,6 +53,7 @@ using namespace DirectX::PackedVector;
 #include <filesystem>
 #include <concepts>
 #include <execution>
+#include <xhash>
 #include <random>
 #include <cmath>
 #include <numeric>
