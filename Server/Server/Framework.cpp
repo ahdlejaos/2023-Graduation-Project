@@ -75,10 +75,10 @@ void Framework::Start()
 	std::cout << std::ios::right << "주 작업 스레드의 수: " << concurrentsNumber << "개\n";
 
 	std::cout << "타이머 작업 스레드를 시동하는 중...\n";
-	auto& timer_thread = myWorkers.emplace_back(TimerWorker, stopper, me, std::ref(myAsyncProvider));
+	auto& timer_thread = myWorkers.emplace_back(TimerWorker, stopper, me);
 
 	std::cout << "데이터베이스 스레드를 시동하는 중...\n";
-	auto& db_thread = myWorkers.emplace_back(DBaseWorker, stopper, me, std::ref(myAsyncProvider));
+	auto& db_thread = myWorkers.emplace_back(DBaseWorker, stopper, me);
 
 	std::cout << "서버 시작됨!\n";
 }
