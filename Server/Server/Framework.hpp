@@ -103,8 +103,17 @@ class TimedJob
 public:
 	constexpr TimedJob() = default;
 
-	let bool operator==(const TimedJob& rhs) const noexcept;
-	let bool operator<(const TimedJob& rhs) const noexcept;
+	let bool operator==(const TimedJob& rhs) const noexcept
+	{
+		return (this == std::addressof(rhs));
+	}
+
+	let std::strong_ordering operator<=>(const TimedJob& rhs) const noexcept
+	{
+		return myTime <=> rhs.myTime;
+	}
+
+	Clock myTime;
 };
 
 class DatabaseJob
@@ -112,8 +121,15 @@ class DatabaseJob
 public:
 	constexpr DatabaseJob() = default;
 
-	let bool operator==(const DatabaseJob& rhs) const noexcept;
-	let bool operator<(const DatabaseJob& rhs) const noexcept;
+	let bool operator==(const DatabaseJob& rhs) const noexcept
+	{
+		return (this == std::addressof(rhs));
+	}
+
+	let std::strong_ordering operator<=>(const DatabaseJob& rhs) const noexcept
+	{
+		return this <=> std::addressof(rhs);
+	}
 };
 
 namespace srv
