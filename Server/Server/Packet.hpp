@@ -138,8 +138,8 @@ namespace srv
 		/// <param name="user_id">사용자의 아이디 또는 전자메일 주소 (유일)</param>
 		/// <param name="user_pw">사용자의 비밀번호, 부호화됨</param>
 		constexpr CSPacketSignIn(
-			const std::span<wchar_t, 30> user_id,
-			const std::span<wchar_t, 30> user_pw
+			const std::wstring_view user_id,
+			const std::wstring_view user_pw
 		)
 			: Packet(Protocol::CS_SIGNIN)
 			, userID(), userPN()
@@ -162,9 +162,9 @@ namespace srv
 		/// <param name="user_pw">사용자의 비밀번호, 부호화됨</param>
 		/// <param name="user_nick">사용자의 별명</param>
 		constexpr CSPacketSignUp(
-			const std::span<wchar_t, 30> user_email,
-			const std::span<wchar_t, 30> user_pw,
-			const std::span<wchar_t, 10> user_nick
+			const std::wstring_view user_email,
+			const std::wstring_view user_pw,
+			const std::wstring_view user_nick
 		)
 			: Packet(Protocol::CS_SIGNUP)
 			, userID(), userPN(), userName()
