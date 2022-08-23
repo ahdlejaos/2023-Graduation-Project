@@ -56,8 +56,8 @@ namespace srv
 		constexpr virtual ~Packet()
 		{}
 
-		friend inline constexpr Packet* CreatePacket(const Derived&);
-		friend inline constexpr Packet* CreatePacket(Derived&&);
+		friend inline constexpr Derived* CreatePacket(const Derived&);
+		friend inline constexpr Derived* CreatePacket(Derived&&);
 
 		template<typename... Args>
 		friend inline constexpr Derived* CreatePacket(Args&&... _Args)
