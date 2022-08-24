@@ -35,6 +35,27 @@ namespace srv
 	// 서버 식별자
 	constexpr ULONG_PTR SERVER_ID = ULONG_PTR(-1);
 
+	namespace detail
+	{
+		constexpr unsigned FRAME = 30;
+
+		using Framerate = std::ratio<FRAME, 1>;
+		using Tick = std::ratio_divide<std::ratio<1>, Framerate>;
+
+		template <typename...>
+		inline constexpr double ratio_leaked_v = 0.0;
+
+		template <intmax_t N, intmax_t D = 1>
+		inline constexpr double ratio_leaked_v = static_cast<double>(std::ratio<N, D>::num) / static_cast<double>(std::ratio<N, D>::den);
+
+		template <>
+		inline constexpr double ratio_leaked_v = static_cast<double>(std::ratio<N, D>::num) / static_cast<double>(std::ratio<N, D>::den);
+	}
+	// 서버의 1초 당 프레임 수
+	constexpr auto SERVER_FRAMERATE = detail::Framerate{};
+	// 서버의 프레임 당 시간
+	constexpr auto SERVER_TICK = detail::Tick{};
+
 	// 최대 방의 수
 	constexpr unsigned int MAX_ROOMS = 1000;
 	// 방 마다의 최대 플레이어의 수 (방 인원 제한)

@@ -477,12 +477,18 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 void TimerWorker(std::stop_source& stopper, Framework& me)
 {
+	auto token = stopper.get_token();
 
+
+	std::cout << "타이머 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
 }
 
 void DBaseWorker(std::stop_source & stopper, Framework & me)
 {
+	auto token = stopper.get_token();
 
+
+	std::cout << "DB 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
 }
 
 void Framework::BuildSessions()
