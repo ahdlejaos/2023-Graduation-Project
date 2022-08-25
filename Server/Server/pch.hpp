@@ -42,8 +42,20 @@ namespace srv
 		using Framerate = std::ratio<FRAME, 1>;
 		using Tick = std::ratio_divide<std::ratio<1>, Framerate>;
 
-		template <typename...>
-		inline constexpr double ratio_leaked_v = 0.0;
+		template <typename A, typename B>
+		struct ratio_leaked;
+
+		template <intmax_t N, intmax_t D = 1>
+		struct ratio_leaked<N, D>
+		{
+			static constexpr double value = static_cast<double>(std::ratio<N, D>::num) / static_cast<double>(std::ratio<N, D>::den);
+		};
+
+		template <>
+		struct ratio_leaked
+		{
+			double value = 0.0;
+		};
 
 		template <intmax_t N, intmax_t D = 1>
 		inline constexpr double ratio_leaked_v = static_cast<double>(std::ratio<N, D>::num) / static_cast<double>(std::ratio<N, D>::den);
