@@ -42,32 +42,62 @@ namespace srv
 		using Framerate = std::ratio<FRAME, 1>;
 		using Tick = std::ratio_divide<std::ratio<1>, Framerate>;
 
-		template <template <intmax_t N, intmax_t D> typename Rt>
-		struct ratio_2s_fn
-		{
-			static let double value = static_cast<double>(Rt::num) / static_cast<double>(Rt::den);
+		template <intmax_t N = 0, intmax_t D = 1, typename Ty = void>
+		struct ratio_2s_fn;
 
-			static let double operator(const Rt&) const noexcept
+		template <intmax_t N, intmax_t D>
+		struct ratio_2s_fn<N, D, void>
+		{
+			static let double value = static_cast<double>(N) / static_cast<double>(D);
+
+			let double operator()(const std::ratio<N, D>&) const noexcept
 			{
 				return value;
 			}
 
-			static let double operator() const noexcept
+			let double operator()() const noexcept
 			{
 				return value;
 			}
 		};
 
 		template <intmax_t N, intmax_t D>
-		struct ratio_2s_fn
+		struct ratio_2s_fn<N, D, std::ratio<N, D>>
 		{
-			static let double value = static_cast<double>(N) / static_cast<double>(D);
+			using Ratio = std::ratio<N, D>;
 
-			static let double operator() const noexcept
+			static let double value = static_cast<double>(Ratio::num) / static_cast<double>(Ratio::den);
+
+			let double operator()(const Ratio&) const noexcept
+			{
+				return value;
+			}
+
+			let double operator()() const noexcept
 			{
 				return value;
 			}
 		};
+
+		template <intmax_t N, intmax_t D>
+		ratio_2s_fn(std::ratio<N, D>)->ratio_2s_fn<N, D, std::ratio<N, D>>;
+
+		inline constexpr double ratio_leaked(const intmax_t N, const intmax_t D) noexcept
+		{
+			return static_cast<double>(N) / static_cast<double>(D);
+		}
+
+		template <intmax_t N, intmax_t D>
+		inline constexpr double ratio_leaked(const std::ratio<N, D>& ratio) noexcept
+		{
+			return static_cast<double>(N) / static_cast<double>(D);
+		}
+
+		template <intmax_t N, intmax_t D>
+		inline constexpr double ratio_leaked() noexcept
+		{
+			return static_cast<double>(N) / static_cast<double>(D);
+		}
 
 		template <intmax_t N1, intmax_t D1, intmax_t N2, intmax_t D2>
 		inline constexpr double ratio_leaked(const std::ratio<N1, D1>& ratio1, const std::ratio<N2, D2>& ratio2) noexcept
