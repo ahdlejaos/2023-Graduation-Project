@@ -80,20 +80,38 @@ namespace srv
 		};
 
 		template <intmax_t N, intmax_t D>
-		ratio_2s_fn(std::ratio<N, D>)->ratio_2s_fn<N, D, std::ratio<N, D>>;
+		using Ratio = std::ratio<N, D>;
 
-		inline constexpr double ratio_leaked(const intmax_t N, const intmax_t D) noexcept
+		template <intmax_t N, intmax_t D>
+		ratio_2s_fn(Ratio<N, D>)->ratio_2s_fn<N, D, Ratio<N, D>>;
+
+		template <typename Ty, intmax_t N, intmax_t D>
+		concept Rational = std::is_same_v<Ratio<N, D>, Ty> || std::derived_from<Ty, Ratio<N, D>>;
+
+		inline constexpr double ratio_leaked(const Arithmetic auto N, const Arithmetic auto D) noexcept
 		{
 			return static_cast<double>(N) / static_cast<double>(D);
 		}
 
-		template <intmax_t N, intmax_t D>
-		inline constexpr double ratio_leaked(const std::ratio<N, D>& ratio) noexcept
+		template <intmax_t N, intmax_t D, Rational<N, D> Rt>
+		inline constexpr double ratio_leaked(const Rt& ratio) noexcept
 		{
 			return static_cast<double>(N) / static_cast<double>(D);
 		}
 
-		template <intmax_t N, intmax_t D>
+		template <typename Rt>
+			requires
+			requires {
+			std::same_as<std::ratio_divide<Rt, Rt>, std::ratio<1>>;
+			Rt::num;
+			Rt::den;
+		}
+		inline constexpr double ratio_leaked() noexcept
+		{
+			return static_cast<double>(Rt::num) / static_cast<double>(Rt::den);
+		}
+
+		template <Arithmetic auto N, Arithmetic auto D>
 		inline constexpr double ratio_leaked() noexcept
 		{
 			return static_cast<double>(N) / static_cast<double>(D);
@@ -109,12 +127,6 @@ namespace srv
 		inline constexpr double ratio_leaked() noexcept
 		{
 			return static_cast<double>(N1 * N2) / static_cast<double>(D1 * D2);
-		}
-
-		template <intmax_t N1, intmax_t D1, intmax_t N2, intmax_t D2>
-		inline constexpr double ratio_leaked<std::ratio<N1, D1>, std::ratio<N2, D2>>() noexcept
-		{
-			return static_cast<double>(std::ratio<N1, D1>::num * std::ratio<N2, D2>::num) / static_cast<double>(std::ratio<N1, D1>::den * std::ratio<N2, D2>::den);
 		}
 	}
 
