@@ -35,6 +35,64 @@ namespace srv
 	// 서버 식별자
 	constexpr ULONG_PTR SERVER_ID = ULONG_PTR(-1);
 
+	namespace detail
+	{
+		constexpr unsigned FRAME = 30;
+
+		using Framerate = std::ratio<FRAME, 1>;
+		using Tick = std::ratio_divide<std::ratio<1>, Framerate>;
+
+		template <template <intmax_t N, intmax_t D> typename Rt>
+		struct ratio_2s_fn
+		{
+			static let double value = static_cast<double>(Rt::num) / static_cast<double>(Rt::den);
+
+			static let double operator(const Rt&) const noexcept
+			{
+				return value;
+			}
+
+			static let double operator() const noexcept
+			{
+				return value;
+			}
+		};
+
+		template <intmax_t N, intmax_t D>
+		struct ratio_2s_fn
+		{
+			static let double value = static_cast<double>(N) / static_cast<double>(D);
+
+			static let double operator() const noexcept
+			{
+				return value;
+			}
+		};
+
+		template <intmax_t N1, intmax_t D1, intmax_t N2, intmax_t D2>
+		inline constexpr double ratio_leaked(const std::ratio<N1, D1>& ratio1, const std::ratio<N2, D2>& ratio2) noexcept
+		{
+			return static_cast<double>(std::ratio<N1, D1>::num * std::ratio<N2, D2>::num) / static_cast<double>(std::ratio<N1, D1>::den * std::ratio<N2, D2>::den);
+		}
+
+		template <intmax_t N1, intmax_t D1, intmax_t N2, intmax_t D2>
+		inline constexpr double ratio_leaked() noexcept
+		{
+			return static_cast<double>(N1 * N2) / static_cast<double>(D1 * D2);
+		}
+
+		template <intmax_t N1, intmax_t D1, intmax_t N2, intmax_t D2>
+		inline constexpr double ratio_leaked<std::ratio<N1, D1>, std::ratio<N2, D2>>() noexcept
+		{
+			return static_cast<double>(std::ratio<N1, D1>::num * std::ratio<N2, D2>::num) / static_cast<double>(std::ratio<N1, D1>::den * std::ratio<N2, D2>::den);
+		}
+	}
+
+	// 서버의 1초 당 프레임 수
+	constexpr auto SERVER_FRAMERATE = detail::Framerate{};
+	// 서버의 프레임 당 시간
+	constexpr auto SERVER_TICK = detail::Tick{};
+
 	// 최대 방의 수
 	constexpr unsigned int MAX_ROOMS = 1000;
 	// 방 마다의 최대 플레이어의 수 (방 인원 제한)

@@ -122,25 +122,6 @@ concept predicate_comparing = std::strict_weak_order<Fun, Ty1, Ty2>;
 template<typename Ty, typename Allocator = std::allocator<Ty>>
 using ConcurrentVector = concurrency::concurrent_vector<Ty, Allocator>;
 
-/*
-	struct Test
-	{
-		int value = 0;
-¤µ
-		inline constexpr bool operator==(const dd &other) const
-		{
-			return value == other.value;
-		}
-
-		inline constexpr std::strong_ordering operator<=>(const dd &other) const
-		{
-			return value <=> other.value;
-		}
-	};
-
-	ConcurrentQueue<int> n_queue{};
-	ConcurrentQueue<Test> est_queue{};
-*/
 template<std::totally_ordered Ty, predicate_comparing<Ty, Ty> Comparator = std::less<Ty>, typename Allocator = std::allocator<Ty>>
 using ConcurrentQueue = concurrency::concurrent_priority_queue<Ty, Comparator, Allocator>;
 
