@@ -347,6 +347,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 					// 서버 상태 전송
 					auto [ticket, asynchron] = srv::CreateTicket(cached_pk_server_info);
+
 					session->BeginSend(asynchron);
 					session->Release();
 				}
