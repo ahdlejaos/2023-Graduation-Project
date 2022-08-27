@@ -451,6 +451,10 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 	std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 시작\n";
 
+	constexpr auto aa = srv::detail::ratio_2s_fn<std::ratio<3, 6>>();
+
+	constexpr auto vv = srv::detail::ratio_leaked<std::ratio<3, 6>, std::ratio<4, 8>>();
+
 	while (true)
 	{
 		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(overlap));

@@ -42,27 +42,52 @@ namespace srv
 		using Framerate = std::ratio<FRAME, 1>;
 		using Tick = std::ratio_divide<std::ratio<1>, Framerate>;
 
-		template <typename A, typename B>
-		struct ratio_leaked;
-
-		template <intmax_t N, intmax_t D = 1>
-		struct ratio_leaked<N, D>
+		template <template <intmax_t N, intmax_t D> typename Rt>
+		struct ratio_2s_fn
 		{
-			static constexpr double value = static_cast<double>(std::ratio<N, D>::num) / static_cast<double>(std::ratio<N, D>::den);
+			static let double value = static_cast<double>(Rt::num) / static_cast<double>(Rt::den);
+
+			static let double operator(const Rt&) const noexcept
+			{
+				return value;
+			}
+
+			static let double operator() const noexcept
+			{
+				return value;
+			}
 		};
 
-		template <>
-		struct ratio_leaked
+		template <intmax_t N, intmax_t D>
+		struct ratio_2s_fn
 		{
-			double value = 0.0;
+			static let double value = static_cast<double>(N) / static_cast<double>(D);
+
+			static let double operator() const noexcept
+			{
+				return value;
+			}
 		};
 
-		template <intmax_t N, intmax_t D = 1>
-		inline constexpr double ratio_leaked_v = static_cast<double>(std::ratio<N, D>::num) / static_cast<double>(std::ratio<N, D>::den);
+		template <intmax_t N1, intmax_t D1, intmax_t N2, intmax_t D2>
+		inline constexpr double ratio_leaked(const std::ratio<N1, D1>& ratio1, const std::ratio<N2, D2>& ratio2) noexcept
+		{
+			return static_cast<double>(std::ratio<N1, D1>::num * std::ratio<N2, D2>::num) / static_cast<double>(std::ratio<N1, D1>::den * std::ratio<N2, D2>::den);
+		}
 
-		template <>
-		inline constexpr double ratio_leaked_v = static_cast<double>(std::ratio<N, D>::num) / static_cast<double>(std::ratio<N, D>::den);
+		template <intmax_t N1, intmax_t D1, intmax_t N2, intmax_t D2>
+		inline constexpr double ratio_leaked() noexcept
+		{
+			return static_cast<double>(N1 * N2) / static_cast<double>(D1 * D2);
+		}
+
+		template <intmax_t N1, intmax_t D1, intmax_t N2, intmax_t D2>
+		inline constexpr double ratio_leaked<std::ratio<N1, D1>, std::ratio<N2, D2>>() noexcept
+		{
+			return static_cast<double>(std::ratio<N1, D1>::num * std::ratio<N2, D2>::num) / static_cast<double>(std::ratio<N1, D1>::den * std::ratio<N2, D2>::den);
+		}
 	}
+
 	// 서버의 1초 당 프레임 수
 	constexpr auto SERVER_FRAMERATE = detail::Framerate{};
 	// 서버의 프레임 당 시간
