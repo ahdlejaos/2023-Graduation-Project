@@ -266,7 +266,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 					const auto user_id = real_pk->userID;
 					const auto user_pw = real_pk->userPN;
 
-					
+
 				}
 				break;
 
@@ -460,13 +460,14 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 	{
 		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(overlap));
 
-		if (token.stop_requested()) [[unlikely]] {
-			std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
+		if (token.stop_requested()) [[unlikely]]
+		{
 			break;
 		}
 
 		auto asynchron = static_cast<srv::Asynchron*>(overlap);
-		if (TRUE == result) [[likely]] {
+		if (TRUE == result) [[likely]]
+		{
 			me.ProceedAsync(asynchron, key, static_cast<int>(bytes));
 		}
 		else
@@ -484,14 +485,28 @@ void TimerWorker(std::stop_source& stopper, Framework& me)
 {
 	auto token = stopper.get_token();
 
+	while (true)
+	{
+		if (token.stop_requested()) [[unlikely]]
+		{
+			break;
+		}
+	}
 
 	std::cout << "타이머 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
 }
 
-void DBaseWorker(std::stop_source & stopper, Framework & me)
+void DBaseWorker(std::stop_source& stopper, Framework& me)
 {
 	auto token = stopper.get_token();
 
+	while (true)
+	{
+		if (token.stop_requested()) [[unlikely]]
+		{
+			break;
+		}
+	}
 
 	std::cout << "DB 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
 }
