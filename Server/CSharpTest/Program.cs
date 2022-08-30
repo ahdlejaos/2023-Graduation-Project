@@ -6,11 +6,11 @@ namespace CSharpTest
 {
 	internal class Program
 	{
-		public IPEndPoint serverAddress;
-		public TcpClient tcpClient;
-		public UdpClient udpClient;
-		public NetworkStream tcpStream;
-		public NetworkStream udpStream;
+		public IPEndPoint? serverAddress;
+		public TcpClient? tcpClient;
+		public UdpClient? udpClient;
+		public NetworkStream? tcpStream;
+		public NetworkStream? udpStream;
 
 		public int tcpReceived = 0;
 
@@ -92,7 +92,7 @@ namespace CSharpTest
 
 				if (4 <= tcpReceived)
 				{
-					var temp_type = BitConverter.ToInt32(recvBuffer[0..4]);
+					var temp_type = BitConverter.ToInt32(recvBuffer.AsSpan()[0..4]);
 					var packet_type = (Protocol)(temp_type);
 
 					if (8 <= tcpReceived)
