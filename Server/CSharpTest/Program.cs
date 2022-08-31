@@ -9,8 +9,7 @@ namespace CSharpTest
 		public IPEndPoint? serverAddress;
 		public TcpClient? tcpClient;
 		public UdpClient? udpClient;
-		public NetworkStream? tcpStream;
-		public NetworkStream? udpStream;
+		public Socket? myClient = null;
 
 		public int tcpReceived = 0;
 
@@ -39,46 +38,37 @@ namespace CSharpTest
 		{
 			Console.WriteLine("서버 접속 중...");
 
-			serverAddress = new(IPAddress.Loopback, 9000);
-			tcpClient = new(serverAddress);
+			myClient = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-			try
-			{
-				tcpClient.Connect(serverAddress);
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message);
-				tcpClient.Close();
-			}
+			serverAddress = new(IPAddress.Loopback, Server.Port);
 
-			if (tcpClient is not null && tcpClient.Connected)
+			myClient.Connect(serverAddress);
+
+			if (myClient is not null && myClient.Connected)
 			{
 				Console.WriteLine("서버 접속 성공함.");
-
-				tcpStream = tcpClient.GetStream();
-				if (tcpStream is null)
-				{
-					throw new Exception("소켓 연결 실패!");
-				}
 
 				RecvTCP(0, BUFFSIZE);
 			}
 			else
 			{
-				Console.WriteLine("TCP 소켓 생성 실패");
+				Console.WriteLine("TCP 소켓의 연결 실패");
 			}
 		}
 		void CallbackRead(IAsyncResult result)
 		{
-			if (!tcpStream.CanRead)
+			if (myClient is null || !myClient.Connected)
 			{
 				Console.WriteLine("TCP 수신 불가능!");
 				return;
 			}
 
-			var byte_recv = tcpStream.EndRead(result);
+			var test_reads = myClient.Available;
+			Console.WriteLine("받을 수 있는 바이트의 수: {0}", test_reads);
+
+			var byte_recv = myClient.EndReceive(result, out SocketError error_state);
 			Console.WriteLine("TCP 소켓으로 서버로부터 " + byte_recv + "바이트를 받음.");
+			Console.WriteLine("TCP 소켓 상태: " + error_state);
 
 			//if (result.IsCompleted)
 			if (0 < byte_recv)
@@ -138,7 +128,7 @@ namespace CSharpTest
 		}
 		IAsyncResult RecvTCP(int offset, int size)
 		{
-			return tcpStream.BeginRead(recvBuffer, offset, size, CallbackRead, null);
+			return myClient.BeginReceive(recvBuffer, offset, size, SocketFlags.None, CallbackRead, null);
 		}
 		public static void ShiftLeft(byte[] lst, int shifts)
 		{
