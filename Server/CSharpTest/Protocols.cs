@@ -8,7 +8,7 @@ namespace CSharpTest
 {
 	static class Server
 	{
-		public const short SERVER_PORT = 12000;
+		public const short Port = 12000;
 	}
 
 	internal class Protocols
