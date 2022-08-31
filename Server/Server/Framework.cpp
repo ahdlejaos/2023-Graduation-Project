@@ -20,6 +20,7 @@ Framework::Framework(unsigned int concurrent_hint)
 	, numberRooms(0), numberUsers(0)
 	, lastPacketType(srv::Protocol::NONE)
 	, login_succeed(), login_failure(), cached_pk_server_info(0, srv::MAX_USERS, srv::GAME_VERSION)
+	, syncout(std::cout)
 {
 	//std::cout.imbue(std::locale{ "KOREAN" });
 	std::cout.sync_with_stdio(false);
@@ -45,21 +46,21 @@ Framework::~Framework()
 
 void Framework::Awake(unsigned short port_tcp)
 {
-	std::cout << "서버를 준비하는 중...\n";
+	syncout << "서버를 준비하는 중...\n";
 
 	myAsyncProvider.Awake(concurrentsNumber);
 	myEntryPoint.Awake(port_tcp);
 
-	std::cout << "자원을 불러오는 중...\n";
+	syncout << "자원을 불러오는 중...\n";
 	BuildSessions();
 	BuildRooms();
 	BuildResources();
-	std::cout << "자원의 불러오기 완료\n";
+	syncout << "자원의 불러오기 완료\n";
 }
 
 void Framework::Start()
 {
-	std::cout << "서버를 시작하는 중...\n";
+	syncout << "서버를 시작하는 중...\n";
 
 	myAsyncProvider.Link(myEntryPoint.serverSocket, myID);
 	myEntryPoint.Start();
@@ -67,20 +68,20 @@ void Framework::Start()
 	auto stopper = std::ref(workersBreaker);
 	auto me = std::ref(*this);
 
-	std::cout << "주 작업 스레드를 시동하는 중...";
+	syncout << "주 작업 스레드를 시동하는 중...";
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
 		auto& th = myWorkers.emplace_back(Worker, stopper, me, std::ref(myAsyncProvider));
 	}
-	std::cout << std::ios::right << "주 작업 스레드의 수: " << concurrentsNumber << "개\n";
+	syncout << std::ios::right << "주 작업 스레드의 수: " << concurrentsNumber << "개\n";
 
-	std::cout << "타이머 작업 스레드를 시동하는 중...\n";
+	syncout << "타이머 작업 스레드를 시동하는 중...\n";
 	auto& timer_thread = myWorkers.emplace_back(TimerWorker, stopper, me);
 
-	std::cout << "데이터베이스 스레드를 시동하는 중...\n";
+	syncout << "데이터베이스 스레드를 시동하는 중...\n";
 	auto& db_thread = myWorkers.emplace_back(DBaseWorker, stopper, me);
 
-	std::cout << "서버 시작됨!\n";
+	syncout << "서버 시작됨!\n";
 }
 
 void Framework::Update()
@@ -91,7 +92,7 @@ void Framework::Update()
 		{
 			if (concurrentWatcher.try_wait())
 			{
-				std::cout << "서버 종료 중...\n";
+				syncout << "서버 종료 중...\n";
 
 				break;
 			}
@@ -101,13 +102,13 @@ void Framework::Update()
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "예외로 인한 서버 인터럽트: " << e.what() << std::endl;
+		syncout << "예외로 인한 서버 인터럽트: " << e.what() << std::endl;
 	}
 }
 
 void Framework::Release()
 {
-	std::cout << "서버 종료\n";
+	syncout << "서버 종료\n";
 }
 
 void Framework::ProceedAsync(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
@@ -160,12 +161,12 @@ void Framework::ProceedAccept(srv::Asynchron* context)
 		}
 		else
 		{
-			std::cout << "유저 수가 초과하여 더 이상 접속을 받을 수 없습니다.\n";
+			syncout << "유저 수가 초과하여 더 이상 접속을 받을 수 없습니다.\n";
 
 			// 동기식으로 접속 종료
 			if (FALSE == DisconnectEx(target, nullptr, 0, 0)) [[unlikely]]
 			{
-				std::cout << "연결을 받을 수 없는 와중에 접속 종료가 실패했습니다.\n";
+				syncout << "연결을 받을 수 없는 와중에 접속 종료가 실패했습니다.\n";
 			}
 			else
 			{
@@ -183,8 +184,9 @@ void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]] {
-		std::cout << "송신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
+	if (!session) [[unlikely]]
+	{
+		syncout << "송신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
 	};
 
 	if (0 < buffer_length)
@@ -218,14 +220,16 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]] {
-		std::cout << "수신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
+	if (!session) [[unlikely]]
+	{
+		syncout << "수신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
 	};
 
 	if (0 == bytes) [[unlikely]] // 연결 끊김은 이미 GetQueueCompletionStatus에서 거른다
 	{
-		if (!session->isFirst) [[likely]] {
-			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
+		if (!session->isFirst) [[likely]]
+		{
+			syncout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 
 			BeginDisconnect(session.get());
 		}
@@ -239,8 +243,9 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 			if (srv::CheckError(result))
 			{
 				const int error = WSAGetLastError();
-				if (!srv::CheckPending(error)) [[unlikely]] {
-					std::cout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
+				if (!srv::CheckPending(error)) [[unlikely]]
+				{
+					syncout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
 				}
 			}
 
@@ -453,7 +458,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 	BOOL result{};
 
-	std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 시작\n";
+	me.syncout << "작업자 스레드 " << std::this_thread::get_id() << " 시작\n";
 
 	while (true)
 	{
@@ -475,7 +480,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 		}
 	}
 
-	std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
+	me.syncout << "작업자 스레드 " << std::this_thread::get_id() << " 종료\n";
 
 	me.concurrentWatcher.arrive_and_wait();
 }
@@ -492,7 +497,7 @@ void TimerWorker(std::stop_source& stopper, Framework& me)
 		}
 	}
 
-	std::cout << "타이머 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
+	me.syncout << "타이머 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
 }
 
 void DBaseWorker(std::stop_source& stopper, Framework& me)
@@ -507,7 +512,7 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 		}
 	}
 
-	std::cout << "DB 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
+	me.syncout << "DB 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
 }
 
 void Framework::BuildSessions()

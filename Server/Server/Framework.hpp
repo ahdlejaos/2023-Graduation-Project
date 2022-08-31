@@ -105,6 +105,8 @@ private:
 
 	atomic<unsigned long long> playerIDs;
 	srv::Protocol lastPacketType;
+	
+	std::osyncstream syncout;
 };
 
 class TimedJob
