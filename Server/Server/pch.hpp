@@ -29,9 +29,9 @@ namespace srv
 	// 서버 스레드 수
 	constexpr unsigned int THREADS_COUNT = 6;
 	// 서버 TCP 포트
-	constexpr unsigned short SERVER_PORT_TCP = 9000;
+	constexpr unsigned short SERVER_PORT_TCP = 12000;
 	// 서버 UDP 포트
-	constexpr unsigned short SERVER_PORT_UDP = 9001;
+	constexpr unsigned short SERVER_PORT_UDP = 12001;
 	// 서버 식별자
 	constexpr ULONG_PTR SERVER_ID = ULONG_PTR(-1);
 
