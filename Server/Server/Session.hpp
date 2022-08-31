@@ -258,37 +258,37 @@ namespace srv
 
 		inline void AssignReceiveVirgin(const bool flag)
 		{
-			isFirst.store(flag, std::memory_order_acq_rel);
+			isFirst.store(flag, std::memory_order_release);
 		}
 
 		inline void AssignState(const SessionStates state)
 		{
-			myState.store(state, std::memory_order_acq_rel);
+			myState.store(state, std::memory_order_release);
 		}
 
 		inline void AssignSocket(const SOCKET& sock)
 		{
-			mySocket.store(sock, std::memory_order_acq_rel);
+			mySocket.store(sock, std::memory_order_release);
 		}
 
 		inline void AssignSocket(SOCKET&& sock)
 		{
-			mySocket.store(std::forward<SOCKET>(sock), std::memory_order_acq_rel);
+			mySocket.store(std::forward<SOCKET>(sock), std::memory_order_release);
 		}
 
 		inline void AssignID(const unsigned long long id)
 		{
-			myID.store(id, std::memory_order_acq_rel);
+			myID.store(id, std::memory_order_release);
 		}
 
 		inline void AssignRoom(const shared_ptr<Room>& room)
 		{
-			myRoom.store(room, std::memory_order_acq_rel);
+			myRoom.store(room, std::memory_order_release);
 		}
 
 		inline void AssignRoom(shared_ptr<Room>&& room)
 		{
-			myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_acq_rel);
+			myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_release);
 		}
 
 		inline void SetReceiveVirgin(const bool flag)

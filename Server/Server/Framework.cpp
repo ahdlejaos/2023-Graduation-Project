@@ -152,8 +152,10 @@ void Framework::ProceedAccept(srv::Asynchron* context)
 {
 	const SOCKET target = myEntryPoint.Update();
 
-	if (NULL != target) [[likely]] {
-		if (CanAcceptPlayer()) [[likely]] {
+	if (NULL != target) [[likely]]
+	{
+		if (CanAcceptPlayer()) [[likely]]
+		{
 			AcceptPlayer(target);
 		}
 		else
@@ -161,7 +163,8 @@ void Framework::ProceedAccept(srv::Asynchron* context)
 			std::cout << "유저 수가 초과하여 더 이상 접속을 받을 수 없습니다.\n";
 
 			// 동기식으로 접속 종료
-			if (FALSE == DisconnectEx(target, nullptr, 0, 0)) [[unlikely]] {
+			if (FALSE == DisconnectEx(target, nullptr, 0, 0)) [[unlikely]]
+			{
 				std::cout << "연결을 받을 수 없는 와중에 접속 종료가 실패했습니다.\n";
 			}
 			else
@@ -659,12 +662,12 @@ int Framework::SendLoginResult(srv::Session* session, login_failure_t info)
 
 bool Framework::CanAcceptPlayer() const noexcept
 {
-	return numberUsers.load(std::memory_order_acq_rel) < srv::MAX_USERS;
+	return numberUsers.load(std::memory_order_consume) < srv::MAX_USERS;
 }
 
 bool Framework::CanCreateRoom() const noexcept
 {
-	return numberRooms.load(std::memory_order_acq_rel) < srv::MAX_ROOMS;
+	return numberRooms.load(std::memory_order_consume) < srv::MAX_ROOMS;
 }
 
 shared_ptr<srv::Session> Framework::GetSession(unsigned place) const noexcept(false)
