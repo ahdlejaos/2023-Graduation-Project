@@ -4,17 +4,22 @@
 
 Framework globalFramework{ srv::THREADS_COUNT };
 
-constexpr int test_list[]{ 1, 2, 3, 4, 5, 6, 7, 8 };
-
-constexpr auto TestEncrypt()
-{
-	MD5 encryptor{};
-
-	return encryptor("10");
-}
-
 int main()
 {
+	globalFramework.Awake(srv::SERVER_PORT_TCP);
+	globalFramework.Start();
+	globalFramework.Update();
+
+	/*
+	constexpr int test_list[]{ 1, 2, 3, 4, 5, 6, 7, 8 };
+
+	constexpr auto TestEncrypt()
+	{
+		MD5 encryptor{};
+
+		return encryptor("10");
+	}
+
 	std::cout << "index_view 테스트\n";
 
 	std::vector test_vector{ 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -38,11 +43,8 @@ int main()
 
 	const auto temp = TestEncrypt();
 	std::cout << temp << "\n";
+	*/
 
-	globalFramework.Awake(srv::SERVER_PORT_TCP);
-	globalFramework.Start();
-	globalFramework.Update();
-	
 	// Release가 호출됨
 	return 0;
 }

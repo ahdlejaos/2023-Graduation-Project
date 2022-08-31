@@ -455,10 +455,6 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 	std::cout << "작업자 스레드 " << std::this_thread::get_id() << " 시작\n";
 
-	constexpr auto aa1 = srv::detail::ratio_leaked<std::ratio<3, 6>>();
-	constexpr auto aa2 = srv::detail::ratio_leaked<3, 6>();
-	constexpr auto aa3 = srv::detail::ratio_leaked<1.5, 2>();
-
 	while (true)
 	{
 		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(overlap));
@@ -563,9 +559,6 @@ shared_ptr<srv::Session> Framework::AcceptPlayer(SOCKET target)
 	newbie->Release();
 
 	numberUsers.store(users_number + 1, std::memory_order_release);
-	auto bb = srv::CreatePacket<srv::SCPacketSignInSucceed>(srv::SIGNIN_CAUSE::SUCCEED);
-
-	auto cc = srv::CreateLocalPacket<srv::SCPacketSignInSucceed>(srv::SIGNIN_CAUSE::SUCCEED);
 
 	return newbie;
 }
