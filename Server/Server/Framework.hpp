@@ -29,11 +29,10 @@ enum class DB_JOB_TYPES : unsigned char
 class Framework
 {
 private:
-#pragma region Screws
+#pragma region Prefabs
 	struct login_succeed_t
-	{
-		srv::SIGNIN_CAUSE cause;
-	};
+	{};
+
 	struct login_failure_t
 	{
 		srv::SIGNIN_CAUSE cause;
