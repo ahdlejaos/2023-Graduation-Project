@@ -129,6 +129,8 @@ public:
 	
 	constexpr TimedJob(TIMED_JOB_TYPES type, Clock time)
 		: myType(type), myTime(time)
+		, myData()
+		, myReturn(nullptr)
 	{}
 
 	let void SetData(const std::span<char, 100> data) noexcept(false)
@@ -164,6 +166,7 @@ public:
 	
 	constexpr DatabaseJob(DB_JOB_TYPES type)
 		: myType(type)
+		, myData(), myReturn(nullptr)
 	{}
 
 	let void SetData(const std::span<char, 100> data) noexcept(false)
