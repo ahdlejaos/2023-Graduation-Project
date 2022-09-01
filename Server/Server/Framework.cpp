@@ -660,7 +660,7 @@ int Framework::SendServerStatus(srv::Session* session)
 
 int Framework::SendLoginResult(srv::Session* session, const login_succeed_t& info)
 {
-	auto [pk, as] = srv::CreateTicket(srv::SCPacketSignInSucceed{ info.cause });
+	auto [pk, as] = srv::CreateTicket(srv::SCPacketSignInSucceed{ session->myID });
 
 	return session->BeginSend(as);
 }
