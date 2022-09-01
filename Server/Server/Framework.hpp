@@ -13,13 +13,13 @@ struct std::hash<DatabaseJob>
 	}
 };
 
-enum TIMED_JOB_TYPES : unsigned char
+enum class TIMED_JOB_TYPES : unsigned char
 {
 	NONE = 0,
 
 };
 
-enum DB_JOB_TYPES : unsigned char
+enum class DB_JOB_TYPES : unsigned char
 {
 	NONE = 0,
 	CHECK_ID,
