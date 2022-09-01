@@ -12,7 +12,7 @@ namespace srv
 		{}
 
 	public:
-		constexpr ~Room()
+		virtual ~Room()
 		{}
 
 		[[nodiscard]] inline static shared_ptr<Room> Create(unsigned place) noexcept
