@@ -90,8 +90,8 @@ private:
 
 	int SendTo(srv::Session* session, void* const data, const std::unsigned_integral auto size);
 	int SendServerStatus(srv::Session* session);
-	int SendLoginResult(srv::Session* session, login_succeed_t info);
-	int SendLoginResult(srv::Session* session, login_failure_t info);
+	int SendLoginResult(srv::Session* session, const login_succeed_t& info);
+	int SendLoginResult(srv::Session* session, const login_failure_t& info);
 
 	ULONG_PTR myID;
 

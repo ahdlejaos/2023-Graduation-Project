@@ -648,12 +648,12 @@ int Framework::SendServerStatus(srv::Session* session)
 	return 0;
 }
 
-int Framework::SendLoginResult(srv::Session* session, login_succeed_t info)
+int Framework::SendLoginResult(srv::Session* session, const login_succeed_t& info)
 {
 	return 0;
 }
 
-int Framework::SendLoginResult(srv::Session* session, login_failure_t info)
+int Framework::SendLoginResult(srv::Session* session, const login_failure_t& info)
 {
 	return 0;
 }
