@@ -559,21 +559,24 @@ void Framework::BuildResources()
 shared_ptr<srv::Session> Framework::AcceptPlayer(SOCKET target)
 {
 	auto newbie = SeekNewbiePlace();
-	newbie->Acquire();
-	newbie->Ready(MakeNewbieID(), target);
-	std::cout << "예비 플레이어 접속: " << target << "\n";
+	if (newbie) 
+	{
+		newbie->Acquire();
+		newbie->Ready(MakeNewbieID(), target);
+		std::cout << "예비 플레이어 접속: " << target << "\n";
 
-	auto users_number = numberUsers.load(std::memory_order_acquire);
+		auto users_number = numberUsers.load(std::memory_order_acquire);
 
-	// 유저 수 갱신
-	cached_pk_server_info.usersCount = users_number;
+		// 유저 수 갱신
+		cached_pk_server_info.usersCount = users_number + 1;
 
-	// 서버 상태 전송
-	auto [ticket, asynchron] = srv::CreateTicket(cached_pk_server_info);
-	newbie->BeginSend(asynchron);
-	newbie->Release();
+		// 서버 상태 전송
+		auto [ticket, asynchron] = srv::CreateTicket(cached_pk_server_info);
+		newbie->BeginSend(asynchron);
+		newbie->Release();
 
-	numberUsers.store(users_number + 1, std::memory_order_release);
+		numberUsers.store(users_number + 1, std::memory_order_release);
+	}
 
 	return newbie;
 }
