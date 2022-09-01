@@ -31,7 +31,7 @@ namespace srv
 		/// <summary>
 		/// 세션의 초기화를 수행합니다.
 		/// </summary>
-		/// <param name="id"></param>
+		/// <param name="id">유저 식별자</param>
 		/// <param name="sock">새로운 소켓</param>
 		inline void Ready(const PID id, SOCKET sock)
 		{
