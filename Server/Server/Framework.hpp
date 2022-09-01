@@ -115,7 +115,7 @@ private:
 	atomic<unsigned> numberRooms;
 	atomic<unsigned> numberUsers;
 
-	atomic<unsigned long long> playerIDs;
+	atomic<PID> playerIDs;
 	srv::Protocol lastPacketType;
 	
 	std::osyncstream syncout;

@@ -274,7 +274,17 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 					const auto& user_id = real_pk->userID;
 					const auto& user_pw = real_pk->userPN;
 
+					if (lstrlen(user_id) < 4)
+					{
+						// 로그인 무조건 실패!
+						login_failure.cause = srv::SIGNIN_CAUSE::FAILURE_WRONG_SINGIN_INFOS;
 
+						SendLoginResult(session.get(), login_failure);
+					}
+					else
+					{
+
+					}
 				}
 				break;
 
@@ -650,12 +660,16 @@ int Framework::SendServerStatus(srv::Session* session)
 
 int Framework::SendLoginResult(srv::Session* session, const login_succeed_t& info)
 {
-	return 0;
+	auto [pk, as] = srv::CreateTicket(srv::SCPacketSignInSucceed{ info.cause });
+
+	return session->BeginSend(as);
 }
 
 int Framework::SendLoginResult(srv::Session* session, const login_failure_t& info)
 {
-	return 0;
+	auto [pk, as] = srv::CreateTicket(srv::SCPacketSignInFailed{ info.cause });
+
+	return session->BeginSend(as);
 }
 
 bool Framework::CanAcceptPlayer() const noexcept

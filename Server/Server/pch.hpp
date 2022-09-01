@@ -17,6 +17,8 @@ class GameTerrain;
 
 class Player;
 
+using PID = unsigned long long;
+
 namespace srv
 {
 	class Asynchron;
@@ -34,8 +36,6 @@ namespace srv
 	constexpr unsigned short SERVER_PORT_UDP = 12001;
 	// 서버 식별자
 	constexpr ULONG_PTR SERVER_ID = ULONG_PTR(-1);
-
-	using PID = unsigned long long;
 
 	namespace detail
 	{
