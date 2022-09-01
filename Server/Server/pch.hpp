@@ -291,5 +291,15 @@ namespace srv
 
 
 	};
+
+	class SCPacketServerInfo;
+	class SCPacketSignInSucceed;
+	class SCPacketSignInFailed;
+	class SCPacketSignUpSucceed;
+	class SCPacketSignUpFailed;
+
+	class CSPacketSignIn;
+	class CSPacketSignUp;
+
 }
 #endif // ! __PCH__
