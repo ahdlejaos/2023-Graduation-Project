@@ -5,17 +5,28 @@
 
 namespace srv
 {
-	class Session
+	class Session : public std::enable_shared_from_this<Session>
 	{
-	public:
+	private:
 		constexpr Session(unsigned place)
 			: isFirst(false), mySwitch()
 			, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
 			, myReceiver(nullptr), myRecvBuffer(), myRecvSize(), myLastPacket()
 		{}
 
+	public:
 		virtual ~Session()
 		{}
+
+		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place) noexcept
+		{
+			return shared_ptr<Session>(new Session{ place });
+		}
+
+		inline shared_ptr<Session> Handle() noexcept
+		{
+			return shared_from_this();
+		}
 
 		/// <summary>
 		/// 세션의 초기화를 수행합니다.

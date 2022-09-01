@@ -540,7 +540,7 @@ void Framework::BuildSessions()
 	place = srv::NPC_ID_BEGIN;
 	for (auto& npc : npc_sessions)
 	{
-		npc = make_shared<srv::Session>(place++);
+		npc = srv::Session::Create(place++);
 	}
 }
 
