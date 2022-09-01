@@ -7,7 +7,7 @@ namespace srv
 {
 	class Session : public std::enable_shared_from_this<Session>
 	{
-	private:
+	protected:
 		constexpr Session(unsigned place)
 			: isFirst(false), mySwitch()
 			, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)

@@ -532,7 +532,7 @@ void Framework::BuildSessions()
 	unsigned place = srv::USERS_ID_BEGIN;
 	for (auto& user : user_sessions)
 	{
-		user = static_pointer_cast<srv::Session>(make_shared<srv::PlayingSession>(place++));
+		user = srv::PlayingSession::Create(place++);
 	}
 
 	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);

@@ -3,15 +3,21 @@
 
 namespace srv
 {
-	class PlayingSession :public Session
+	class PlayingSession : public Session
 	{
-	public:
+	protected:
 		constexpr PlayingSession(unsigned place)
 			: Session(place)
 		{}
 
+	public:
 		virtual ~PlayingSession()
 		{}
+
+		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place) noexcept
+		{
+			return static_pointer_cast<srv::Session>(shared_ptr<PlayingSession>(new PlayingSession{ place }));
+		}
 
 		inline constexpr bool IsUser() const noexcept override
 		{
