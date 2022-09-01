@@ -589,10 +589,13 @@ shared_ptr<srv::Session> Framework::ConnectPlayer(unsigned place)
 shared_ptr<srv::Session> Framework::ConnectPlayer(shared_ptr<srv::Session> session)
 {
 	session->Acquire();
-	std::cout << "플레이어 접속: " << session->myID << "\n";
+
+	const auto id = session->GetID();
+
+	std::cout << "플레이어 접속: " << id << "\n";
 
 	// 로그인 성공 여부 전송
-	auto [ticket, asynchron] = srv::CreateTicket(srv::SCPacketSignInSucceed{ srv::SIGNIN_CAUSE::SUCCEED });
+	auto [ticket, asynchron] = srv::CreateTicket(srv::SCPacketSignInSucceed{ id });
 	session->BeginSend(asynchron);
 	session->Connect();
 
