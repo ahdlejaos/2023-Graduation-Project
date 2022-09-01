@@ -35,6 +35,8 @@ namespace srv
 	// 서버 식별자
 	constexpr ULONG_PTR SERVER_ID = ULONG_PTR(-1);
 
+	using PID = unsigned long long;
+
 	namespace detail
 	{
 		constexpr unsigned FRAME = 30;
