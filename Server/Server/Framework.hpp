@@ -70,6 +70,9 @@ public:
 	shared_ptr<srv::Session> GetSession(unsigned place) const noexcept(false);
 	shared_ptr<srv::Session> FindSession(unsigned long long id) const noexcept(false);
 
+	template<typename Ty, typename ...RestTy>
+	constexpr void Print(Ty&& first, RestTy&& ...rests);
+
 	using DBinUsersSearcher = bool(const Sentence user_id);
 
 private:
@@ -91,6 +94,9 @@ private:
 	int SendServerStatus(srv::Session* session);
 	int SendLoginResult(srv::Session* session, const login_succeed_t& info);
 	int SendLoginResult(srv::Session* session, const login_failure_t& info);
+
+	template<typename Ty, typename ...RestTy>
+	constexpr void UnsafePrint(Ty&& first, RestTy&& ...rests);
 
 	ULONG_PTR myID;
 
@@ -240,5 +246,29 @@ namespace srv
 		asyncron->SetBuffer(wbuffer);
 
 		return make_pair(packet, asyncron);
+	}
+}
+
+template<typename Ty, typename ...RestTy>
+constexpr void Framework::Print(Ty&& first, RestTy&& ...rests)
+{
+	while (concurrentOutputLock.test_and_set(std::memory_order_acquire));
+	std::cout << std::forward<Ty>(first);
+
+	if constexpr(0 < sizeof...(RestTy))
+	{
+		UnsafePrint(std::forward<RestTy>(rests)...);
+	}
+	concurrentOutputLock.clear(std::memory_order_release);
+}
+
+template<typename Ty, typename ...RestTy>
+constexpr void Framework::UnsafePrint(Ty&& first, RestTy&& ...rests)
+{
+	std::cout << std::forward<Ty>(first);
+
+	if constexpr (0 < sizeof...(RestTy))
+	{
+		UnsafePrint(std::forward<RestTy>(rests)...);
 	}
 }
