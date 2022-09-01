@@ -347,6 +347,11 @@ namespace srv
 			return true;
 		}
 
+		inline PID GetID() const noexcept
+		{
+			return myID.load(std::memory_order_relaxed);
+		}
+
 		const unsigned int myPlace;
 
 		atomic<bool> isFirst;
