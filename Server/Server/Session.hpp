@@ -22,7 +22,7 @@ namespace srv
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="sock">货肺款 家南</param>
-		inline void Ready(unsigned long long id, SOCKET sock)
+		inline void Ready(const PID id, SOCKET sock)
 		{
 			AssignState(SessionStates::ACCEPTED);
 			AssignID(id);
@@ -276,7 +276,7 @@ namespace srv
 			mySocket.store(std::forward<SOCKET>(sock), std::memory_order_release);
 		}
 
-		inline void AssignID(const unsigned long long id)
+		inline void AssignID(const PID id)
 		{
 			myID.store(id, std::memory_order_release);
 		}
@@ -311,7 +311,7 @@ namespace srv
 			mySocket.store(std::forward<SOCKET>(sock), std::memory_order_relaxed);
 		}
 
-		inline void SetID(const unsigned long long id)
+		inline void SetID(const PID id)
 		{
 			myID.store(id, std::memory_order_relaxed);
 		}
@@ -342,7 +342,7 @@ namespace srv
 		atomic_flag mySwitch;
 		atomic<SessionStates> myState;
 		atomic<SOCKET> mySocket;
-		atomic<unsigned long long> myID;
+		atomic<PID> myID;
 		atomic<shared_ptr<Room>> myRoom;
 
 		shared_ptr<Asynchron> myReceiver;

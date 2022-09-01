@@ -88,12 +88,12 @@ namespace srv
 	class SCPacketSignInSucceed : public Packet<SCPacketSignInSucceed>
 	{
 	public:
-		constexpr SCPacketSignInSucceed(SIGNIN_CAUSE cause)
+		constexpr SCPacketSignInSucceed(unsigned long long id)
 			: Packet(Protocol::SC_SIGNIN_SUCCESS)
-			, myCause(cause)
+			, userID(id)
 		{}
 
-		const SIGNIN_CAUSE myCause;
+		const PID userID;
 	};
 
 	class SCPacketSignInFailed : public Packet<SCPacketSignInFailed>
