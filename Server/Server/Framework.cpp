@@ -94,7 +94,7 @@ void Framework::Update()
 		{
 			if (concurrentWatcher.try_wait())
 			{
-				std::cout << "서버 종료 중...\n";
+				Print("서버 종료 중...\n");
 
 				break;
 			}
@@ -104,13 +104,13 @@ void Framework::Update()
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "예외로 인한 서버 인터럽트: " << e.what() << std::endl;
+		Print("예외로 인한 서버 인터럽트: ", e.what(), "\n");
 	}
 }
 
 void Framework::Release()
 {
-	std::cout << "서버 종료\n";
+	Print("서버 종료\n");
 }
 
 void Framework::ProceedAsync(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
@@ -183,7 +183,8 @@ void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]] {
+	if (!session) [[unlikely]]
+	{
 		std::cout << "송신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
 	};
 
@@ -499,7 +500,7 @@ void TimerWorker(std::stop_source& stopper, Framework& me)
 		}
 	}
 
-	std::cout << "타이머 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
+	me.Print("타이머 작업 스레드 ", std::this_thread::get_id(), " 종료\n");
 }
 
 void DBaseWorker(std::stop_source& stopper, Framework& me)
@@ -513,7 +514,7 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 		}
 	}
 
-	std::cout << "DB 작업 스레드 " << std::this_thread::get_id() << " 종료\n";
+	me.Print("DB 작업 스레드 ", std::this_thread::get_id(), " 종료\n");
 }
 
 void Framework::BuildSessions()
