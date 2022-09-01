@@ -546,9 +546,11 @@ void Framework::BuildSessions()
 
 void Framework::BuildRooms()
 {
-	for (unsigned i = 0; i < srv::MAX_ROOMS; i++)
+	unsigned place = 0;
+
+	for (auto& room : everyRooms)
 	{
-		room = srv::Room::Create(i);
+		room = srv::Room::Create(place++);
 	}
 }
 
