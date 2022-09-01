@@ -129,8 +129,6 @@ private:
 class TimedJob
 {
 public:
-	constexpr TimedJob() = default;
-	
 	constexpr TimedJob(TIMED_JOB_TYPES type, Clock time)
 		: myType(type), myTime(time)
 		, myData()
@@ -166,8 +164,6 @@ public:
 class DatabaseJob
 {
 public: 
-	constexpr DatabaseJob() = default;
-	
 	constexpr DatabaseJob(DB_JOB_TYPES type)
 		: myType(type)
 		, myData(), myReturn(nullptr)
