@@ -13,6 +13,19 @@ struct std::hash<DatabaseJob>
 	}
 };
 
+enum TIMED_JOB_TYPES : unsigned char
+{
+	NONE = 0,
+
+};
+
+enum DB_JOB_TYPES : unsigned char
+{
+	NONE = 0,
+	CHECK_ID,
+	FIND_USER,
+};
+
 class Framework
 {
 private:
@@ -113,6 +126,20 @@ class TimedJob
 {
 public:
 	constexpr TimedJob() = default;
+	
+	constexpr TimedJob(TIMED_JOB_TYPES type, Clock time)
+		: myType(type), myTime(time)
+	{}
+
+	let void SetData(const std::span<char, 100> data) noexcept(false)
+	{
+		std::copy(data.begin(), data.end(), std::begin(myData));
+	}
+
+	let void SetData(char* data, const std::integral auto offset) noexcept(false)
+	{
+		std::copy(data.begin(), data.end(), std::advance(std::begin(myData), offset));
+	}
 
 	let bool operator==(const TimedJob& rhs) const noexcept
 	{
@@ -125,12 +152,28 @@ public:
 	}
 
 	Clock myTime;
+	TIMED_JOB_TYPES myType;
+	char myData[100];
 };
 
 class DatabaseJob
 {
-public:
+public: 
 	constexpr DatabaseJob() = default;
+	
+	constexpr DatabaseJob(DB_JOB_TYPES type)
+		: myType(type)
+	{}
+
+	let void SetData(const std::span<char, 100> data) noexcept(false)
+	{
+		std::copy(data.begin(), data.end(), std::begin(myData));
+	}
+
+	let void SetData(char* data, const std::integral auto offset) noexcept(false)
+	{
+		std::copy(data.begin(), data.end(), std::advance(std::begin(myData), offset));
+	}
 
 	let bool operator==(const DatabaseJob& rhs) const noexcept
 	{
@@ -141,6 +184,9 @@ public:
 	{
 		return this <=> std::addressof(rhs);
 	}
+
+	DB_JOB_TYPES myType;
+	char myData[100];
 };
 
 namespace srv
