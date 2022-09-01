@@ -60,7 +60,7 @@ public:
 	void ProceedDispose(srv::Asynchron* context, ULONG_PTR key);
 	void ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key);
 
-	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
+	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool, std::osyncstream& syncout);
 	friend void TimerWorker(std::stop_source& stopper, Framework& me);
 	friend void DBaseWorker(std::stop_source& stopper, Framework& me);
 
@@ -101,6 +101,7 @@ private:
 	std::latch concurrentWatcher;
 	std::vector<Thread> myWorkers;
 	std::stop_source workersBreaker;
+	std::atomic_flag concurrentOutputLock;
 
 	unique_ptr<Thread> timerWorker;
 	std::priority_queue<TimedJob> timerQueue;
@@ -117,8 +118,6 @@ private:
 
 	atomic<PID> playerIDs;
 	srv::Protocol lastPacketType;
-	
-	std::osyncstream syncout;
 };
 
 class TimedJob
