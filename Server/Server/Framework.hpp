@@ -107,7 +107,7 @@ private:
 	std::latch concurrentWatcher;
 	std::vector<Thread> myWorkers;
 	std::stop_source workersBreaker;
-	std::atomic_flag concurrentOutputLock;
+	Spinlock concurrentOutputLock;
 
 	unique_ptr<Thread> timerWorker;
 	std::priority_queue<TimedJob> timerQueue;
@@ -248,14 +248,16 @@ namespace srv
 template<typename Ty, typename ...RestTy>
 constexpr void Framework::Print(Ty&& first, RestTy&& ...rests)
 {
-	while (concurrentOutputLock.test_and_set(std::memory_order_acquire));
+	concurrentOutputLock.lock();
+
 	std::cout << std::forward<Ty>(first);
 
 	if constexpr(0 < sizeof...(RestTy))
 	{
 		UnsafePrint(std::forward<RestTy>(rests)...);
 	}
-	concurrentOutputLock.clear(std::memory_order_release);
+
+	concurrentOutputLock.unlock();
 }
 
 template<typename Ty, typename ...RestTy>

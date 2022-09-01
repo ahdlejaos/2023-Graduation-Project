@@ -437,7 +437,8 @@ void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 {
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]] {
+	if (!session) [[unlikely]]
+	{
 		std::cout << "연결을 끊을 잘못된 세션을 참조함! (키: " << key << ")\n";
 	}
 	else
@@ -456,7 +457,8 @@ void Framework::ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key)
 {
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]] {
+	if (!session) [[unlikely]]
+	{
 		std::cout << "연결을 끊을 세션이 없음! (키: " << key << ")\n";
 	};
 
@@ -478,12 +480,14 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 	{
 		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(overlap));
 
-		if (token.stop_requested()) [[unlikely]] {
+		if (token.stop_requested()) [[unlikely]]
+		{
 			break;
 		}
 
 		auto asynchron = static_cast<srv::Asynchron*>(overlap);
-		if (TRUE == result) [[likely]] {
+		if (TRUE == result) [[likely]]
+		{
 			me.ProceedAsync(asynchron, key, static_cast<int>(bytes));
 		}
 		else
@@ -503,7 +507,8 @@ void TimerWorker(std::stop_source& stopper, Framework& me)
 
 	while (true)
 	{
-		if (token.stop_requested()) [[unlikely]] {
+		if (token.stop_requested()) [[unlikely]]
+		{
 			break;
 		}
 	}
@@ -517,7 +522,8 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 
 	while (true)
 	{
-		if (token.stop_requested()) [[unlikely]] {
+		if (token.stop_requested()) [[unlikely]]
+		{
 			break;
 		}
 	}
