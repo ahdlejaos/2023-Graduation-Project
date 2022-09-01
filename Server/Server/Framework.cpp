@@ -548,8 +548,7 @@ void Framework::BuildRooms()
 {
 	for (unsigned i = 0; i < srv::MAX_ROOMS; i++)
 	{
-		auto& room = everyRooms[i];
-		room = make_shared<srv::Room>(i);
+		room = srv::Room::Create(i);
 	}
 }
 
