@@ -223,13 +223,15 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]] {
+	if (!session) [[unlikely]]
+	{
 		std::cout << "수신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
 	};
 
 	if (0 == bytes) [[unlikely]] // 연결 끊김은 이미 GetQueueCompletionStatus에서 거른다
 	{
-		if (!session->isFirst) [[likely]] {
+		if (!session->isFirst) [[likely]]
+		{
 			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 
 			BeginDisconnect(session.get());
@@ -244,7 +246,8 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 			if (srv::CheckError(result))
 			{
 				const int error = WSAGetLastError();
-				if (!srv::CheckPending(error)) [[unlikely]] {
+				if (!srv::CheckPending(error)) [[unlikely]]
+				{
 					std::cout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
 				}
 			}
@@ -283,7 +286,8 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 					}
 					else
 					{
-
+						// 로그인 성공 여부 검증
+						SendLoginResult(session.get(), login_succeed);
 					}
 				}
 				break;
