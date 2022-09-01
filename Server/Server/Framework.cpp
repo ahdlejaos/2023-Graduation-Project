@@ -5,7 +5,7 @@
 #include "PlayingSession.hpp"
 #include "Packet.hpp"
 
-void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool, std::osyncstream& syncout);
+void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 void TimerWorker(std::stop_source& stopper, Framework& me);
 void DBaseWorker(std::stop_source& stopper, Framework& me);
 
@@ -73,7 +73,7 @@ void Framework::Start()
 	syncout << "주 작업 스레드를 시동하는 중...";
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
-		auto& th = myWorkers.emplace_back(Worker, stopper, me, std::ref(myAsyncProvider), std::ref(syncout));
+		auto& th = myWorkers.emplace_back(Worker, stopper, me, std::ref(myAsyncProvider));
 	}
 	syncout << std::right << " (주 작업 스레드의 수: " << concurrentsNumber << "개)\n";
 
@@ -454,7 +454,7 @@ void Framework::ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key)
 	BeginDisconnect(session);
 }
 
-void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool, std::osyncstream& syncout)
+void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 {
 	auto token = stopper.get_token();
 	DWORD bytes = 0;
