@@ -154,6 +154,7 @@ public:
 	Clock myTime;
 	TIMED_JOB_TYPES myType;
 	char myData[100];
+	void* myReturn;
 };
 
 class DatabaseJob
@@ -187,6 +188,7 @@ public:
 
 	DB_JOB_TYPES myType;
 	char myData[100];
+	void* myReturn;
 };
 
 namespace srv
