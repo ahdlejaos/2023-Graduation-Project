@@ -9,6 +9,7 @@ namespace srv
 		constexpr Room(unsigned place)
 			: myPlace(place)
 			, myState(RoomStates::IDLE)
+			, myPlayers(), myEntities()
 		{}
 
 	public:
@@ -29,5 +30,6 @@ namespace srv
 		atomic<RoomStates> myState;
 
 		std::array<shared_ptr<Session>, MAX_PLAYERS_PER_ROOM> myPlayers;
+		std::array<shared_ptr<Session>, MAX_NPCS_PER_ROOM> myEntities;
 	};
 }
