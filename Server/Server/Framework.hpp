@@ -114,8 +114,6 @@ private:
 
 	unique_ptr<Thread> databaseWorker;
 	std::unordered_set<DatabaseJob> databaseQueue;
-	std::packaged_task<bool(const Sentence user_id)> databaseUserSearcher;
-	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> databaseUserCertifier;
 
 	std::array<shared_ptr<srv::Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<srv::Session>, srv::MAX_ENTITIES> everySessions;
@@ -165,9 +163,10 @@ protected:
 class DatabaseJob
 {
 public: 
-	constexpr DatabaseJob(DB_JOB_TYPES type)
+	DatabaseJob(DB_JOB_TYPES type)
 		: myType(type)
-		, myData(), myReturn(nullptr)
+		, myData()
+		, userSearcher(), userCertifier()
 	{}
 
 	inline void Execute()
@@ -198,7 +197,9 @@ public:
 protected:
 	DB_JOB_TYPES myType;
 	char myData[100];
-	void* myReturn;
+
+	std::packaged_task<bool(const Sentence user_id)> userSearcher;
+	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> userCertifier;
 };
 
 namespace srv
