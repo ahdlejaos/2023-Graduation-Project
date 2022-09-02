@@ -155,6 +155,7 @@ public:
 		return myTime <=> rhs.myTime;
 	}
 
+protected:
 	Clock myTime;
 	TIMED_JOB_TYPES myType;
 	char myData[100];
@@ -168,6 +169,11 @@ public:
 		: myType(type)
 		, myData(), myReturn(nullptr)
 	{}
+
+	inline void Execute()
+	{
+
+	}
 
 	let void SetData(const std::span<char, 100> data) noexcept(false)
 	{
@@ -189,6 +195,7 @@ public:
 		return this <=> std::addressof(rhs);
 	}
 
+protected:
 	DB_JOB_TYPES myType;
 	char myData[100];
 	void* myReturn;

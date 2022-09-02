@@ -28,6 +28,8 @@ Framework::Framework(unsigned int concurrent_hint)
 	std::cin.tie(nullptr);
 	std::cerr.tie(nullptr);
 	std::clog.tie(nullptr);
+
+	databaseQueue.reserve(100);
 }
 
 Framework::~Framework()
