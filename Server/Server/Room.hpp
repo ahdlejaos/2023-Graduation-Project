@@ -26,6 +26,11 @@ namespace srv
 			return shared_from_this();
 		}
 
+		void Update(const float delta_time)
+		{
+
+		}
+
 		const unsigned myPlace;
 		atomic<RoomStates> myState;
 

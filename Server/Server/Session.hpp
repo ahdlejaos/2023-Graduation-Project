@@ -18,6 +18,11 @@ namespace srv
 		virtual ~Session()
 		{}
 
+		inline void Update(const float delta_time)
+		{
+
+		}
+
 		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place) noexcept
 		{
 			return shared_ptr<Session>(new Session{ place });
