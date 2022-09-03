@@ -207,6 +207,11 @@ public:
 		while (myLatch.test_and_set(order));
 	}
 
+	inline bool TryLock(const std::memory_order order = std::memory_order::memory_order_acquire) volatile noexcept
+	{
+		return !myLatch.test_and_set(std::memory_order_acquire);
+	}
+
 	inline void unlock(const std::memory_order order = std::memory_order::memory_order_release) volatile noexcept
 	{
 		myLatch.clear(order);

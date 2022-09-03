@@ -9,9 +9,11 @@ namespace srv
 	{
 	protected:
 		constexpr Session(unsigned place)
-			: isFirstCommunication(false), mySwitch()
+			: myAuthority()
 			, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
-			, myReceiver(nullptr), myRecvBuffer(), myRecvSize(), myLastPacket()
+			, isFirstCommunication(false)
+			, myReceiver(nullptr), myRecvBuffer(), myRecvSize()
+			, myLastPacket()
 		{}
 
 	public:
@@ -147,7 +149,7 @@ namespace srv
 		/// </summary>
 		inline void Acquire() volatile
 		{
-			while (mySwitch.test_and_set(std::memory_order_acquire));
+			myAuthority.lock();
 		}
 
 		/// <summary>
@@ -156,7 +158,7 @@ namespace srv
 		/// <returns>성공 여부</returns>
 		inline bool TryAcquire() volatile
 		{
-			return !mySwitch.test_and_set(std::memory_order_acquire);
+			return myAuthority.TryLock();
 		}
 
 		/// <summary>
@@ -164,7 +166,7 @@ namespace srv
 		/// </summary>
 		inline void Release() volatile
 		{
-			mySwitch.clear(std::memory_order_release);
+			myAuthority.unlock();
 		}
 
 		/// <summary>
@@ -357,15 +359,15 @@ namespace srv
 			return myID.load(std::memory_order_relaxed);
 		}
 
-		const unsigned int myPlace;
+		Spinlock myAuthority;
 
-		atomic<bool> isFirstCommunication;
-		atomic_flag mySwitch;
+		const unsigned int myPlace;
 		atomic<SessionStates> myState;
 		atomic<SOCKET> mySocket;
 		atomic<PID> myID;
 		atomic<shared_ptr<Room>> myRoom;
 
+		atomic<bool> isFirstCommunication;
 		shared_ptr<Asynchron> myReceiver;
 		char myRecvBuffer[BUFSIZ];
 		unsigned myRecvSize;
