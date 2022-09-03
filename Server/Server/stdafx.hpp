@@ -191,34 +191,34 @@ class Spinlock
 {
 public:
 	constexpr Spinlock()
-		: myLatch()
+		: mySwitch()
 	{}
-
-	Spinlock(const Spinlock&) = delete;
-	Spinlock& operator=(const Spinlock&) = delete;
 
 	~Spinlock()
 	{
-		myLatch.clear();
+		mySwitch.clear();
 	}
 
-	inline void lock(const std::memory_order order = std::memory_order::memory_order_acquire) volatile noexcept
+	inline void Lock(const std::memory_order order = std::memory_order::memory_order_acquire) volatile noexcept
 	{
-		while (myLatch.test_and_set(order));
+		while (mySwitch.test_and_set(order));
 	}
 
 	inline bool TryLock(const std::memory_order order = std::memory_order::memory_order_acquire) volatile noexcept
 	{
-		return !myLatch.test_and_set(std::memory_order_acquire);
+		return !mySwitch.test_and_set(std::memory_order_acquire);
 	}
 
-	inline void unlock(const std::memory_order order = std::memory_order::memory_order_release) volatile noexcept
+	inline void Unlock(const std::memory_order order = std::memory_order::memory_order_release) volatile noexcept
 	{
-		myLatch.clear(order);
+		mySwitch.clear(order);
 	}
+
+	Spinlock(const Spinlock&) = delete;
+	Spinlock& operator=(const Spinlock&) = delete;
 
 private:
-	atomic_flag myLatch;
+	atomic_flag mySwitch;
 };
 
 template<std::ranges::bidirectional_range Container>

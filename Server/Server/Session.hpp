@@ -149,7 +149,7 @@ namespace srv
 		/// </summary>
 		inline void Acquire() volatile
 		{
-			myAuthority.lock();
+			myAuthority.Lock();
 		}
 
 		/// <summary>
@@ -166,7 +166,7 @@ namespace srv
 		/// </summary>
 		inline void Release() volatile
 		{
-			myAuthority.unlock();
+			myAuthority.Unlock();
 		}
 
 		/// <summary>
