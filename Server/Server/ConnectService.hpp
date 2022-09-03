@@ -1,5 +1,6 @@
 #pragma once
 #include "Asynchron.hpp"
+#include "Spinlock.inl"
 
 class ConnectService
 {
@@ -117,18 +118,20 @@ public:
 
 	inline SOCKET Pop() noexcept
 	{
-		std::scoped_lock locken{ socketPoolLock };
+		socketPoolLock.Lock();
 
 		if (0 < socketsPool.size())
 		{
 			const auto last = socketsPool.back();
 
 			socketsPool.pop_back();
+			socketPoolLock.Unlock();
 
 			return last;
 		}
 		else
 		{
+			socketPoolLock.Unlock();
 			return NULL;
 		}
 	}
@@ -136,9 +139,9 @@ public:
 	// 소켓을 반환합니다.
 	inline void Push(const SOCKET sk) noexcept
 	{
-		std::scoped_lock locken{ socketPoolLock };
-
+		socketPoolLock.Lock();
 		socketsPool.push_front(sk);
+		socketPoolLock.Unlock();
 	}
 
 	SOCKET serverSocket;
