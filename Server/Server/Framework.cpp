@@ -643,29 +643,6 @@ void Framework::BeginDisconnect(srv::Session* session)
 	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수" << numberUsers << "명)\n";
 }
 
-shared_ptr<srv::Session> Framework::SeekNewbiePlace() const noexcept
-{
-	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
-	auto it = std::find_if(std::execution::par, players_view.begin(), players_view.end()
-		, [&](const shared_ptr<srv::Session>& ptr) {
-		return ptr->myState == srv::SessionStates::NONE;
-	});
-
-	if (players_view.end() == it)
-	{
-		return nullptr;
-	}
-	else
-	{
-		return (*it);
-	}
-}
-
-unsigned long long Framework::MakeNewbieID() noexcept
-{
-	return playerIDs++;
-}
-
 int Framework::SendTo(srv::Session* session, void* const data, const std::unsigned_integral auto size)
 {
 	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
@@ -729,4 +706,27 @@ shared_ptr<srv::Session> Framework::FindSession(unsigned long long id) const noe
 	{
 		return nullptr;
 	}
+}
+
+shared_ptr<srv::Session> Framework::SeekNewbiePlace() const noexcept
+{
+	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
+	auto it = std::find_if(std::execution::par, players_view.begin(), players_view.end()
+		, [&](const shared_ptr<srv::Session>& ptr) {
+		return ptr->myState == srv::SessionStates::NONE;
+	});
+
+	if (players_view.end() == it)
+	{
+		return nullptr;
+	}
+	else
+	{
+		return (*it);
+	}
+}
+
+unsigned long long Framework::MakeNewbieID() noexcept
+{
+	return playerIDs++;
 }

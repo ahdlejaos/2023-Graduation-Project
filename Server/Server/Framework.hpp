@@ -87,13 +87,13 @@ private:
 	void BeginDisconnect(shared_ptr<srv::Session> session);
 	void BeginDisconnect(srv::Session* session);
 
-	shared_ptr<srv::Session> SeekNewbiePlace() const noexcept;
-	unsigned long long MakeNewbieID() noexcept;
-
 	int SendTo(srv::Session* session, void* const data, const std::unsigned_integral auto size);
 	int SendServerStatus(srv::Session* session);
 	int SendLoginResult(srv::Session* session, const login_succeed_t& info);
 	int SendLoginResult(srv::Session* session, const login_failure_t& info);
+
+	shared_ptr<srv::Session> SeekNewbiePlace() const noexcept;
+	unsigned long long MakeNewbieID() noexcept;
 
 	template<typename Ty, typename ...RestTy>
 	constexpr void UnsafePrint(Ty&& first, RestTy&& ...rests);
