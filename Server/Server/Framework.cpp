@@ -232,7 +232,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 	if (0 == bytes) [[unlikely]] // 연결 끊김은 이미 GetQueueCompletionStatus에서 거른다
 	{
-		if (!session->isFirst) [[likely]]
+		if (!session->isFirstCommunication) [[likely]]
 		{
 			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 

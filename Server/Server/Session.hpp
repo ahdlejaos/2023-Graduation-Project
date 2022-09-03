@@ -9,7 +9,7 @@ namespace srv
 	{
 	protected:
 		constexpr Session(unsigned place)
-			: isFirst(false), mySwitch()
+			: isFirstCommunication(false), mySwitch()
 			, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
 			, myReceiver(nullptr), myRecvBuffer(), myRecvSize(), myLastPacket()
 		{}
@@ -274,7 +274,7 @@ namespace srv
 
 		inline void AssignReceiveVirgin(const bool flag)
 		{
-			isFirst.store(flag, std::memory_order_release);
+			isFirstCommunication.store(flag, std::memory_order_release);
 		}
 
 		inline void AssignState(const SessionStates state)
@@ -309,7 +309,7 @@ namespace srv
 
 		inline void SetReceiveVirgin(const bool flag)
 		{
-			isFirst.store(flag, std::memory_order_relaxed);
+			isFirstCommunication.store(flag, std::memory_order_relaxed);
 		}
 
 		inline void SetState(const SessionStates state)
@@ -359,7 +359,7 @@ namespace srv
 
 		const unsigned int myPlace;
 
-		atomic<bool> isFirst;
+		atomic<bool> isFirstCommunication;
 		atomic_flag mySwitch;
 		atomic<SessionStates> myState;
 		atomic<SOCKET> mySocket;
