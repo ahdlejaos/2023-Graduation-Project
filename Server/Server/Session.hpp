@@ -372,5 +372,8 @@ namespace srv
 		char myRecvBuffer[BUFSIZ];
 		unsigned myRecvSize;
 		char myLastPacket[200];
+
+	private:
+		Spinlock myAuthority;
 	};
 }
