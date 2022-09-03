@@ -3,6 +3,7 @@
 #include "ConnectService.hpp"
 #include "Packet.hpp"
 #include "Asynchron.hpp"
+#include "Spinlock.inl"
 
 template<>
 struct std::hash<DatabaseJob>

@@ -2,6 +2,7 @@
 #include "Asynchron.hpp"
 #include "Packet.hpp"
 #include "Room.hpp"
+#include "Spinlock.inl"
 
 namespace srv
 {
@@ -358,8 +359,6 @@ namespace srv
 		{
 			return myID.load(std::memory_order_relaxed);
 		}
-
-		Spinlock myAuthority;
 
 		const unsigned int myPlace;
 		atomic<SessionStates> myState;

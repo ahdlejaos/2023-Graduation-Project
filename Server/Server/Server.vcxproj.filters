@@ -67,6 +67,9 @@
     <None Include="Encryptor.inl">
       <Filter>헤더 파일\Utility</Filter>
     </None>
+    <None Include="Spinlock.inl">
+      <Filter>헤더 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.hpp">
