@@ -187,35 +187,6 @@ namespace std
 //class index_view_enumerator
 //{};
 
-class Spinlock
-{
-public:
-	constexpr Spinlock()
-		: myLatch()
-	{}
-
-	Spinlock(const Spinlock&) = delete;
-	Spinlock& operator=(const Spinlock&) = delete;
-
-	~Spinlock()
-	{
-		myLatch.clear();
-	}
-
-	inline void lock(const std::memory_order order = std::memory_order::memory_order_acquire) volatile noexcept
-	{
-		while (myLatch.test_and_set(order));
-	}
-
-	inline void unlock(const std::memory_order order = std::memory_order::memory_order_release) volatile noexcept
-	{
-		myLatch.clear(order);
-	}
-
-private:
-	atomic_flag myLatch;
-};
-
 template<std::ranges::bidirectional_range Container>
 class index_enumerator
 {

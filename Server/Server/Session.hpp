@@ -2,6 +2,7 @@
 #include "Asynchron.hpp"
 #include "Packet.hpp"
 #include "Room.hpp"
+#include "Spinlock.inl"
 
 namespace srv
 {
@@ -9,9 +10,11 @@ namespace srv
 	{
 	protected:
 		constexpr Session(unsigned place)
-			: isFirst(false), mySwitch()
+			: myAuthority()
 			, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
-			, myReceiver(nullptr), myRecvBuffer(), myRecvSize(), myLastPacket()
+			, isFirstCommunication(false)
+			, myReceiver(nullptr), myRecvBuffer(), myRecvSize()
+			, myLastPacket()
 		{}
 
 	public:
@@ -147,7 +150,7 @@ namespace srv
 		/// </summary>
 		inline void Acquire() volatile
 		{
-			while (mySwitch.test_and_set(std::memory_order_acquire));
+			myAuthority.Lock();
 		}
 
 		/// <summary>
@@ -156,7 +159,7 @@ namespace srv
 		/// <returns>성공 여부</returns>
 		inline bool TryAcquire() volatile
 		{
-			return !mySwitch.test_and_set(std::memory_order_acquire);
+			return myAuthority.TryLock();
 		}
 
 		/// <summary>
@@ -164,7 +167,7 @@ namespace srv
 		/// </summary>
 		inline void Release() volatile
 		{
-			mySwitch.clear(std::memory_order_release);
+			myAuthority.Unlock();
 		}
 
 		/// <summary>
@@ -274,7 +277,7 @@ namespace srv
 
 		inline void AssignReceiveVirgin(const bool flag)
 		{
-			isFirst.store(flag, std::memory_order_release);
+			isFirstCommunication.store(flag, std::memory_order_release);
 		}
 
 		inline void AssignState(const SessionStates state)
@@ -309,7 +312,7 @@ namespace srv
 
 		inline void SetReceiveVirgin(const bool flag)
 		{
-			isFirst.store(flag, std::memory_order_relaxed);
+			isFirstCommunication.store(flag, std::memory_order_relaxed);
 		}
 
 		inline void SetState(const SessionStates state)
@@ -358,17 +361,18 @@ namespace srv
 		}
 
 		const unsigned int myPlace;
-
-		atomic<bool> isFirst;
-		atomic_flag mySwitch;
 		atomic<SessionStates> myState;
 		atomic<SOCKET> mySocket;
 		atomic<PID> myID;
 		atomic<shared_ptr<Room>> myRoom;
 
+		atomic<bool> isFirstCommunication;
 		shared_ptr<Asynchron> myReceiver;
 		char myRecvBuffer[BUFSIZ];
 		unsigned myRecvSize;
 		char myLastPacket[200];
+
+	private:
+		Spinlock myAuthority;
 	};
 }
