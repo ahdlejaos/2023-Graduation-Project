@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="헤더 파일\Utility">
+      <UniqueIdentifier>{9aebf1d0-c7f4-438d-8e10-34d74d7bda97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp">
@@ -62,7 +65,7 @@
     </None>
     <None Include="cpp.hint" />
     <None Include="Encryptor.inl">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Utility</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -105,11 +108,11 @@
     <ClInclude Include="Transformer.inl">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Arithmetics.inl">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="MD5.hpp">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Arithmetics.inl">
+      <Filter>헤더 파일\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
