@@ -5,6 +5,12 @@
 #include "PlayingSession.hpp"
 #include "Packet.hpp"
 
+// AZURE SQL DB Çì´õ
+#include "mysql_connection.h"
+#include <cppconn/driver.h>
+#include <cppconn/exception.h>
+#include <cppconn/prepared_statement.h>
+
 void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 void TimerWorker(std::stop_source& stopper, Framework& me);
 void DBaseWorker(std::stop_source& stopper, Framework& me);

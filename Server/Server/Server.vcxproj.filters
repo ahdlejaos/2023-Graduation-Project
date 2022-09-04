@@ -68,7 +68,7 @@
       <Filter>헤더 파일\Utility</Filter>
     </None>
     <None Include="Spinlock.inl">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Utility</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -108,13 +108,13 @@
     <ClInclude Include="AsyncPoolService.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Transformer.inl">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="MD5.hpp">
       <Filter>헤더 파일\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Arithmetics.inl">
+      <Filter>헤더 파일\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Transformer.inl">
       <Filter>헤더 파일\Utility</Filter>
     </ClInclude>
   </ItemGroup>
