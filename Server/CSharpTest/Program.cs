@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net.Sockets;
 using System.Net;
+using System.Runtime.InteropServices;
 
 namespace CSharpTest
 {
@@ -82,36 +83,15 @@ namespace CSharpTest
 
 				if (4 <= tcpReceived)
 				{
-					var temp_type = BitConverter.ToInt32(recvBuffer.AsSpan()[0..4]);
-					var packet_type = (Protocol)(temp_type);
+					var packet = Filter();
 
-					if (8 <= tcpReceived)
+					if (packet is not null)
 					{
-						var packet_size = BitConverter.ToInt32(recvBuffer[4..8]);
 
-						if (packet_size <= tcpReceived)
-						{
-							if (BUFFSIZE <= packet_size)
-							{
-								Console.WriteLine("이상한 패킷을 받음!");
-							}
-
-							// 패킷 처리
-							Console.WriteLine("패킷을 받음: " + packet_type.ToString());
-
-							tcpReceived -= packet_size;
-
-							ShiftLeft(recvBuffer, packet_size);
-						}
-						else
-						{
-							var lack = packet_size - tcpReceived;
-							Console.WriteLine("TCP 소켓으로부터 받은 바이트가 " + lack + "만큼 부족함.");
-						}
 					}
 					else
 					{
-						Console.WriteLine("TCP 소켓으로부터 받은 바이트가 부족함.");
+
 					}
 				}
 				else
@@ -130,8 +110,53 @@ namespace CSharpTest
 		{
 			return myClient.BeginReceive(recvBuffer, offset, size, SocketFlags.None, CallbackRead, null);
 		}
-		
-		public static void ShiftLeft(byte[] lst, int shifts)
+		BasicPacket? Filter()
+		{
+			BasicPacket? result = null;
+
+			var buffer = recvBuffer.AsSpan<byte>();
+			var temp_type = BitConverter.ToInt32(buffer[0..4]);
+			var packet_type = (Protocol)(temp_type);
+
+			if (8 <= tcpReceived)
+			{
+				var packet_size = BitConverter.ToInt32(buffer[4..8]);
+
+				if (packet_size <= tcpReceived)
+				{
+					if (BUFFSIZE <= packet_size)
+					{
+						Console.WriteLine("이상한 패킷을 받음!");
+					}
+
+					// 패킷 처리
+					Console.WriteLine("패킷을 받음: " + packet_type.ToString());
+
+					result = new()
+					{
+						myProtocol = packet_type,
+						mySize = packet_size
+					};
+
+					tcpReceived -= packet_size;
+
+					ShiftLeft(recvBuffer, packet_size);
+				}
+				else
+				{
+					var lack = packet_size - tcpReceived;
+					Console.WriteLine("TCP 소켓으로부터 받은 바이트가 " + lack + "만큼 부족함.");
+				}
+			}
+			else
+			{
+				Console.WriteLine("TCP 소켓으로부터 받은 바이트가 부족함.");
+			}
+
+			return result;
+		}
+
+		public static void ShiftLeft(Span<byte> lst, int shifts)
 		{
 			for (int i = shifts; i < lst.Length; i++)
 			{
