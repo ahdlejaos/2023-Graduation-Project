@@ -130,6 +130,7 @@ namespace CSharpTest
 		{
 			return myClient.BeginReceive(recvBuffer, offset, size, SocketFlags.None, CallbackRead, null);
 		}
+		
 		public static void ShiftLeft(byte[] lst, int shifts)
 		{
 			for (int i = shifts; i < lst.Length; i++)
