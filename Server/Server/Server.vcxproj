@@ -162,6 +162,7 @@
     <ClCompile Include="AsyncPoolService.cpp" />
     <ClCompile Include="Asynchron.cpp" />
     <ClCompile Include="ConnectService.cpp" />
+    <ClCompile Include="DatabaseService.cpp" />
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="MD5.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="AsyncPoolService.hpp" />
     <ClInclude Include="Asynchron.hpp" />
     <ClInclude Include="ConnectService.hpp" />
+    <ClInclude Include="DatabaseService.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="GameObject.hpp" />
     <ClInclude Include="MD5.hpp" />
