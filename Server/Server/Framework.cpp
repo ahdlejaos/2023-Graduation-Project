@@ -6,10 +6,13 @@
 #include "Packet.hpp"
 
 // AZURE SQL DB Çì´õ
+#define __AZURE__
+#ifdef __AZURE__
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
 #include <cppconn/prepared_statement.h>
+#endif
 
 void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
 void TimerWorker(std::stop_source& stopper, Framework& me);
