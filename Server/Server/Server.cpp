@@ -1,6 +1,5 @@
 ﻿#include "pch.hpp"
 #include "Framework.hpp"
-#include "MD5.hpp"
 
 Framework globalFramework{ srv::THREADS_COUNT };
 
