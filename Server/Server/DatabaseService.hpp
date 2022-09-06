@@ -4,14 +4,14 @@
 class DatabaseService
 {
 public:
-	DatabaseService(const std::string& db_server, const std::string& db_scheme);
+	DatabaseService();
 	~DatabaseService();
 
 	void Connect();
 	void Disconnect();
 
-	sql::PreparedStatement CreateArgStatement(const std::string& statement);
-	sql::Statement CreateStatement(const std::string& statement);
+	sql::PreparedStatement CreateArgStatement(const std::string_view statement);
+	sql::Statement CreateStatement(const std::string_view statement);
 
 	const std::string myServerAddress;
 	const std::string myDatabase;

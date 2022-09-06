@@ -12,7 +12,7 @@ void DBaseWorker(std::stop_source& stopper, Framework& me);
 Framework::Framework(unsigned int concurrent_hint)
 	: myID(srv::SERVER_ID)
 	, myEntryPoint(), myAsyncProvider()
-	, myDBProvider("iconer-2023.database.windows.net", "SkyRunner-MainServer")
+	, myDBProvider()
 	, concurrentsNumber(concurrent_hint), concurrentWatcher(concurrent_hint)
 	, myWorkers(), workersBreaker()
 	, concurrentOutputLock()
