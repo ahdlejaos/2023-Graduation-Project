@@ -1,20 +1,17 @@
 #pragma once
-#include "mysql_connection.h"
-#include <cppconn/driver.h>
-#include <cppconn/exception.h>
-#include <cppconn/prepared_statement.h>
+#include <mysql/jdbc.h>
 
 class DatabaseService
 {
 public:
-	DatabaseService(const std::string_view db_server, const std::string_view db_scheme);
+	DatabaseService(const std::string& db_server, const std::string& db_scheme);
 	~DatabaseService();
 
 	void Connect();
 	void Disconnect();
 
-	sql::PreparedStatement CreateArgStatement(const std::string_view statement);
-	sql::Statement CreateStatement(const std::string_view statement);
+	sql::PreparedStatement CreateArgStatement(const std::string& statement);
+	sql::Statement CreateStatement(const std::string& statement);
 
 	const std::string myServerAddress;
 	const std::string myDatabase;

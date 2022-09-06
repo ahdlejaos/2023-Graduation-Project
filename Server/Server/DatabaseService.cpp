@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "DatabaseService.hpp"
 
-DatabaseService::DatabaseService(const std::string_view db_server, const std::string_view db_scheme)
+DatabaseService::DatabaseService(const std::string& db_server, const std::string& db_scheme)
 	: myServerAddress(db_server), myDatabase(db_scheme)
 	, myDriver(nullptr), myConnection(nullptr), myQuery(nullptr), myMutableQuery(nullptr)
 {}
@@ -41,3 +41,6 @@ void DatabaseService::Connect()
 
 	myConnection->setSchema(myDatabase);
 }
+
+void DatabaseService::Disconnect()
+{}
