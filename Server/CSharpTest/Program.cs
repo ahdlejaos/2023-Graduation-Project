@@ -27,7 +27,6 @@ namespace CSharpTest
 
 			while (true) ;
 		}
-
 		void OnDestroy()
 		{
 			if (tcpClient is not null && tcpClient.Connected)
