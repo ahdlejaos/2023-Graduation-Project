@@ -80,7 +80,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\include;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\jdbc;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\mysql;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\mysqlx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -102,7 +102,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\include;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\jdbc;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\mysql;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\mysqlx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,7 +124,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\include;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\jdbc;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\mysql;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\mysqlx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,7 +146,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\include;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\jdbc;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\mysql;D:\Program Files\MySQL\MySQL Connector C++ 8.0\include\mysqlx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -180,8 +180,6 @@
     </ClInclude>
     <None Include="cpp.hint" />
     <None Include="Encryptor.inl" />
-    <None Include="libcrypto-1_1-x64.dll" />
-    <None Include="libssl-1_1-x64.dll" />
     <None Include="mysqlcppconn-9-vs14.dll" />
     <None Include="mysqlcppconn8-2-vs14.dll" />
     <None Include="packages.config" />
@@ -195,6 +193,10 @@
     <ClInclude Include="DatabaseService.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="GameObject.hpp" />
+    <ClInclude Include="include\jdbc\mysql_connection.h" />
+    <ClInclude Include="include\jdbc\mysql_driver.h" />
+    <ClInclude Include="include\jdbc\mysql_error.h" />
+    <ClInclude Include="include\mysql\jdbc.h" />
     <ClInclude Include="MD5.hpp" />
     <ClInclude Include="Packet.hpp" />
     <ClInclude Include="pch.hpp" />

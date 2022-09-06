@@ -16,6 +16,9 @@
     <Filter Include="헤더 파일\Utility">
       <UniqueIdentifier>{9aebf1d0-c7f4-438d-8e10-34d74d7bda97}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Database">
+      <UniqueIdentifier>{05fd9bf9-59bd-47b1-bb8f-ade532120e53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp">
@@ -73,12 +76,6 @@
     <None Include="Spinlock.inl">
       <Filter>헤더 파일\Utility</Filter>
     </None>
-    <None Include="libcrypto-1_1-x64.dll">
-      <Filter>리소스 파일</Filter>
-    </None>
-    <None Include="libssl-1_1-x64.dll">
-      <Filter>리소스 파일</Filter>
-    </None>
     <None Include="mysqlcppconn8-2-vs14.dll">
       <Filter>리소스 파일</Filter>
     </None>
@@ -134,6 +131,18 @@
     </ClInclude>
     <ClInclude Include="DatabaseService.hpp">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mysql\jdbc.h">
+      <Filter>헤더 파일\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdbc\mysql_connection.h">
+      <Filter>헤더 파일\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdbc\mysql_driver.h">
+      <Filter>헤더 파일\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdbc\mysql_error.h">
+      <Filter>헤더 파일\Database</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
