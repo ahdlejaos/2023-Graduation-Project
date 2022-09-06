@@ -125,7 +125,7 @@ void Framework::Release()
 	Print("서버 종료\n");
 }
 
-void Framework::ProceedAsync(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
 {
 	const auto operation = context->myOperation;
 
@@ -242,7 +242,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 		{
 			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 
-			BeginDisconnect(session.get());
+			BeginDisconnect(session);
 		}
 		else
 		{
@@ -496,7 +496,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 		auto asynchron = static_cast<srv::Asynchron*>(overlap);
 		if (TRUE == result) [[likely]]
 		{
-			me.ProceedAsync(asynchron, key, static_cast<int>(bytes));
+			me.Route(asynchron, key, static_cast<int>(bytes));
 		}
 		else
 		{

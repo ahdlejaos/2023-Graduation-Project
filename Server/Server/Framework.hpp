@@ -54,7 +54,7 @@ public:
 	void Update();
 	void Release();
 
-	void ProceedAsync(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
+	void Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedAccept(srv::Asynchron* context);
 	void ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
