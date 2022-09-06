@@ -57,7 +57,7 @@ void Framework::Awake(unsigned short port_tcp)
 
 	myAsyncProvider.Awake(concurrentsNumber);
 	myEntryPoint.Awake(port_tcp);
-	//myDBProvider.Connect();
+	myDBProvider.Connect();
 
 	Print("자원을 불러오는 중...\n");
 
