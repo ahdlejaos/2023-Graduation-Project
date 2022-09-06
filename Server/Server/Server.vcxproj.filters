@@ -73,6 +73,18 @@
     <None Include="Spinlock.inl">
       <Filter>헤더 파일\Utility</Filter>
     </None>
+    <None Include="libcrypto-1_1-x64.dll">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="libssl-1_1-x64.dll">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="mysqlcppconn8-2-vs14.dll">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="mysqlcppconn-9-vs14.dll">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.hpp">

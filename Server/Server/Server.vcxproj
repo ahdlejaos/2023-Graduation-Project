@@ -85,8 +85,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>mysqlcppconn.lib;libcrypto.lib;mysqlcppconn8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\plugin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libssl.lib;libcrypto.lib;mysqlcppconn.lib;mysqlcppconn8.lib;mysqlcppconn-static.lib;mysqlcppconn8-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkStatus>true</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
@@ -109,8 +109,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>mysqlcppconn.lib;libcrypto.lib;mysqlcppconn8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\plugin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libssl.lib;libcrypto.lib;mysqlcppconn.lib;mysqlcppconn8.lib;mysqlcppconn-static.lib;mysqlcppconn8-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkStatus>true</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
@@ -129,8 +129,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>mysqlcppconn.lib;libcrypto.lib;mysqlcppconn8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\plugin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libssl.lib;libcrypto.lib;mysqlcppconn.lib;mysqlcppconn8.lib;mysqlcppconn-static.lib;mysqlcppconn8-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkStatus>true</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
@@ -153,8 +153,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>mysqlcppconn.lib;libcrypto.lib;mysqlcppconn8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\plugin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libssl.lib;libcrypto.lib;mysqlcppconn.lib;mysqlcppconn8.lib;mysqlcppconn-static.lib;mysqlcppconn8-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkStatus>true</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
@@ -180,6 +180,10 @@
     </ClInclude>
     <None Include="cpp.hint" />
     <None Include="Encryptor.inl" />
+    <None Include="libcrypto-1_1-x64.dll" />
+    <None Include="libssl-1_1-x64.dll" />
+    <None Include="mysqlcppconn-9-vs14.dll" />
+    <None Include="mysqlcppconn8-2-vs14.dll" />
     <None Include="packages.config" />
     <None Include="Spinlock.inl" />
     <None Include="통신 구조.md" />
