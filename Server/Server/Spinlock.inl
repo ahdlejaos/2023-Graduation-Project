@@ -13,17 +13,17 @@ public:
 		mySwitch.clear();
 	}
 
-	inline void Lock(const std::memory_order order = std::memory_order::memory_order_acquire) volatile noexcept
+	inline void lock(const std::memory_order order = std::memory_order::memory_order_acquire) volatile noexcept
 	{
 		while (mySwitch.test_and_set(order));
 	}
 
-	inline bool TryLock(const std::memory_order order = std::memory_order::memory_order_acq_rel) volatile noexcept
+	inline bool try_lock(const std::memory_order order = std::memory_order::memory_order_acq_rel) volatile noexcept
 	{
 		return !mySwitch.test_and_set(order);
 	}
 
-	inline void Unlock(const std::memory_order order = std::memory_order::memory_order_release) volatile noexcept
+	inline void unlock(const std::memory_order order = std::memory_order::memory_order_release) volatile noexcept
 	{
 		mySwitch.clear(order);
 	}

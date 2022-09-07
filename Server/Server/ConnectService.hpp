@@ -118,20 +118,18 @@ public:
 
 	inline SOCKET Pop() noexcept
 	{
-		socketPoolLock.Lock();
+		std::scoped_lock locken{ socketPoolLock };
 
 		if (0 < socketsPool.size())
 		{
 			const auto last = socketsPool.back();
 
 			socketsPool.pop_back();
-			socketPoolLock.Unlock();
 
 			return last;
 		}
 		else
 		{
-			socketPoolLock.Unlock();
 			return NULL;
 		}
 	}
@@ -139,9 +137,8 @@ public:
 	// 소켓을 반환합니다.
 	inline void Push(const SOCKET sk) noexcept
 	{
-		socketPoolLock.Lock();
+		std::scoped_lock locken{ socketPoolLock };
 		socketsPool.push_front(sk);
-		socketPoolLock.Unlock();
 	}
 
 	SOCKET serverSocket;
@@ -173,7 +170,6 @@ private:
 				ZeroMemory(connectBuffer, sizeof(connectBuffer));
 
 				std::cout << "접속 수용 오류!\n";
-				//ErrorDisplay("AcceptEx()");
 			}
 			else
 			{

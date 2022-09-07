@@ -150,7 +150,7 @@ namespace srv
 		/// </summary>
 		inline void Acquire() volatile
 		{
-			myAuthority.Lock();
+			myAuthority.lock();
 		}
 
 		/// <summary>
@@ -159,7 +159,7 @@ namespace srv
 		/// <returns>성공 여부</returns>
 		inline bool TryAcquire() volatile
 		{
-			return myAuthority.TryLock();
+			return myAuthority.try_lock();
 		}
 
 		/// <summary>
@@ -167,7 +167,7 @@ namespace srv
 		/// </summary>
 		inline void Release() volatile
 		{
-			myAuthority.Unlock();
+			myAuthority.unlock();
 		}
 
 		/// <summary>
