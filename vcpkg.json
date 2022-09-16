@@ -1,0 +1,11 @@
+{
+  "name": "server",
+  "version-string": "1.0.0",
+  "description": "",
+  "dependencies": [
+    "zlib",
+	"azure-core",
+	"azure-identity-cpp",
+	"azure-storage-blobs-cpp",
+  ]
+}
