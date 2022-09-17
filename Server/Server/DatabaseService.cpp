@@ -1,5 +1,6 @@
 ﻿#include "pch.hpp"
 #include "DatabaseService.hpp"
+#include <nlohmann/json.hpp>
 
 DatabaseService::DatabaseService()
 {}

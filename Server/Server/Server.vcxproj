@@ -179,6 +179,7 @@
       <FileType>Document</FileType>
     </ClInclude>
     <None Include="cpp.hint" />
+    <None Include="data\Secrets.json" />
     <None Include="Encryptor.inl" />
     <None Include="packages.config" />
     <None Include="Spinlock.inl" />
