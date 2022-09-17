@@ -58,24 +58,24 @@ void Framework::Awake(unsigned short port_tcp)
 	bool db_available = myDBProvider.Awake();
 	if (!db_available)
 	{
-		Print("");
+		Println("DB 오류!");
 		return;
 	}
 
 	myAsyncProvider.Awake(concurrentsNumber);
 	myEntryPoint.Awake(port_tcp);
 
-	Print("자원을 불러오는 중...\n");
+	Println("자원을 불러오는 중...");
 
 	BuildSessions();
 	BuildRooms();
 	BuildResources();
-	Print("자원의 불러오기 완료\n");
+	Println("자원의 불러오기 완료");
 }
 
 void Framework::Start()
 {
-	Print("서버를 시작하는 중...\n");
+	Println("서버를 시작하는 중...");
 
 	myAsyncProvider.Link(myEntryPoint.serverSocket, myID);
 	myEntryPoint.Start();
@@ -83,21 +83,21 @@ void Framework::Start()
 	auto stopper = std::ref(workersBreaker);
 	auto me = std::ref(*this);
 
-	Print("주 작업 스레드를 시동하는 중...");
+	Println("주 작업 스레드를 시동하는 중...");
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
 		auto& th = myWorkers.emplace_back(Worker, stopper, me, std::ref(myAsyncProvider));
 	}
 
-	Print(std::right, " (주 작업 스레드의 수: ", concurrentsNumber, "개)\n");
+	Println(std::right, " (주 작업 스레드의 수: ", concurrentsNumber, "개)");
 
-	Print("타이머 작업 스레드를 시동하는 중...\n");
+	Println("타이머 작업 스레드를 시동하는 중...");
 	auto& timer_thread = myWorkers.emplace_back(TimerWorker, stopper, me);
 
-	Print("데이터베이스 스레드를 시동하는 중...\n");
+	Println("데이터베이스 스레드를 시동하는 중...");
 	auto& db_thread = myWorkers.emplace_back(DBaseWorker, stopper, me);
 
-	Print("서버 시작됨!\n");
+	Println("서버 시작됨!");
 }
 
 void Framework::Update()
@@ -108,7 +108,7 @@ void Framework::Update()
 		{
 			if (concurrentWatcher.try_wait())
 			{
-				Print("서버 종료 중...\n");
+				Println("서버 종료 중...");
 
 				break;
 			}
@@ -118,13 +118,13 @@ void Framework::Update()
 	}
 	catch (std::exception& e)
 	{
-		Print("예외로 인한 서버 인터럽트: ", e.what(), "\n");
+		Println("예외로 인한 서버 인터럽트: ", e.what());
 	}
 }
 
 void Framework::Release()
 {
-	Print("서버 종료\n");
+	Println("서버 종료");
 }
 
 void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
@@ -484,7 +484,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 	BOOL result{};
 
-	me.Print("작업자 스레드 ", std::this_thread::get_id(), " 시작\n");
+	me.Println("작업자 스레드 ", std::this_thread::get_id(), " 시작");
 
 	while (true)
 	{
@@ -506,7 +506,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 		}
 	}
 
-	me.Print("작업자 스레드 ", std::this_thread::get_id(), " 종료\n");
+	me.Println("작업자 스레드 ", std::this_thread::get_id(), " 종료");
 
 	me.concurrentWatcher.arrive_and_wait();
 }
@@ -523,7 +523,7 @@ void TimerWorker(std::stop_source& stopper, Framework& me)
 		}
 	}
 
-	me.Print("타이머 작업 스레드 ", std::this_thread::get_id(), " 종료\n");
+	me.Println("타이머 작업 스레드 ", std::this_thread::get_id(), " 종료");
 }
 
 void DBaseWorker(std::stop_source& stopper, Framework& me)
@@ -538,7 +538,7 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 		}
 	}
 
-	me.Print("DB 작업 스레드 ", std::this_thread::get_id(), " 종료\n");
+	me.Println("DB 작업 스레드 ", std::this_thread::get_id(), " 종료");
 }
 
 void Framework::BuildSessions()
