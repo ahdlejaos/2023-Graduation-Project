@@ -55,6 +55,7 @@ void Framework::Awake(unsigned short port_tcp)
 {
 	std::cout << "서버를 준비하는 중...\n";
 
+	Println("DB 서비스를 준비하는 중...");
 	bool db_available = myDBProvider.Awake();
 	if (!db_available)
 	{

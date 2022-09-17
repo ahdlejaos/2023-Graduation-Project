@@ -17,21 +17,21 @@ bool DatabaseService::Awake()
 	if (!std::filesystem::exists(mySecrets))
 	{
 		std::cerr << "비밀 정보 파일이 없음!\n";
-		return;
+		return false;
 	}
 
 	std::ifstream my_raw_secret{ mySecrets };
 	if (!my_raw_secret)
 	{
 		std::cerr << "비밀 파일을 불러올 수 없음!\n";
-		return;
+		return false;
 	}
 
 	json my_secret = json::parse(my_raw_secret);
 	if (!my_raw_secret)
 	{
 		std::cerr << "JSON에 문제가 있어서 비밀 파일을 불러올 수 없음!\n";
-		return;
+		return false;
 	}
 
 	const auto& db_name = (my_secret["username"]).get<std::string>();
