@@ -2,6 +2,8 @@
 #include <sql.h>
 #include <sqlext.h>
 
+class DatabaseQuery;
+
 class DatabaseService
 {
 public:
@@ -11,13 +13,39 @@ public:
 	bool Awake();
 	bool Disconnect();
 
-	SQLHSTMT CreateQuery();
+	std::optional<DatabaseQuery> CreateQuery();
+	template<typename... Ty>
+	std::optional<DatabaseQuery> CreateQuery(Ty... args);
 
 	SQLHENV myEnvironment;
 	SQLHDBC myConnector;
 
 	const std::wstring myEntry = L"2023-Graduation-Project";
 	const Filepath mySecrets = ".//data//Secrets.json";
+};
+
+class DatabaseQuery
+{
+public:
+	constexpr DatabaseQuery()
+		: myQuery(NULL)
+	{}
+
+	constexpr DatabaseQuery(const SQLHSTMT query)
+		: myQuery(query)
+	{}
+
+	SQLRETURN Cancel()
+	{
+		return SQLCancel(myQuery);
+	}
+
+	SQLRETURN Destroy()
+	{
+		return SQLFreeHandle(SQL_HANDLE_STMT, myQuery);
+	}
+
+	SQLHSTMT myQuery;
 };
 
 extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept
