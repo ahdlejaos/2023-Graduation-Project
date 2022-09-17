@@ -55,9 +55,15 @@ void Framework::Awake(unsigned short port_tcp)
 {
 	std::cout << "서버를 준비하는 중...\n";
 
+	bool db_available = myDBProvider.Awake();
+	if (!db_available)
+	{
+		Print("");
+		return;
+	}
+
 	myAsyncProvider.Awake(concurrentsNumber);
 	myEntryPoint.Awake(port_tcp);
-	myDBProvider.Connect();
 
 	Print("자원을 불러오는 중...\n");
 
