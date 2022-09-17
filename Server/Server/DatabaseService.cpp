@@ -12,7 +12,7 @@ DatabaseService::~DatabaseService()
 	Disconnect();
 }
 
-void DatabaseService::Connect()
+bool DatabaseService::Connect()
 {
 	if (!std::filesystem::exists(mySecrets))
 	{
@@ -123,15 +123,9 @@ void DatabaseService::Connect()
 						SQLCancel(hstmt);
 						SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
 					}
-
-					SQLDisconnect(myConnector);
 				}
-
-				SQLFreeHandle(SQL_HANDLE_DBC, myConnector);
 			}
 		}
-
-		SQLFreeHandle(SQL_HANDLE_ENV, myEnvironment);
 	}
 
 	/*
@@ -165,5 +159,23 @@ void DatabaseService::Connect()
 	}*/
 }
 
-void DatabaseService::Disconnect()
-{}
+bool DatabaseService::Disconnect()
+{
+	std::cout << "DB 관리 객체 정리 중...\n";
+
+	if (NULL != myConnector)
+	{
+		auto sqlcode = SQLDisconnect(myConnector);
+		if (SQLSucceed(sqlcode))
+		{
+			SQLFreeHandle(SQL_HANDLE_DBC, myConnector);
+			SQLFreeHandle(SQL_HANDLE_ENV, myEnvironment);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return true;
+}

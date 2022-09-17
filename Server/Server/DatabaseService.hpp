@@ -12,8 +12,8 @@ public:
 	DatabaseService();
 	~DatabaseService();
 
-	void Connect();
-	void Disconnect();
+	bool Connect();
+	bool Disconnect();
 
 	SQLHENV myEnvironment;
 	SQLHDBC myConnector;
