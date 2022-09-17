@@ -84,9 +84,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Framework.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="pch.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -114,12 +111,6 @@
     <ClInclude Include="GameObject.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ConnectService.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="AsyncPoolService.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="MD5.hpp">
       <Filter>헤더 파일\Utility</Filter>
     </ClInclude>
@@ -129,8 +120,17 @@
     <ClInclude Include="Transformer.inl">
       <Filter>헤더 파일\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="AsyncPoolService.hpp">
+      <Filter>헤더 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="ConnectService.hpp">
+      <Filter>헤더 파일\System</Filter>
+    </ClInclude>
     <ClInclude Include="DatabaseService.hpp">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework.hpp">
+      <Filter>헤더 파일\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
