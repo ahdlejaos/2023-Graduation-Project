@@ -192,10 +192,6 @@
     <ClInclude Include="DatabaseService.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="GameObject.hpp" />
-    <ClInclude Include="include\jdbc\mysql_connection.h" />
-    <ClInclude Include="include\jdbc\mysql_driver.h" />
-    <ClInclude Include="include\jdbc\mysql_error.h" />
-    <ClInclude Include="include\mysql\jdbc.h" />
     <ClInclude Include="MD5.hpp" />
     <ClInclude Include="Packet.hpp" />
     <ClInclude Include="pch.hpp" />

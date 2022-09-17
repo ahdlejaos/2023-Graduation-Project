@@ -19,6 +19,9 @@
     <Filter Include="헤더 파일\Database">
       <UniqueIdentifier>{05fd9bf9-59bd-47b1-bb8f-ade532120e53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\System">
+      <UniqueIdentifier>{cce80d40-1a95-4400-921b-b1ab339257cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp">
@@ -128,18 +131,6 @@
     </ClInclude>
     <ClInclude Include="DatabaseService.hpp">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mysql\jdbc.h">
-      <Filter>헤더 파일\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdbc\mysql_connection.h">
-      <Filter>헤더 파일\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdbc\mysql_driver.h">
-      <Filter>헤더 파일\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdbc\mysql_error.h">
-      <Filter>헤더 파일\Database</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
