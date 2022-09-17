@@ -74,6 +74,8 @@ public:
 
 	template<typename Ty, typename ...RestTy>
 	constexpr void Print(Ty&& first, RestTy&& ...rests);
+	template<typename Ty, typename ...RestTy>
+	constexpr void Println(Ty&& first, RestTy&& ...rests);
 
 	using DBinUsersSearcher = bool(const Sentence user_id);
 
@@ -267,6 +269,23 @@ constexpr void Framework::Print(Ty&& first, RestTy&& ...rests)
 	{
 		UnsafePrint(std::forward<RestTy>(rests)...);
 	}
+
+	concurrentOutputLock.unlock();
+}
+
+template<typename Ty, typename ...RestTy>
+constexpr void Framework::Println(Ty&& first, RestTy&& ...rests)
+{
+	concurrentOutputLock.lock();
+
+	std::cout << std::forward<Ty>(first);
+
+	if constexpr (0 < sizeof...(RestTy))
+	{
+		UnsafePrint(std::forward<RestTy>(rests)...);
+	}
+
+	std::cout << '\n';
 
 	concurrentOutputLock.unlock();
 }
