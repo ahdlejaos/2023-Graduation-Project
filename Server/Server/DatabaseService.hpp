@@ -23,9 +23,19 @@ public:
 	const Filepath mySecrets = ".//data//Secrets.json";
 };
 
-let bool CheckSQL(const SQLRETURN code) noexcept
+extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept
 {
-	return (code == SQL_SUCCESS || code == SQL_SUCCESS_WITH_INFO);
+	return (SQL_SUCCEEDED(code));
+}
+
+extern "C" let bool SQLHasParameters(const SQLRETURN code) noexcept
+{
+	return (code == SQL_PARAM_DATA_AVAILABLE);
+}
+
+extern "C" let bool SQLFailed(const SQLRETURN code) noexcept
+{
+	return (code == SQL_ERROR);
 }
 
 /* PowerShell:

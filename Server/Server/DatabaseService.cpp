@@ -65,17 +65,17 @@ void DatabaseService::Connect()
 	sqlcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &myEnvironment);
 
 	// Set the ODBC version environment attribute
-	if (CheckSQL(sqlcode))
+	if (SQLSucceed(sqlcode))
 	{
 		sqlcode = SQLSetEnvAttr(myEnvironment, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*) SQL_OV_ODBC3, 0);
 
 		// Allocate connection handle
-		if (CheckSQL(sqlcode))
+		if (SQLSucceed(sqlcode))
 		{
 			sqlcode = SQLAllocHandle(SQL_HANDLE_DBC, myEnvironment, &myConnector);
 
 			// Set login timeout to 5 seconds
-			if (CheckSQL(sqlcode))
+			if (SQLSucceed(sqlcode))
 			{
 				constexpr int timeout_second = 5;
 				SQLSetConnectAttr(myConnector, SQL_LOGIN_TIMEOUT, SQLPOINTER(timeout_second), 0);
@@ -84,12 +84,12 @@ void DatabaseService::Connect()
 				sqlcode = SQLConnect(myConnector, entry, SQL_NTS, username, userlen, password, passlen);
 
 				// Allocate statement handle
-				if (CheckSQL(sqlcode))
+				if (SQLSucceed(sqlcode))
 				{
 					sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
 					sqlcode = SQLExecDirect(hstmt, (SQLWCHAR*) L"SELECT CustomerID, ContactName, Phone FROM CUSTOMERS ORDER BY 2, 1, 3", SQL_NTS);
 
-					if (CheckSQL(sqlcode))
+					if (SQLSucceed(sqlcode))
 					{
 						// Bind columns 1, 2, and 3
 						sqlcode = SQLBindCol(hstmt, 1, SQL_C_CHAR, sCustID, 100, &cbCustID);
@@ -102,11 +102,11 @@ void DatabaseService::Connect()
 						{
 							sqlcode = SQLFetch(hstmt);
 
-							if (sqlcode == SQL_ERROR || sqlcode == SQL_SUCCESS_WITH_INFO)
+							if (SQLFailed(sqlcode) || sqlcode == SQL_SUCCESS_WITH_INFO)
 							{
 								//show_error();
 							}
-							if (CheckSQL(sqlcode))
+							else if (SQLSucceed(sqlcode))
 							{
 								printf("%d: %s %s %sn", i + 1, sCustID, szName, szPhone);
 							}
@@ -118,7 +118,7 @@ void DatabaseService::Connect()
 					}
 
 					// Process data
-					if (CheckSQL(sqlcode))
+					if (SQLSucceed(sqlcode))
 					{
 						SQLCancel(hstmt);
 						SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
