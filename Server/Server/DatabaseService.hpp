@@ -15,12 +15,18 @@ public:
 	void Connect();
 	void Disconnect();
 
-	const std::string myServerAddress = "tcp://iconer-2023.database.windows.net:1433";
-	const std::string superUsername = "iconerworks@iconer-2023.database.windows.net";
-	const std::string superPassword = "";
+	SQLHENV myEnvironment;
+	SQLHDBC myConnector;
 
-	const std::string myDatabase = "SkyRunner-MainServer";
+	// tcp://iconer-2023.database.windows.net:1433
+	const std::wstring myEntry = L"2023-Graduation-Project";
+	const Filepath mySecrets = ".//data//Secrets.json";
 };
+
+let bool CheckSQL(const SQLRETURN code) noexcept
+{
+	return (code == SQL_SUCCESS || code == SQL_SUCCESS_WITH_INFO);
+}
 
 /* PowerShell:
 
