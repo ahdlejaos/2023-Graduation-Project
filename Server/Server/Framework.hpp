@@ -259,7 +259,7 @@ namespace srv
 template<typename Ty, typename ...RestTy>
 constexpr void Framework::Print(Ty&& first, RestTy&& ...rests)
 {
-	concurrentOutputLock.Lock();
+	concurrentOutputLock.lock();
 
 	std::cout << std::forward<Ty>(first);
 
@@ -268,7 +268,7 @@ constexpr void Framework::Print(Ty&& first, RestTy&& ...rests)
 		UnsafePrint(std::forward<RestTy>(rests)...);
 	}
 
-	concurrentOutputLock.Unlock();
+	concurrentOutputLock.unlock();
 }
 
 template<typename Ty, typename ...RestTy>
