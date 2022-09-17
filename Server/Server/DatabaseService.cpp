@@ -34,7 +34,6 @@ bool DatabaseService::Connect()
 		return;
 	}
 
-	// iconerworks@iconer-2023.database.windows.net
 	const auto& db_name = (my_secret["username"]).get<std::string>();
 	const auto& db_key = (my_secret["password"]).get<std::string>();
 

@@ -18,7 +18,6 @@ public:
 	SQLHENV myEnvironment;
 	SQLHDBC myConnector;
 
-	// tcp://iconer-2023.database.windows.net:1433
 	const std::wstring myEntry = L"2023-Graduation-Project";
 	const Filepath mySecrets = ".//data//Secrets.json";
 };
