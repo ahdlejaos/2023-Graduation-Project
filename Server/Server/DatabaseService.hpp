@@ -1,4 +1,7 @@
 #pragma once
+#include <sql.h>
+#include <sqlext.h>
+
 #include <azure/core.hpp>
 #include <azure/storage/blobs.hpp>
 #include <azure/storage/common/storage_common.hpp>
