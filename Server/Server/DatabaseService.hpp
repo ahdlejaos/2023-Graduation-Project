@@ -2,10 +2,6 @@
 #include <sql.h>
 #include <sqlext.h>
 
-#include <azure/core.hpp>
-#include <azure/storage/blobs.hpp>
-#include <azure/storage/common/storage_common.hpp>
-
 class DatabaseService
 {
 public:
@@ -14,6 +10,8 @@ public:
 
 	bool Awake();
 	bool Disconnect();
+
+	SQLHSTMT CreateQuery();
 
 	SQLHENV myEnvironment;
 	SQLHDBC myConnector;
@@ -116,18 +114,22 @@ CryptographyClient cryptoClient(key.Id, credential);
 
 /* Ready:
 
-  auto tenantId = std::getenv("AZURE_TENANT_ID");
-  auto clientId = std::getenv("AZURE_CLIENT_ID");
-  auto clientSecret = std::getenv("AZURE_CLIENT_SECRET");
-  const std::string leaseID = "leaseID";
-  const std::string smokeUrl = "https://blob.com";
-  // Creating an attestation service instance requires contacting the attestation service (to
-  // retrieve validation collateral). Use the West US Shared client (which should always be
-  // available) as an anonymous service instance.
-  const std::string attestationUrl = "https://sharedwus.wus.attest.azure.net";
+#include <azure/core.hpp>
+#include <azure/storage/blobs.hpp>
+#include <azure/storage/common/storage_common.hpp>
 
-  auto credential
-	  = std::make_shared<Azure::Identity::ClientSecretCredential>(tenantId, clientId, clientSecret);
+auto tenantId = std::getenv("AZURE_TENANT_ID");
+auto clientId = std::getenv("AZURE_CLIENT_ID");
+auto clientSecret = std::getenv("AZURE_CLIENT_SECRET");
+const std::string leaseID = "leaseID";
+const std::string smokeUrl = "https://blob.com";
+// Creating an attestation service instance requires contacting the attestation service (to
+// retrieve validation collateral). Use the West US Shared client (which should always be
+// available) as an anonymous service instance.
+const std::string attestationUrl = "https://sharedwus.wus.attest.azure.net";
+
+auto credential
+	= std::make_shared<Azure::Identity::ClientSecretCredential>(tenantId, clientId, clientSecret);
 
 */
 

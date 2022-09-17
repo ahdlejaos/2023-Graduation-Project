@@ -85,35 +85,6 @@ bool DatabaseService::Awake()
 		}
 	}
 
-	/*
-	using namespace Azure::Core;
-	using namespace Azure::Storage;
-	using namespace Azure::Storage::Blobs;
-
-	try
-	{
-		auto credential_key = std::make_shared<StorageSharedKeyCredential>(accountName, accountKey);
-
-		auto blockBlobClient = BlockBlobClient(myEntry, credential_key);
-
-		// Create some data to upload into the blob.
-		std::vector<uint8_t> data = { 1, 2, 3, 4 };
-		Azure::Core::IO::MemoryBodyStream stream(data);
-
-		Azure::Response<Models::UploadBlockBlobResult> response = blockBlobClient.Upload(stream);
-
-		Models::UploadBlockBlobResult model = response.Value;
-		std::cout << "Last modified date of uploaded blob: " << model.LastModified.ToString()
-			<< std::endl;
-	}
-	catch (Azure::Core::OperationCancelledException& ce)
-	{
-		std::cerr << "연결 실패!\n오류 내용: " << ce.what();
-	}
-	catch (Azure::Core::RequestFailedException& ce)
-	{
-		std::cerr << "연결 실패!\n오류 내용: " << ce.what();
-	}*/
 	return false;
 }
 

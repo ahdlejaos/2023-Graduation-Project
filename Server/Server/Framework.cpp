@@ -35,11 +35,10 @@ Framework::Framework(unsigned int concurrent_hint)
 
 Framework::~Framework()
 {
-	workersBreaker.request_stop();
+	Release();
 
 	SleepEx(1000, TRUE);
 
-	Release();
 	WSACleanup();
 
 	for (auto& th : myWorkers)
@@ -49,6 +48,18 @@ Framework::~Framework()
 			th.join();
 		}
 	}
+
+	if (timerWorker->joinable())
+	{
+		timerWorker->join();
+	}
+
+	if (databaseWorker->joinable())
+	{
+		databaseWorker->join();
+	}
+
+	Println("서버 종료");
 }
 
 void Framework::Awake(unsigned short port_tcp)
@@ -125,7 +136,9 @@ void Framework::Update()
 
 void Framework::Release()
 {
-	Println("서버 종료");
+	Println("서버 종료 중...");
+
+	workersBreaker.request_stop();
 }
 
 void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
