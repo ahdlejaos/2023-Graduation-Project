@@ -13,9 +13,14 @@ public:
 	bool Awake();
 	bool Disconnect();
 
-	std::optional<DatabaseQuery> CreateQuery();
+	std::optional<DatabaseQuery> CreateQuery(const std::wstring_view& query);
 	template<typename... Ty>
-	std::optional<DatabaseQuery> CreateQuery(Ty... args);
+	std::optional<DatabaseQuery> CreateQuery(const std::wstring_view& query);
+
+	template<typename... Ty>
+	std::optional<DatabaseQuery> Execute(std::tuple<Ty...> args)&;
+	template<typename... Ty>
+	std::optional<DatabaseQuery> Execute(std::tuple<Ty...> args) &&;
 
 	SQLHENV myEnvironment;
 	SQLHDBC myConnector;
@@ -34,6 +39,15 @@ public:
 	constexpr DatabaseQuery(const SQLHSTMT query)
 		: myQuery(query)
 	{}
+
+	~DatabaseQuery()
+	{
+		if (NULL != myQuery)
+		{
+			Destroy();
+			myQuery = NULL;
+		}
+	}
 
 	SQLRETURN Cancel()
 	{
