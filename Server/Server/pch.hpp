@@ -174,7 +174,9 @@ namespace srv
 
 		CS_CREATE_A_ROOM, // 새로운 방을 만드는 요청
 		CS_DESTROY_A_ROOM, // 방장이 방을 없애는 요청
+		CS_JOIN_A_ROOM, // 방을 들어가는 요청
 		CS_LEAVE_A_ROOM, // 현재 방을 나가는 요청
+		CS_MASTER_A_ROOM, // 방을 들어가고 방장이 되는 요청
 
 		CS_PICK_A_ROOM, // 유저가 방을 선택해서 입장 요청
 		CS_MATCH_A_ROOM, // 유저가 무작위 방에 입장 요청

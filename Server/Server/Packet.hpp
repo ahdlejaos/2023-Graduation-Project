@@ -129,6 +129,68 @@ namespace srv
 		const SIGNUP_CAUSE myCause;
 	};
 
+	class SCPacketRoomCreated : public Packet<SCPacketRoomCreated>
+	{
+	public:
+		constexpr SCPacketRoomCreated(
+			const std::size_t room_place,
+			const std::wstring_view room_title
+		)
+			: Packet(Protocol::SC_ROOM_CREATED)
+			, roomPlace(room_place), roomTitle()
+		{
+			std::copy(room_title.begin(), room_title.end(), roomTitle);
+		}
+
+		const std::size_t roomPlace;
+		wchar_t roomTitle[30];
+	};
+
+	class SCPacketRoomCreated : public Packet<SCPacketRoomCreated>
+	{
+	public:
+		constexpr SCPacketRoomCreated(
+			const std::size_t room_place,
+			const std::wstring_view room_title
+		)
+			: Packet(Protocol::SC_ROOM_CREATED)
+			, roomPlace(room_place), roomTitle()
+		{
+			std::copy(room_title.begin(), room_title.end(), roomTitle);
+		}
+
+		const std::size_t roomPlace;
+		wchar_t roomTitle[30];
+	};
+
+	class SCPacketRoomEntered : public Packet<SCPacketRoomEntered>
+	{
+	public:
+		constexpr SCPacketRoomEntered(
+			const std::size_t room_place
+		)
+			: Packet(Protocol::SC_ROOM_ENTERED)
+			, roomPlace(room_place)
+		{}
+
+		const std::size_t roomPlace;
+	};
+	/// <summary>
+	/// 방 파괴 패킷 (그냥 방이 없어졌음을 알리는 용도)
+	/// </summary>
+	class SCPacketDestroyRoom : public Packet<SCPacketDestroyRoom>
+	{
+	public:
+		constexpr SCPacketDestroyRoom(
+			const std::size_t room_place
+		)
+			: Packet(Protocol::SC_ROOM_DESTROYED)
+			, room_id(room_place)
+		{}
+
+		std::size_t room_id;
+	};
+
 	/// <summary>
 	/// 로그인 패킷
 	/// </summary>
@@ -138,17 +200,17 @@ namespace srv
 		/// <param name="user_id">사용자의 아이디 또는 전자메일 주소 (유일)</param>
 		/// <param name="user_pw">사용자의 비밀번호, 부호화됨</param>
 		constexpr CSPacketSignIn(
-			const std::wstring_view user_id,
+			const std::wstring_view user_account,
 			const std::wstring_view user_pw
 		)
 			: Packet(Protocol::CS_SIGNIN)
-			, userID(), userPN()
+			, userAccount(), userPN()
 		{
-			std::copy(user_id.begin(), user_id.end(), userID);
+			std::copy(user_account.begin(), user_account.end(), userAccount);
 			std::copy(user_pw.begin(), user_pw.end(), userPN);
 		}
 
-		wchar_t userID[30];
+		wchar_t userAccount[30];
 		wchar_t userPN[30];
 	};
 
@@ -167,16 +229,74 @@ namespace srv
 			const std::wstring_view user_nick
 		)
 			: Packet(Protocol::CS_SIGNUP)
-			, userID(), userPN(), userName()
+			, userMail(), userPN(), userName()
 		{
-			std::copy(user_email.begin(), user_email.end(), userID);
+			std::copy(user_email.begin(), user_email.end(), userMail);
 			std::copy(user_pw.begin(), user_pw.end(), userPN);
 			std::copy(user_nick.begin(), user_nick.end(), userName);
 		}
 
-		wchar_t userID[30];
+		wchar_t userMail[30];
 		wchar_t userPN[30];
 		wchar_t userName[10];
+	};
+
+	/// <summary>
+	/// 방 생성 패킷
+	/// </summary>
+	class CSPacketCreateRoom : public Packet<CSPacketCreateRoom>
+	{
+	public:
+		constexpr CSPacketCreateRoom(
+			const std::size_t user_id,
+			const std::wstring_view room_title
+		)
+			: Packet(Protocol::CS_CREATE_A_ROOM)
+			, userID(user_id), roomTitle()
+		{
+			std::copy(room_title.begin(), room_title.end(), roomTitle);
+		}
+
+		std::size_t userID;
+		wchar_t roomTitle[30];
+	};
+
+	/// <summary>
+	/// 방 입장 패킷
+	/// </summary>
+	class CSPacketJoinRoom : public Packet<CSPacketJoinRoom>
+	{
+	public:
+		/// <param name="user_email">사용자의 전자메일 주소 (유일)</param>
+		/// <param name="user_pw">사용자의 비밀번호, 부호화됨</param>
+		/// <param name="user_nick">사용자의 별명</param>
+		constexpr CSPacketJoinRoom(
+			const std::size_t room_place
+		)
+			: Packet(Protocol::CS_JOIN_A_ROOM)
+			, roomID(room_place)
+		{}
+
+		std::size_t roomID;
+	};
+
+	/// <summary>
+	/// 방 입장 패킷
+	/// </summary>
+	class CSPacketMasterRoom : public Packet<CSPacketMasterRoom>
+	{
+	public:
+		/// <param name="user_email">사용자의 전자메일 주소 (유일)</param>
+		/// <param name="user_pw">사용자의 비밀번호, 부호화됨</param>
+		/// <param name="user_nick">사용자의 별명</param>
+		constexpr CSPacketMasterRoom(
+			const std::size_t room_place
+		)
+			: Packet(Protocol::CS_MASTER_A_ROOM)
+			, room_id(room_place)
+		{}
+
+		std::size_t room_id;
 	};
 
 	template<packets Pk>

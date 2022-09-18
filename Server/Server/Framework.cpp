@@ -298,7 +298,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 				{
 					const auto real_pk = reinterpret_cast<srv::CSPacketSignIn*>(packet);
 
-					const auto& user_id = real_pk->userID;
+					const auto& user_id = real_pk->userAccount;
 					const auto& user_pw = real_pk->userPN;
 
 					if (lstrlen(user_id) < 4)
