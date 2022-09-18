@@ -69,7 +69,7 @@ public:
 	bool CanAcceptPlayer() const noexcept;
 	bool CanCreateRoom() const noexcept;
 
-	shared_ptr<srv::Session> GetSession(unsigned place) const noexcept(false);
+	shared_ptr<srv::Session> GetSession(const std::size_t place) const noexcept(false);
 	shared_ptr<srv::Session> FindSession(unsigned long long id) const noexcept(false);
 
 	template<typename Ty, typename ...RestTy>
@@ -85,9 +85,9 @@ private:
 	void BuildResources();
 
 	shared_ptr<srv::Session> AcceptPlayer(SOCKET target);
-	shared_ptr<srv::Session> ConnectPlayer(unsigned place);
+	shared_ptr<srv::Session> ConnectPlayer(const std::size_t place);
 	shared_ptr<srv::Session> ConnectPlayer(shared_ptr<srv::Session> session);
-	void BeginDisconnect(unsigned place);
+	void BeginDisconnect(const std::size_t place);
 	void BeginDisconnect(shared_ptr<srv::Session> session);
 	void BeginDisconnect(srv::Session* session);
 

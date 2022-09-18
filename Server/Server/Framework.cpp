@@ -209,7 +209,7 @@ void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 	auto& buffer = wbuffer.buf;
 	auto& buffer_length = wbuffer.len;
 
-	const auto place = static_cast<unsigned>(key);
+	const auto place = static_cast<std::size_t>(key);
 	auto session = GetSession(place);
 	if (!session) [[unlikely]]
 	{
@@ -623,7 +623,7 @@ shared_ptr<srv::Session> Framework::AcceptPlayer(SOCKET target)
 	return newbie;
 }
 
-shared_ptr<srv::Session> Framework::ConnectPlayer(unsigned place)
+shared_ptr<srv::Session> Framework::ConnectPlayer(const std::size_t place)
 {
 	return ConnectPlayer(GetSession(place));
 }
@@ -646,7 +646,7 @@ shared_ptr<srv::Session> Framework::ConnectPlayer(shared_ptr<srv::Session> sessi
 	return session;
 }
 
-void Framework::BeginDisconnect(unsigned place)
+void Framework::BeginDisconnect(const std::size_t place)
 {
 	BeginDisconnect(GetSession(place).get());
 }
@@ -707,7 +707,7 @@ bool Framework::CanCreateRoom() const noexcept
 	return numberRooms.load(std::memory_order_consume) < srv::MAX_ROOMS;
 }
 
-shared_ptr<srv::Session> Framework::GetSession(unsigned place) const noexcept(false)
+shared_ptr<srv::Session> Framework::GetSession(const std::size_t place) const noexcept(false)
 {
 	return everySessions.at(place);
 }
