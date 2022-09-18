@@ -15,11 +15,6 @@ public:
 
 	std::optional<DatabaseQuery> CreateQuery(const std::wstring_view& query);
 
-	template<typename... Ty>
-	std::optional<DatabaseQuery> Execute(std::tuple<Ty...> args)&;
-	template<typename... Ty>
-	std::optional<DatabaseQuery> Execute(std::tuple<Ty...> args) &&;
-
 	SQLHENV myEnvironment;
 	SQLHDBC myConnector;
 
@@ -46,6 +41,12 @@ public:
 			myQuery = NULL;
 		}
 	}
+
+	template<typename... Ty>
+	bool Execute(std::tuple<Ty...> args)&;
+
+	template<typename... Ty>
+	bool Execute(std::tuple<Ty...> args)&&;
 
 	SQLRETURN Cancel()
 	{

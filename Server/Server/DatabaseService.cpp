@@ -114,10 +114,13 @@ std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring_vie
 	std::optional<DatabaseQuery> result{};
 	SQLHSTMT hstmt{};
 
+	//SQLWCHAR* statement = L"SELECT ID, NICKNAME, LEVEL FROM USER ORDER BY 2, 1, 3";
+
 	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
+
 	if (SQLSucceed(sqlcode))
 	{
-		sqlcode = SQLPrepare(hstmt, (SQLWCHAR*) (query.data()), SQL_NTS);
+		sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(query.data()), SQL_NTS);
 
 		if (SQLSucceed(sqlcode))
 		{
@@ -126,4 +129,62 @@ std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring_vie
 	}
 
 	return result;
+}
+
+template<typename ...Ty>
+bool DatabaseQuery::Execute(std::tuple<Ty...> args)&
+{
+
+
+	return false;
+}
+
+template<typename ...Ty>
+bool DatabaseQuery::Execute(std::tuple<Ty...> args)&&
+{
+	constexpr int NAME_LEN = 30, PHONE_LEN = 30;
+	SQLCHAR szName[NAME_LEN]{}, szPhone[PHONE_LEN]{}, sCustID[NAME_LEN]{};
+	SQLLEN cbName = 0, cbCustID = 0, cbPhone = 0;
+
+	if (NULL != myQuery)
+	{
+		auto sqlcode = SQLExecute(myQuery);
+
+		if (SQLSucceed(sqlcode))
+		{
+			std::visit([](auto&& arg) {
+
+			}, args);
+
+			// Bind columns 1, 2, and 3
+			sqlcode = SQLBindCol(myQuery, 1, SQL_C_CHAR, sCustID, NAME_LEN, &cbCustID);
+			sqlcode = SQLBindCol(myQuery, 2, SQL_C_CHAR, szName, NAME_LEN, &cbName);
+			sqlcode = SQLBindCol(myQuery, 3, SQL_C_CHAR, szPhone, PHONE_LEN, &cbPhone);
+
+			// Fetch and print each row of data. On an error, display a message and exit.
+			for (int i = 0; ; i++)
+			{
+				sqlcode = SQLFetch(myQuery);
+
+				if (SQLFailed(sqlcode) || sqlcode == SQL_SUCCESS_WITH_INFO)
+				{
+					Cancel();
+					//show_error();
+				}
+				else if (SQLSucceed(sqlcode))
+				{
+					printf("%d: %s %s %s\n", i + 1, sCustID, szName, szPhone);
+					return true;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
+		Destroy();
+	}
+
+	return false;
 }
