@@ -14,8 +14,6 @@ public:
 	bool Disconnect();
 
 	std::optional<DatabaseQuery> CreateQuery(const std::wstring_view& query);
-	template<typename... Ty>
-	std::optional<DatabaseQuery> CreateQuery(const std::wstring_view& query);
 
 	template<typename... Ty>
 	std::optional<DatabaseQuery> Execute(std::tuple<Ty...> args)&;

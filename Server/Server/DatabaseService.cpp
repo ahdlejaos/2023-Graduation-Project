@@ -109,45 +109,19 @@ bool DatabaseService::Disconnect()
 	return true;
 }
 
-std::optional<DatabaseQuery> DatabaseService::CreateQuery()
+std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring_view& query)
 {
 	std::optional<DatabaseQuery> result{};
-	SQLHSTMT hstmt = 0;
-
-	constexpr int NAME_LEN = 30, PHONE_LEN = 30;
-	SQLCHAR szName[NAME_LEN]{}, szPhone[PHONE_LEN]{}, sCustID[NAME_LEN]{};
-	SQLLEN cbName = 0, cbCustID = 0, cbPhone = 0;
+	SQLHSTMT hstmt{};
 
 	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
-	sqlcode = SQLExecDirect(hstmt, (SQLWCHAR*) L"SELECT CustomerID, ContactName, Phone FROM CUSTOMERS ORDER BY 2, 1, 3", SQL_NTS);
-
 	if (SQLSucceed(sqlcode))
 	{
-		// Bind columns 1, 2, and 3
-		sqlcode = SQLBindCol(hstmt, 1, SQL_C_CHAR, sCustID, 100, &cbCustID);
-		sqlcode = SQLBindCol(hstmt, 2, SQL_C_CHAR, szName, NAME_LEN, &cbName);
-		sqlcode = SQLBindCol(hstmt, 3, SQL_C_CHAR, szPhone, PHONE_LEN, &cbPhone);
+		sqlcode = SQLPrepare(hstmt, (SQLWCHAR*) (query.data()), SQL_NTS);
 
-		// Fetch and print each row of data. On an error, display a message and exit.
-
-		for (int i = 0; ; i++)
+		if (SQLSucceed(sqlcode))
 		{
-			sqlcode = SQLFetch(hstmt);
-
-			if (SQLFailed(sqlcode) || sqlcode == SQL_SUCCESS_WITH_INFO)
-			{
-				//show_error();
-			}
-			else if (SQLSucceed(sqlcode))
-			{
-				printf("%d: %s %s %sn", i + 1, sCustID, szName, szPhone);
-
-				result = hstmt;
-			}
-			else
-			{
-				break;
-			}
+			result = hstmt;
 		}
 	}
 
