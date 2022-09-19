@@ -92,9 +92,9 @@ namespace srv
 	class SCPacketSignInSucceed : public Packet<SCPacketSignInSucceed>
 	{
 	public:
-		constexpr SCPacketSignInSucceed(unsigned long long id)
+		constexpr SCPacketSignInSucceed(const std::size_t user_id)
 			: Packet(Protocol::SC_SIGNIN_SUCCESS)
-			, userID(id)
+			, userID(user_id)
 		{}
 
 		const PID userID;
@@ -150,23 +150,6 @@ namespace srv
 		wchar_t roomTitle[30];
 	};
 
-	class SCPacketRoomCreated : public Packet<SCPacketRoomCreated>
-	{
-	public:
-		constexpr SCPacketRoomCreated(
-			const std::size_t room_place,
-			const std::wstring_view room_title
-		)
-			: Packet(Protocol::SC_ROOM_CREATED)
-			, roomPlace(room_place), roomTitle()
-		{
-			std::copy(room_title.begin(), room_title.end(), roomTitle);
-		}
-
-		const std::size_t roomPlace;
-		wchar_t roomTitle[30];
-	};
-
 	class SCPacketRoomEntered : public Packet<SCPacketRoomEntered>
 	{
 	public:
@@ -179,13 +162,14 @@ namespace srv
 
 		const std::size_t roomPlace;
 	};
+
 	/// <summary>
 	/// 방 파괴 패킷 (그냥 방이 없어졌음을 알리는 용도)
 	/// </summary>
-	class SCPacketDestroyRoom : public Packet<SCPacketDestroyRoom>
+	class SCPacketRoomDestroyed : public Packet<SCPacketRoomDestroyed>
 	{
 	public:
-		constexpr SCPacketDestroyRoom(
+		constexpr SCPacketRoomDestroyed(
 			const std::size_t room_place
 		)
 			: Packet(Protocol::SC_ROOM_DESTROYED)
@@ -193,6 +177,21 @@ namespace srv
 		{}
 
 		std::size_t room_id;
+	};
+
+	class SCPacketRoomLeaved : public Packet<SCPacketRoomLeaved>
+	{
+	public:
+		constexpr SCPacketRoomLeaved(
+			const std::size_t room_place,
+			const std::size_t user_id
+		)
+			: Packet(Protocol::SC_ROOM_CREATED)
+			, roomPlace(room_place), userID(userID)
+		{}
+
+		const std::size_t roomPlace;
+		const std::size_t userID;
 	};
 
 	/// <summary>

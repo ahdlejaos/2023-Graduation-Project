@@ -196,9 +196,8 @@ namespace srv
 
 		SC_ROOM_CREATED, // 새로운 방을 만들고, 입장한 것을 응답
 		SC_ROOM_DESTROYED, // 자기가 속한 방이 사라졌음을 응답
-		SC_ROOM_LEAVE, // 자기가 속한 방에서 나갔음을 응답
-
 		SC_ROOM_ENTERED, // 방에 입장했음을 응답
+		SC_ROOM_LEAVE, // 자기가 속한 방에서 나갔음을 응답
 
 		SC_GAME_START, // 게임 시작
 		SC_CREATE_VFX, // 시작 효과 생성
