@@ -154,13 +154,15 @@ namespace srv
 	{
 	public:
 		constexpr SCPacketRoomEntered(
-			const std::size_t room_place
+			const std::size_t room_place,
+			const std::size_t user_id
 		)
 			: Packet(Protocol::SC_ROOM_ENTERED)
-			, roomPlace(room_place)
+			, roomPlace(room_place), userID(userID)
 		{}
 
 		const std::size_t roomPlace;
+		const std::size_t userID;
 	};
 
 	/// <summary>

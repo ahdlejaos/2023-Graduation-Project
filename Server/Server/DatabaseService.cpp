@@ -71,7 +71,7 @@ bool DatabaseService::Awake()
 			// Set login timeout to 5 seconds
 			if (SQLSucceed(sqlcode))
 			{
-				constexpr int timeout_second = 5;
+				constexpr std::ptrdiff_t timeout_second = 5;
 				SQLSetConnectAttr(myConnector, SQL_LOGIN_TIMEOUT, SQLPOINTER(timeout_second), 0);
 
 				// Connect to data source
