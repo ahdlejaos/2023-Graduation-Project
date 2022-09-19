@@ -47,10 +47,13 @@ public:
 	}
 
 	template<typename... Ty>
-	constexpr bool Execute(Ty&&... args)&;
+	bool Execute(Ty&&... args)&;
+
+	template<>
+	bool Execute()&;
 
 	template<typename... Ty>
-	constexpr bool Execute(Ty&&... args)&&;
+	bool Execute(Ty&&... args)&&;
 
 	SQLRETURN Cancel()
 	{
@@ -88,15 +91,71 @@ constexpr std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::w
 }
 
 template<typename ...Ty>
-constexpr bool DatabaseQuery::Execute(Ty&&... args)&
+bool DatabaseQuery::Execute(Ty&&... args)&
 {
+	if (NULL != myQuery)
+	{
+		auto sqlcode = SQLExecute(myQuery);
 
+		if (SQLSucceed(sqlcode))
+		{
+			for (int i = 0; ; i++)
+			{
+				sqlcode = SQLFetch(myQuery);
+
+				if (SQLFailed(sqlcode) || sqlcode == SQL_SUCCESS_WITH_INFO)
+				{
+					Cancel();
+				}
+				else if (SQLSucceed(sqlcode))
+				{
+					return true;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+template<>
+bool DatabaseQuery::Execute()&
+{
+	if (NULL != myQuery)
+	{
+		auto sqlcode = SQLExecute(myQuery);
+
+		if (SQLSucceed(sqlcode))
+		{
+			for (int i = 0; ; i++)
+			{
+				sqlcode = SQLFetch(myQuery);
+
+				if (SQLFailed(sqlcode) || sqlcode == SQL_SUCCESS_WITH_INFO)
+				{
+					Cancel();
+				}
+				else if (SQLSucceed(sqlcode))
+				{
+					return true;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
 
 	return false;
 }
 
 template<typename ...Ty>
-constexpr bool DatabaseQuery::Execute(Ty&&... args)&&
+bool DatabaseQuery::Execute(Ty&&... args)&&
 {
 	constexpr int NAME_LEN = 30, PHONE_LEN = 30;
 	SQLCHAR szName[NAME_LEN]{}, szPhone[PHONE_LEN]{}, sCustID[NAME_LEN]{};
