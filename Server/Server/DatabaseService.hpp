@@ -109,17 +109,87 @@ bool DatabaseQuery::Execute()
 	return false;
 }
 
-template<typename ArgTy>
-constexpr int DeductType()
+template<typename Ty>
+constexpr int DeductSQLType()
 {
-	using NotArray = std::remove_all_extents_t<ArgTy>;
+	using PureTy = std::remove_cvref_t<Ty>;
+	using NotArray = std::remove_all_extents_t<PureTy>;
 
-	if constexpr (std::is_base_of_v<char, NotArray>)
+	if constexpr (std::is_array_v<Ty>)
 	{
-
+		if constexpr (std::is_base_of_v<char, NotArray>)
+		{
+			return SQL_C_CHAR;
+		}
+	}
+	else if constexpr (std::is_floating_point_v<Ty>)
+	{
+		if constexpr (std::is_same_v<Ty, double>)
+		{
+			return SQL_C_DOUBLE;
+		}
+		else
+		{
+			return SQL_C_FLOAT;
+		}
+		return SQL_C_LONG;
+	}
+	else
+	{
+		if constexpr (std::is_same_v<Ty, short>)
+		{
+			return SQL_C_SHORT;
+		}
+		else if constexpr (std::is_same_v<Ty, unsigned short>)
+		{
+			return SQL_C_USHORT;
+		}
+		else if constexpr (std::is_unsigned_v<Ty>)
+		{
+			return SQL_C_ULONG;
+		}
+		else
+		{
+			return SQL_C_LONG;
+		}
 	}
 
 	return 0;
+}
+
+template<typename Ty, std::size_t Size = 0>
+struct QueryBinder : QueryBinder<std::remove_cv_t<Ty>, Size>
+{};
+
+template<typename Ty, std::size_t Size>
+struct QueryBinder<Ty[Size], Size>
+{
+	Ty myData[Size]{};
+};
+
+template<typename Ty>
+struct QueryBinder<Ty&, 0>
+{
+	Ty myData{};
+};
+
+template<typename Ty>
+struct QueryBinder<Ty&&, 0>
+{
+	Ty myData{};
+};
+
+template<typename Ty>
+bool BindQ(const SQLHSTMT query, std::size_t column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
+{
+	SQLRETURN result = SQLBindCol(query, column, sql_type, place, length, result_length);
+
+}
+
+template<typename FirstTy, typename ...RestTy>
+void EnumQ()
+{
+	EnumQ();
 }
 
 template<typename FirstTy, typename ...RestTy>
@@ -136,9 +206,10 @@ FetchQ(const SQLHSTMT query, FirstTy&& first, RestTy&&... args)
 		auto& place = std::get<i>(result);
 
 		using PlaceType = decltype(place);
+		
+		int sql_type = DeductSQLType<PlaceType>();
 
-		sqlcode = SQLBindCol(query, i + 1, SQL_C_CHAR, sCustID, NAME_LEN, &place);
-
+		BindQ(query, i, sql_type, &place, 20, nullptr);
 	}
 
 	do
