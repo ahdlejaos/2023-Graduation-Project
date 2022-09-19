@@ -73,8 +73,12 @@ namespace srv
 	class SCPacketServerInfo : public Packet<SCPacketServerInfo>
 	{
 	public:
-		constexpr SCPacketServerInfo(unsigned users, unsigned max_users, const std::span<const wchar_t> version)
-			: Packet(Protocol::SC_SERVER_INFO)
+		constexpr SCPacketServerInfo(
+			unsigned users,
+			unsigned max_users,
+			const std::wstring_view version)
+			: Packet(Protocol::SC_SERVER_INFO
+			)
 			, usersCount(users), usersMax(max_users)
 			, gameVersion()
 		{
