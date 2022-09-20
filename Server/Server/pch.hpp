@@ -296,6 +296,16 @@ namespace srv
 
 	};
 
+	enum class DatabaseTasks : unsigned char
+	{
+		NONE = 0,
+
+		FIND_USER,
+		SIGNIN,
+		SIGNUP,
+		SIGNOUT,
+	};
+
 	class SCPacketServerInfo;
 	class SCPacketSignInSucceed;
 	class SCPacketSignInFailed;
@@ -304,6 +314,5 @@ namespace srv
 
 	class CSPacketSignIn;
 	class CSPacketSignUp;
-
 }
 #endif // ! __PCH__

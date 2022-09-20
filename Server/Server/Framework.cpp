@@ -563,7 +563,7 @@ void Framework::BuildSessions()
 	unsigned place = srv::USERS_ID_BEGIN;
 	for (auto& user : user_sessions)
 	{
-		user = srv::PlayingSession::Create(place++);
+		user = srv::PlayingSession::Create(place++, myDBProvider);
 	}
 
 	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
@@ -571,7 +571,7 @@ void Framework::BuildSessions()
 	place = srv::NPC_ID_BEGIN;
 	for (auto& npc : npc_sessions)
 	{
-		npc = srv::Session::Create(place++);
+		npc = srv::Session::Create(place++, myDBProvider);
 	}
 }
 

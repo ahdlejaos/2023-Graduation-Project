@@ -9,8 +9,8 @@ namespace srv
 	class Session : public std::enable_shared_from_this<Session>
 	{
 	protected:
-		constexpr Session(unsigned place)
-			: myAuthority()
+		constexpr Session(unsigned place, DatabaseService& db_service)
+			: myAuthority(), dbService(db_service)
 			, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
 			, isFirstCommunication(false)
 			, myReceiver(nullptr), myRecvBuffer(), myRecvSize()
@@ -26,9 +26,9 @@ namespace srv
 
 		}
 
-		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place) noexcept
+		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place, DatabaseService& db_service) noexcept
 		{
-			return shared_ptr<Session>(new Session{ place });
+			return shared_ptr<Session>(new Session{ place, db_service });
 		}
 
 		inline shared_ptr<Session> Handle() noexcept
@@ -371,6 +371,9 @@ namespace srv
 		char myRecvBuffer[BUFSIZ];
 		unsigned myRecvSize;
 		char myLastPacket[200];
+
+	protected:
+		DatabaseService& dbService;
 
 	private:
 		Spinlock myAuthority;
