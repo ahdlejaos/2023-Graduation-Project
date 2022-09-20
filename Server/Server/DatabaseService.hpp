@@ -2,6 +2,7 @@
 #include <sql.h>
 #include <sqlext.h>
 
+template<typename ...RetTy>
 class DatabaseQuery;
 
 extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept;
@@ -9,6 +10,7 @@ extern "C" let bool SQLSucceedWithInfo(const SQLRETURN code) noexcept;
 extern "C" let bool SQLHasParameters(const SQLRETURN code) noexcept;
 extern "C" let bool SQLFetchEnded(const SQLRETURN code) noexcept;
 extern "C" let bool SQLFailed(const SQLRETURN code) noexcept;
+template<typename Ty> constexpr int DeductSQLType();
 
 class DatabaseService
 {
@@ -19,7 +21,8 @@ public:
 	bool Awake();
 	bool Disconnect();
 
-	std::optional<DatabaseQuery> CreateQuery(const std::wstring_view& query);
+	template<typename ...RetTy>
+	std::optional<DatabaseQuery<RetTy...>> CreateQuery(const std::wstring_view& query) const;
 
 	SQLHENV myEnvironment;
 	SQLHDBC myConnector;
@@ -28,15 +31,23 @@ public:
 	const Filepath mySecrets = ".//data//Secrets.json";
 };
 
+template<typename ...RetTy>
 class DatabaseQuery
 {
 public:
 	constexpr DatabaseQuery()
-		: myQuery(NULL)
+		: myStatement()
+		, myQuery(NULL), myData()
 	{}
 
 	constexpr DatabaseQuery(const SQLHSTMT query)
-		: myQuery(query)
+		: myStatement()
+		, myQuery(query), myData()
+	{}
+
+	constexpr DatabaseQuery(const std::wstring_view& statement, const SQLHSTMT query)
+		: myStatement(statement)
+		, myQuery(query), myData()
 	{}
 
 	~DatabaseQuery()
@@ -48,19 +59,77 @@ public:
 		}
 	}
 
-	bool Execute();
+	bool Execute()
+	{
+		if (NULL != myQuery)
+		{
+			auto sqlcode = SQLExecute(myQuery);
+
+			if (SQLSucceed(sqlcode))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	template<typename Ty>
-	SQLRETURN Bind(std::size_t column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length);
+	SQLRETURN Bind(std::size_t column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
+	{
+		return SQLBindCol(myQuery, column, sql_type, place, length, result_length);
+	}
 
 	template<typename Ty>
-	SQLRETURN Bind(std::size_t column, Ty* place, SQLLEN length, SQLLEN* result_length);
+	SQLRETURN Bind(std::size_t column, Ty* place, SQLLEN length, SQLLEN* result_length)
+	{
+		return SQLBindCol(myQuery, column, DeductSQLType<Ty>(), place, length, result_length);
+	}
 
-	template<typename FirstTy, typename ...RestTy>
-	bool Fetch(FirstTy&& first, RestTy&&... args);
+	SQLRETURN FetchOnce()
+	{
+		return SQLFetch(myQuery);
+	}
 
-	template<typename... Ty>
-	bool Fetch(Ty&&... args);
+	bool Fetch()
+	{
+		SQLRETURN sqlcode{};
+
+		do
+		{
+			sqlcode = FetchOnce();
+
+			if (SQLFailed(sqlcode))
+			{
+				break;
+			}
+			else if (SQLSucceedWithInfo(sqlcode))
+			{
+
+				//return true;
+			}
+			else if (SQLSucceed(sqlcode))
+			{
+
+				//return true;
+			}
+			else if (SQLFetchEnded(sqlcode))
+			{
+				//result = SQL_NO_DATA_FOUND;
+				break;
+			}
+			else
+			{
+				break;
+			}
+		}
+		while (SQLFetchEnded(sqlcode));
+	}
+
+	void ClearFetches()
+	{
+		myCursor = 0;
+	}
 
 	SQLRETURN Cancel()
 	{
@@ -72,7 +141,10 @@ public:
 		return SQLFreeHandle(SQL_HANDLE_STMT, myQuery);
 	}
 
+	std::wstring myStatement;
 	SQLHSTMT myQuery;
+	std::tuple<RetTy...> myData;
+	int myCursor = 0;
 };
 
 template<typename Ty, std::size_t Size = 0>
@@ -148,72 +220,6 @@ FetchQ(const SQLHSTMT query, FirstTy&& first, RestTy&&... args)
 	while (SQLFetchEnded(sqlcode));
 
 	return result;
-}
-
-template<typename FirstTy, typename ...RestTy>
-bool DatabaseQuery::Fetch(FirstTy&& first, RestTy&&... args)
-{
-	if (NULL != myQuery)
-	{
-		auto result = FetchQ(myQuery, first, args...);
-	}
-
-	return false;
-}
-
-template<typename ...Ty>
-bool DatabaseQuery::Fetch(Ty&&... args)
-{
-	constexpr int NAME_LEN = 30, PHONE_LEN = 30;
-	SQLCHAR szName[NAME_LEN]{}, szPhone[PHONE_LEN]{}, sCustID[NAME_LEN]{};
-	SQLLEN cbName = 0, cbCustID = 0, cbPhone = 0;
-
-	if (NULL != myQuery)
-	{
-		auto sqlcode = SQLExecute(myQuery);
-
-		if (SQLSucceed(sqlcode))
-		{
-			// Bind columns 1, 2, and 3
-			sqlcode = SQLBindCol(myQuery, 1, SQL_C_CHAR, sCustID, NAME_LEN, &cbCustID);
-			sqlcode = SQLBindCol(myQuery, 2, SQL_C_CHAR, szName, NAME_LEN, &cbName);
-			sqlcode = SQLBindCol(myQuery, 3, SQL_C_CHAR, szPhone, PHONE_LEN, &cbPhone);
-
-			// Fetch and print each row of data. On an error, display a message and exit.
-			for (int i = 0; ; i++)
-			{
-				sqlcode = SQLFetch(myQuery);
-
-				if (SQLFailed(sqlcode))
-				{
-					Cancel();
-					//show_error();
-				}
-				else if (SQLSucceedWithInfo(sqlcode))
-				{
-					printf("%d: %s %s %s\n", i + 1, sCustID, szName, szPhone);
-					return true;
-				}
-				else if (SQLSucceed(sqlcode))
-				{
-					printf("%d: %s %s %s\n", i + 1, sCustID, szName, szPhone);
-					return true;
-				}
-				else if (SQLFetchEnded(sqlcode))
-				{
-					return true;
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-
-		Destroy();
-	}
-
-	return false;
 }
 
 extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept

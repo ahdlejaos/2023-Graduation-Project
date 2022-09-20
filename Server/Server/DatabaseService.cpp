@@ -111,9 +111,10 @@ bool DatabaseService::Disconnect()
 	return true;
 }
 
-std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring_view& query)
+template<typename ...RetTy>
+std::optional<DatabaseQuery<RetTy...>> DatabaseService::CreateQuery(const std::wstring_view& query) const
 {
-	std::optional<DatabaseQuery> result{};
+	std::optional<DatabaseQuery<RetTy...>> result{};
 	SQLHSTMT hstmt{};
 
 	//SQLWCHAR* statement = L"SELECT ID, NICKNAME, LEVEL FROM USER ORDER BY 2, 1, 3";
@@ -126,36 +127,9 @@ std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring_vie
 
 		if (SQLSucceed(sqlcode))
 		{
-			result = hstmt;
+			result.value_or({ query, hstmt });
 		}
 	}
 
 	return result;
-}
-
-bool DatabaseQuery::Execute()
-{
-	if (NULL != myQuery)
-	{
-		auto sqlcode = SQLExecute(myQuery);
-
-		if (SQLSucceed(sqlcode))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-template<typename Ty>
-SQLRETURN DatabaseQuery::Bind(std::size_t column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
-{
-	return SQLBindCol(myQuery, column, sql_type, place, length, result_length);
-}
-
-template<typename Ty>
-SQLRETURN DatabaseQuery::Bind(std::size_t column, Ty* place, SQLLEN length, SQLLEN* result_length)
-{
-	return SQLBindCol(myQuery, column, DeductSQLType<Ty>(), place, length, result_length);
 }

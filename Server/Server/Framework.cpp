@@ -142,6 +142,17 @@ void Framework::Release()
 	workersBreaker.request_stop();
 }
 
+void Framework::DBFindPlayer(PID id) const
+{
+	std::packaged_task<bool(const PID user_id)> userSearcher{
+		[&](const PID user_id) -> bool {
+			
+		}
+	};
+
+	auto query = myDBProvider.CreateQuery(L"GET ID FROM USER WHERE ID = ");
+}
+
 void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
 {
 	const auto operation = context->myOperation;
@@ -212,8 +223,7 @@ void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 	const auto place = static_cast<std::size_t>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]]
-	{
+	if (!session) [[unlikely]] {
 		std::cout << "송신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
 	};
 
@@ -248,15 +258,13 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]]
-	{
+	if (!session) [[unlikely]] {
 		std::cout << "수신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
 	};
 
 	if (0 == bytes) [[unlikely]] // 연결 끊김은 이미 GetQueueCompletionStatus에서 거른다
 	{
-		if (!session->isFirstCommunication) [[likely]]
-		{
+		if (!session->isFirstCommunication) [[likely]] {
 			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 
 			BeginDisconnect(session);
@@ -271,8 +279,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 			if (srv::CheckError(result))
 			{
 				const int error = WSAGetLastError();
-				if (!srv::CheckPending(error)) [[unlikely]]
-				{
+				if (!srv::CheckPending(error)) [[unlikely]] {
 					std::cout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
 				}
 			}
@@ -462,8 +469,7 @@ void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 {
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]]
-	{
+	if (!session) [[unlikely]] {
 		std::cout << "연결을 끊을 잘못된 세션을 참조함! (키: " << key << ")\n";
 	}
 	else
@@ -482,8 +488,7 @@ void Framework::ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key)
 {
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
-	if (!session) [[unlikely]]
-	{
+	if (!session) [[unlikely]] {
 		std::cout << "연결을 끊을 세션이 없음! (키: " << key << ")\n";
 	};
 
@@ -505,14 +510,12 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 	{
 		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(overlap));
 
-		if (token.stop_requested()) [[unlikely]]
-		{
+		if (token.stop_requested()) [[unlikely]] {
 			break;
 		}
 
 		auto asynchron = static_cast<srv::Asynchron*>(overlap);
-		if (TRUE == result) [[likely]]
-		{
+		if (TRUE == result) [[likely]] {
 			me.Route(asynchron, key, static_cast<int>(bytes));
 		}
 		else
@@ -532,8 +535,7 @@ void TimerWorker(std::stop_source& stopper, Framework& me)
 
 	while (true)
 	{
-		if (token.stop_requested()) [[unlikely]]
-		{
+		if (token.stop_requested()) [[unlikely]] {
 			break;
 		}
 	}
@@ -547,8 +549,7 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 
 	while (true)
 	{
-		if (token.stop_requested()) [[unlikely]]
-		{
+		if (token.stop_requested()) [[unlikely]] {
 			break;
 		}
 	}
@@ -713,7 +714,7 @@ shared_ptr<srv::Session> Framework::GetSession(const std::size_t place) const no
 	return everySessions.at(place);
 }
 
-shared_ptr<srv::Session> Framework::FindSession(unsigned long long id) const noexcept(false)
+shared_ptr<srv::Session> Framework::FindSession(const PID id) const noexcept(false)
 {
 	auto it = std::find_if(std::execution::par_unseq
 		, everySessions.cbegin(), everySessions.cend()

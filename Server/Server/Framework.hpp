@@ -55,6 +55,8 @@ public:
 	void Update();
 	void Release();
 
+	void DBFindPlayer(PID id) const;
+
 	void Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedAccept(srv::Asynchron* context);
 	void ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
@@ -70,7 +72,7 @@ public:
 	bool CanCreateRoom() const noexcept;
 
 	shared_ptr<srv::Session> GetSession(const std::size_t place) const noexcept(false);
-	shared_ptr<srv::Session> FindSession(unsigned long long id) const noexcept(false);
+	shared_ptr<srv::Session> FindSession(const PID id) const noexcept(false);
 
 	template<typename Ty, typename ...RestTy>
 	constexpr void Print(Ty&& first, RestTy&& ...rests);
