@@ -187,12 +187,6 @@ bool BindQ(const SQLHSTMT query, std::size_t column, SQLSMALLINT sql_type, Ty* p
 }
 
 template<typename FirstTy, typename ...RestTy>
-void EnumQ()
-{
-	EnumQ();
-}
-
-template<typename FirstTy, typename ...RestTy>
 std::tuple<FirstTy, RestTy...>
 FetchQ(const SQLHSTMT query, FirstTy&& first, RestTy&&... args)
 {
