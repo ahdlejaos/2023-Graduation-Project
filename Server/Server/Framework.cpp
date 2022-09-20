@@ -150,7 +150,7 @@ void Framework::DBFindPlayer(PID id) const
 		}
 	};
 
-	auto query = myDBProvider.CreateQuery(L"GET ID FROM USER WHERE ID = ");
+	auto query = myDBProvider.CreateQuery(L"SELECT ID FROM USER WHERE ID = ");
 }
 
 void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)

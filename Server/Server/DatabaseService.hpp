@@ -2,7 +2,6 @@
 #include <sql.h>
 #include <sqlext.h>
 
-template<typename ...RetTy>
 class DatabaseQuery;
 
 extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept;
@@ -21,8 +20,8 @@ public:
 	bool Awake();
 	bool Disconnect();
 
-	template<typename ...RetTy>
-	std::optional<DatabaseQuery<RetTy...>> CreateQuery(const std::wstring_view& query) const;
+	template<typename ...Ty>
+	std::optional<DatabaseQuery> CreateQuery(const std::wstring_view& query, Ty&&... args) const;
 
 	SQLHENV myEnvironment;
 	SQLHDBC myConnector;
@@ -31,23 +30,22 @@ public:
 	const Filepath mySecrets = ".//data//Secrets.json";
 };
 
-template<typename ...RetTy>
 class DatabaseQuery
 {
 public:
 	constexpr DatabaseQuery()
 		: myStatement()
-		, myQuery(NULL), myData()
+		, myQuery(NULL)
 	{}
 
 	constexpr DatabaseQuery(const SQLHSTMT query)
 		: myStatement()
-		, myQuery(query), myData()
+		, myQuery(query)
 	{}
 
 	constexpr DatabaseQuery(const std::wstring_view& statement, const SQLHSTMT query)
 		: myStatement(statement)
-		, myQuery(query), myData()
+		, myQuery(query)
 	{}
 
 	~DatabaseQuery()
@@ -126,11 +124,6 @@ public:
 		while (SQLFetchEnded(sqlcode));
 	}
 
-	void ClearFetches()
-	{
-		myCursor = 0;
-	}
-
 	SQLRETURN Cancel()
 	{
 		return SQLCancel(myQuery);
@@ -143,8 +136,8 @@ public:
 
 	std::wstring myStatement;
 	SQLHSTMT myQuery;
-	std::tuple<RetTy...> myData;
-	int myCursor = 0;
+
+	bool isEnded = false;
 };
 
 template<typename Ty, std::size_t Size = 0>

@@ -111,10 +111,10 @@ bool DatabaseService::Disconnect()
 	return true;
 }
 
-template<typename ...RetTy>
-std::optional<DatabaseQuery<RetTy...>> DatabaseService::CreateQuery(const std::wstring_view& query) const
+template<typename ...Ty>
+std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring_view& query, Ty&&... args) const
 {
-	std::optional<DatabaseQuery<RetTy...>> result{};
+	std::optional<DatabaseQuery> result{};
 	SQLHSTMT hstmt{};
 
 	//SQLWCHAR* statement = L"SELECT ID, NICKNAME, LEVEL FROM USER ORDER BY 2, 1, 3";
@@ -123,11 +123,13 @@ std::optional<DatabaseQuery<RetTy...>> DatabaseService::CreateQuery(const std::w
 
 	if (SQLSucceed(sqlcode))
 	{
-		sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(query.data()), SQL_NTS);
+		const std::wstring formatted = std::format(query, args...);
+
+		sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(formatted.data()), SQL_NTS);
 
 		if (SQLSucceed(sqlcode))
 		{
-			result.value_or({ query, hstmt });
+			result = { query, hstmt };
 		}
 	}
 
