@@ -71,7 +71,8 @@ void Framework::Awake(unsigned short port_tcp)
 	if (!db_available)
 	{
 		Println("DB ¿À·ù!");
-		return;
+
+		srv::RaiseSystemError(std::errc::not_connected);
 	}
 
 	myAsyncProvider.Awake(concurrentsNumber);

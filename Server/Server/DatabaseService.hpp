@@ -50,14 +50,17 @@ public:
 
 	bool Execute();
 
-	template<typename... Ty>
-	bool Fetch(Ty&&... args)&;
+	template<typename Ty>
+	SQLRETURN Bind(std::size_t column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length);
 
-	template<>
-	bool Fetch()&;
+	template<typename Ty>
+	SQLRETURN Bind(std::size_t column, Ty* place, SQLLEN length, SQLLEN* result_length);
+
+	template<typename FirstTy, typename ...RestTy>
+	bool Fetch(FirstTy&& first, RestTy&&... args);
 
 	template<typename... Ty>
-	bool Fetch(Ty&&... args)&&;
+	bool Fetch(Ty&&... args);
 
 	SQLRETURN Cancel()
 	{
@@ -71,91 +74,6 @@ public:
 
 	SQLHSTMT myQuery;
 };
-
-std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring_view& query)
-{
-	std::optional<DatabaseQuery> result{};
-	SQLHSTMT hstmt{};
-
-	//SQLWCHAR* statement = L"SELECT ID, NICKNAME, LEVEL FROM USER ORDER BY 2, 1, 3";
-
-	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
-
-	if (SQLSucceed(sqlcode))
-	{
-		sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(query.data()), SQL_NTS);
-
-		if (SQLSucceed(sqlcode))
-		{
-			result = hstmt;
-		}
-	}
-
-	return result;
-}
-
-bool DatabaseQuery::Execute()
-{
-	if (NULL != myQuery)
-	{
-		auto sqlcode = SQLExecute(myQuery);
-
-		if (SQLSucceed(sqlcode))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-template<typename Ty>
-constexpr int DeductSQLType()
-{
-	using PureTy = std::remove_cvref_t<Ty>;
-	using NotArray = std::remove_all_extents_t<PureTy>;
-
-	if constexpr (std::is_array_v<Ty>)
-	{
-		if constexpr (std::is_base_of_v<char, NotArray>)
-		{
-			return SQL_C_CHAR;
-		}
-	}
-	else if constexpr (std::is_floating_point_v<Ty>)
-	{
-		if constexpr (std::is_same_v<Ty, double>)
-		{
-			return SQL_C_DOUBLE;
-		}
-		else
-		{
-			return SQL_C_FLOAT;
-		}
-		return SQL_C_LONG;
-	}
-	else
-	{
-		if constexpr (std::is_same_v<Ty, short>)
-		{
-			return SQL_C_SHORT;
-		}
-		else if constexpr (std::is_same_v<Ty, unsigned short>)
-		{
-			return SQL_C_USHORT;
-		}
-		else if constexpr (std::is_unsigned_v<Ty>)
-		{
-			return SQL_C_ULONG;
-		}
-		else
-		{
-			return SQL_C_LONG;
-		}
-	}
-
-	return 0;
-}
 
 template<typename Ty, std::size_t Size = 0>
 struct QueryBinder : QueryBinder<std::remove_cv_t<Ty>, Size>
@@ -179,13 +97,6 @@ struct QueryBinder<Ty&&, 0>
 	Ty myData{};
 };
 
-template<typename Ty>
-bool BindQ(const SQLHSTMT query, std::size_t column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
-{
-	SQLRETURN result = SQLBindCol(query, column, sql_type, place, length, result_length);
-
-}
-
 template<typename FirstTy, typename ...RestTy>
 std::tuple<FirstTy, RestTy...>
 FetchQ(const SQLHSTMT query, FirstTy&& first, RestTy&&... args)
@@ -203,7 +114,7 @@ FetchQ(const SQLHSTMT query, FirstTy&& first, RestTy&&... args)
 		
 		int sql_type = DeductSQLType<PlaceType>();
 
-		BindQ(query, i, sql_type, &place, 20, nullptr);
+		Bind(query, i, sql_type, &place, 20, nullptr);
 	}
 
 	do
@@ -239,65 +150,19 @@ FetchQ(const SQLHSTMT query, FirstTy&& first, RestTy&&... args)
 	return result;
 }
 
-[[noreturn]] void FetchQ(const SQLHSTMT query)
-{
-
-}
-
-template<typename ...Ty>
-bool DatabaseQuery::Fetch(Ty&&... args)&
+template<typename FirstTy, typename ...RestTy>
+bool DatabaseQuery::Fetch(FirstTy&& first, RestTy&&... args)
 {
 	if (NULL != myQuery)
 	{
-		auto result = FetchQ(args...);
-	}
-
-	return false;
-}
-
-template<>
-bool DatabaseQuery::Fetch()&
-{
-	if (NULL != myQuery)
-	{
-		auto sqlcode = SQLExecute(myQuery);
-
-		if (SQLSucceed(sqlcode))
-		{
-			do
-			{
-				sqlcode = SQLFetch(myQuery);
-
-				if (SQLFailed(sqlcode))
-				{
-					Cancel();
-				}
-				else if (SQLSucceedWithInfo(sqlcode))
-				{
-
-					//return true;
-				}
-				else if (SQLSucceed(sqlcode))
-				{
-
-					//return true;
-				}
-				else
-				{
-					break;
-				}
-			}
-			while (!SQLFetchEnded(sqlcode));
-		}
-
-		return true;
+		auto result = FetchQ(myQuery, first, args...);
 	}
 
 	return false;
 }
 
 template<typename ...Ty>
-bool DatabaseQuery::Fetch(Ty&&... args)&&
+bool DatabaseQuery::Fetch(Ty&&... args)
 {
 	constexpr int NAME_LEN = 30, PHONE_LEN = 30;
 	SQLCHAR szName[NAME_LEN]{}, szPhone[PHONE_LEN]{}, sCustID[NAME_LEN]{};
@@ -374,6 +239,54 @@ extern "C" let bool SQLHasParameters(const SQLRETURN code) noexcept
 extern "C" let bool SQLFailed(const SQLRETURN code) noexcept
 {
 	return (code == SQL_ERROR);
+}
+
+template<typename Ty>
+constexpr int DeductSQLType()
+{
+	using PureTy = std::remove_cvref_t<Ty>;
+	using NotArray = std::remove_all_extents_t<PureTy>;
+
+	if constexpr (std::is_array_v<PureTy>)
+	{
+		if constexpr (std::is_base_of_v<char, NotArray>)
+		{
+			return SQL_C_CHAR;
+		}
+	}
+	else if constexpr (std::is_floating_point_v<PureTy>)
+	{
+		if constexpr (std::is_same_v<PureTy, double>)
+		{
+			return SQL_C_DOUBLE;
+		}
+		else
+		{
+			return SQL_C_FLOAT;
+		}
+		return SQL_C_LONG;
+	}
+	else
+	{
+		if constexpr (std::is_same_v<PureTy, short>)
+		{
+			return SQL_C_SHORT;
+		}
+		else if constexpr (std::is_same_v<PureTy, unsigned short>)
+		{
+			return SQL_C_USHORT;
+		}
+		else if constexpr (std::is_unsigned_v<PureTy>)
+		{
+			return SQL_C_ULONG;
+		}
+		else
+		{
+			return SQL_C_LONG;
+		}
+	}
+
+	return 0;
 }
 
 /* Allocate statement handle:

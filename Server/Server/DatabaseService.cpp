@@ -1,5 +1,7 @@
 ﻿#include "pch.hpp"
 #include "DatabaseService.hpp"
+
+#pragma warning(disable : 4996)
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -107,4 +109,53 @@ bool DatabaseService::Disconnect()
 	}
 
 	return true;
+}
+
+std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring_view& query)
+{
+	std::optional<DatabaseQuery> result{};
+	SQLHSTMT hstmt{};
+
+	//SQLWCHAR* statement = L"SELECT ID, NICKNAME, LEVEL FROM USER ORDER BY 2, 1, 3";
+
+	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
+
+	if (SQLSucceed(sqlcode))
+	{
+		sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(query.data()), SQL_NTS);
+
+		if (SQLSucceed(sqlcode))
+		{
+			result = hstmt;
+		}
+	}
+
+	return result;
+}
+
+bool DatabaseQuery::Execute()
+{
+	if (NULL != myQuery)
+	{
+		auto sqlcode = SQLExecute(myQuery);
+
+		if (SQLSucceed(sqlcode))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+template<typename Ty>
+SQLRETURN DatabaseQuery::Bind(std::size_t column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
+{
+	return SQLBindCol(myQuery, column, sql_type, place, length, result_length);
+}
+
+template<typename Ty>
+SQLRETURN DatabaseQuery::Bind(std::size_t column, Ty* place, SQLLEN length, SQLLEN* result_length)
+{
+	return SQLBindCol(myQuery, column, DeductSQLType<Ty>(), place, length, result_length);
 }
