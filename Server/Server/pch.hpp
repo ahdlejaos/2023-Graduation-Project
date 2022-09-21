@@ -12,6 +12,8 @@ class ConnectService;
 class AsyncPoolService;
 class DatabaseService;
 
+struct UserBlob;
+
 class GameObject;
 class GameEntity;
 class GameTerrain;

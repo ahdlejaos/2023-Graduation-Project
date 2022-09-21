@@ -112,7 +112,8 @@ void Framework::Start()
 
 	Println("서버 시작됨!");
 
-	DBFindPlayer(0);
+	DBAddPlayer({ 100, L"yoyofa@hotmail.com", L"iconer", L"1234!@#$" });
+	DBFindPlayer(100);
 }
 
 void Framework::Update()
@@ -142,6 +143,18 @@ void Framework::Release()
 	Println("서버 종료 중...");
 
 	workersBreaker.request_stop();
+}
+
+void Framework::DBAddPlayer(UserBlob data) const
+{
+	auto query = myDBProvider.CreateQuery(L"INSERT INTO USER (ID, EMAIL, NICKNAME, PASSWORD) VALUES ({}, {}, {}, {});", std::make_wformat_args(data.id, data.email, data.nickname, data.password));
+
+	int result{};
+	SQLLEN result_length{};
+	query->Bind(1, &result, 1, &result_length);
+	query->Execute();
+
+	auto status = query->FetchOnce();
 }
 
 void Framework::DBFindPlayer(const PID id) const
@@ -259,7 +272,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 	auto& buffer = wbuffer.buf;
 	auto& buffer_length = wbuffer.len;
 
-	const auto place = static_cast<unsigned>(key);
+	const auto place = static_cast<const std::size_t>(key);
 	auto session = GetSession(place);
 	if (!session) [[unlikely]] {
 		std::cout << "수신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";

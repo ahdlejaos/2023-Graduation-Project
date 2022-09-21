@@ -28,6 +28,9 @@ enum class DB_JOB_TYPES : unsigned char
 	FIND_USER,
 };
 
+struct TimerBlob;
+struct DatabaseBlob;
+
 class Framework
 {
 private:
@@ -55,7 +58,9 @@ public:
 	void Update();
 	void Release();
 
+	void DBAddPlayer(UserBlob data) const;
 	void DBFindPlayer(const PID id) const;
+	void DBUpdatePlayer(UserBlob data) const;
 
 	void Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedAccept(srv::Asynchron* context);
@@ -208,6 +213,21 @@ protected:
 
 	std::packaged_task<bool(const Sentence user_id)> userSearcher;
 	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> userCertifier;
+};
+
+struct UserBlob
+{
+	PID id;
+	std::wstring email;
+	std::wstring nickname;
+	std::wstring password;
+};
+
+struct TimerBlob
+{
+	DWORD info_bytes;
+	ULONG_PTR info_key;
+	LPWSAOVERLAPPED info_overlapped = nullptr;
 };
 
 namespace srv
