@@ -17,24 +17,75 @@ namespace CSharpTest
 		public const int BUFFSIZE = 1024;
 		public byte[] recvBuffer = new byte[BUFFSIZE];
 
+		public bool userLoginned;
+		public string userName;
+		public string userPassword;
+
 		static void Main(string[] args)
 		{
 			Console.WriteLine("Hello, World!");
 
 			Program program = new();
 
-			program.Connect();
+			if (program.Connect())
+			{
+				Console.WriteLine("연결 완료");
 
-			while (true) ;
+				string? temp_username, temp_password;
+				while (true)
+				{
+					Console.Write("사용자 ID 입력: ");
+					temp_username = Console.ReadLine();
+
+					if (temp_username is null)
+					{
+						Console.Clear();
+						continue;
+					}
+
+					break;
+				}
+
+				while (true)
+				{
+					Console.Write("사용자 비밀번호 입력: ");
+					temp_password = Console.ReadLine();
+
+					if (temp_password is null)
+					{
+						Console.Clear();
+						continue;
+					}
+
+					break;
+				}
+			}
+
+			while (true)
+			{
+				if (program.userLoginned)
+				{
+					break;
+				}
+			}
 		}
-		void OnDestroy()
+
+		public Program()
+		{
+			userLoginned = false;
+			userName = new("");
+			userPassword = new("");
+		}
+		
+		
+		public void OnDestroy()
 		{
 			if (tcpClient is not null && tcpClient.Connected)
 			{
 				tcpClient.Close();
 			}
 		}
-		void Connect()
+		public bool Connect()
 		{
 			Console.WriteLine("서버 접속 중...");
 
@@ -53,9 +104,13 @@ namespace CSharpTest
 			else
 			{
 				Console.WriteLine("TCP 소켓의 연결 실패");
+				return false;
 			}
+
+			return true;
 		}
-		void CallbackRead(IAsyncResult result)
+		
+		private void CallbackRead(IAsyncResult result)
 		{
 			if (myClient is null || !myClient.Connected)
 			{
@@ -105,11 +160,11 @@ namespace CSharpTest
 
 			RecvTCP(tcpReceived, BUFFSIZE - tcpReceived);
 		}
-		IAsyncResult RecvTCP(int offset, int size)
+		private IAsyncResult RecvTCP(int offset, int size)
 		{
 			return myClient.BeginReceive(recvBuffer, offset, size, SocketFlags.None, CallbackRead, null);
 		}
-		BasicPacket? Filter()
+		private BasicPacket? Filter()
 		{
 			BasicPacket? result = null;
 
