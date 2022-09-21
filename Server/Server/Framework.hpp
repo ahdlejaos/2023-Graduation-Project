@@ -55,7 +55,7 @@ public:
 	void Update();
 	void Release();
 
-	void DBFindPlayer(PID id) const;
+	void DBFindPlayer(const PID id) const;
 
 	void Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedAccept(srv::Asynchron* context);

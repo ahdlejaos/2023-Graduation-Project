@@ -111,6 +111,8 @@ void Framework::Start()
 	auto& db_thread = myWorkers.emplace_back(DBaseWorker, stopper, me);
 
 	Println("¼­¹ö ½ÃÀÛµÊ!");
+
+	DBFindPlayer(0);
 }
 
 void Framework::Update()
@@ -142,15 +144,16 @@ void Framework::Release()
 	workersBreaker.request_stop();
 }
 
-void Framework::DBFindPlayer(PID id) const
+void Framework::DBFindPlayer(const PID id) const
 {
-	std::packaged_task<bool(const PID user_id)> userSearcher{
-		[&](const PID user_id) -> bool {
-			
-		}
-	};
+	auto query = myDBProvider.CreateQuery(L"SELECT ID FROM USER WHERE ID = {}", std::make_wformat_args(id));
 
-	auto query = myDBProvider.CreateQuery(L"SELECT ID FROM USER WHERE ID = ");
+	int result{};
+	SQLLEN result_length{};
+	query->Bind(1, &result, 1, &result_length);
+	query->Execute();
+
+	auto status = query->FetchOnce();
 }
 
 void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)

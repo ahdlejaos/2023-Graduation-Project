@@ -2,33 +2,12 @@
 #include <sql.h>
 #include <sqlext.h>
 
-class DatabaseQuery;
-
 extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept;
 extern "C" let bool SQLSucceedWithInfo(const SQLRETURN code) noexcept;
 extern "C" let bool SQLHasParameters(const SQLRETURN code) noexcept;
 extern "C" let bool SQLFetchEnded(const SQLRETURN code) noexcept;
 extern "C" let bool SQLFailed(const SQLRETURN code) noexcept;
 template<typename Ty> constexpr int DeductSQLType();
-
-class DatabaseService
-{
-public:
-	DatabaseService();
-	~DatabaseService();
-
-	bool Awake();
-	bool Disconnect();
-
-	template<typename ...Ty>
-	std::optional<DatabaseQuery> CreateQuery(const std::wstring_view& query, Ty&&... args) const;
-
-	SQLHENV myEnvironment;
-	SQLHDBC myConnector;
-
-	const std::wstring myEntry = L"2023-Graduation-Project";
-	const Filepath mySecrets = ".//data//Secrets.json";
-};
 
 class DatabaseQuery
 {
@@ -73,13 +52,13 @@ public:
 	}
 
 	template<typename Ty>
-	SQLRETURN Bind(std::size_t column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
+	SQLRETURN Bind(int column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
 	{
 		return SQLBindCol(myQuery, column, sql_type, place, length, result_length);
 	}
 
 	template<typename Ty>
-	SQLRETURN Bind(std::size_t column, Ty* place, SQLLEN length, SQLLEN* result_length)
+	SQLRETURN Bind(int column, Ty* place, SQLLEN length, SQLLEN* result_length)
 	{
 		return SQLBindCol(myQuery, column, DeductSQLType<Ty>(), place, length, result_length);
 	}
@@ -140,80 +119,66 @@ public:
 	bool isEnded = false;
 };
 
-template<typename Ty, std::size_t Size = 0>
-struct QueryBinder : QueryBinder<std::remove_cv_t<Ty>, Size>
-{};
-
-template<typename Ty, std::size_t Size>
-struct QueryBinder<Ty[Size], Size>
+class DatabaseService
 {
-	Ty myData[Size]{};
-};
+public:
+	DatabaseService();
+	~DatabaseService();
 
-template<typename Ty>
-struct QueryBinder<Ty&, 0>
-{
-	Ty myData{};
-};
+	bool Awake();
+	bool Disconnect();
 
-template<typename Ty>
-struct QueryBinder<Ty&&, 0>
-{
-	Ty myData{};
-};
-
-template<typename FirstTy, typename ...RestTy>
-std::tuple<FirstTy, RestTy...>
-FetchQ(const SQLHSTMT query, FirstTy&& first, RestTy&&... args)
-{
-	constexpr auto args_count = sizeof...(RestTy) + 1;
-	std::tuple<FirstTy, RestTy...> result{};
-
-	SQLRETURN sqlcode{};
-
-	for (std::size_t i = 0; i < args_count; i++)
+	std::optional<DatabaseQuery> CreateQuery(const std::wstring& query) const
 	{
-		auto& place = std::get<i>(result);
+		std::optional<DatabaseQuery> result{};
+		SQLHSTMT hstmt{};
 
-		using PlaceType = decltype(place);
-		
-		int sql_type = DeductSQLType<PlaceType>();
+		auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
 
-		Bind(query, i, sql_type, &place, 20, nullptr);
+		if (SQLSucceed(sqlcode))
+		{
+			sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(query.data()), SQL_NTS);
+
+			if (SQLSucceed(sqlcode))
+			{
+				result = { query, hstmt };
+			}
+		}
+
+		return result;
 	}
 
-	do
+	std::optional<DatabaseQuery> CreateQuery(std::wstring_view query, std::wformat_args&& args) const
 	{
-		result = SQLFetch(query);
+		std::optional<DatabaseQuery> result{};
+		SQLHSTMT hstmt{};
 
-		if (SQLFailed(sqlcode))
-		{
-			break;
-		}
-		else if (SQLSucceedWithInfo(sqlcode))
-		{
+		//SQLWCHAR* statement = L"SELECT ID, NICKNAME, LEVEL FROM USER ORDER BY 2, 1, 3";
 
-			//return true;
-		}
-		else if (SQLSucceed(sqlcode))
-		{
+		auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
 
-			//return true;
-		}
-		else if (SQLFetchEnded(sqlcode))
+		if (SQLSucceed(sqlcode))
 		{
-			//result = SQL_NO_DATA_FOUND;
-			break;
+			const auto copied = query;
+			const auto formatted = std::vformat(query, args);
+
+			sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(formatted.data()), SQL_NTS);
+
+			if (SQLSucceed(sqlcode))
+			{
+				result = { copied, hstmt };
+			}
 		}
-		else
-		{
-			break;
-		}
+
+		return result;
 	}
-	while (SQLFetchEnded(sqlcode));
 
-	return result;
-}
+	SQLHENV myEnvironment;
+	SQLHDBC myConnector;
+
+	const std::wstring myEntry = L"2023-Graduation-Project";
+	const Filepath mySecrets = ".//data//Secrets.json";
+};
 
 extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept
 {
