@@ -41,6 +41,11 @@ public:
 		return GetQueuedCompletionStatus(completionPort, bytes, key, overlapped, time);
 	}
 
+	inline BOOL Post(DWORD info_bytes, ULONG_PTR info_key, LPOVERLAPPED overlapped)
+	{
+		return PostQueuedCompletionStatus(completionPort, info_bytes, info_key, overlapped);
+	}
+
 	inline constexpr HANDLE GetCompletionPort() const noexcept
 	{
 		return completionPort;
