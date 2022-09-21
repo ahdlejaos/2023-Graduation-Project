@@ -3,6 +3,7 @@
 #include "Packet.hpp"
 #include "Room.hpp"
 #include "Spinlock.inl"
+#include "DatabaseService.hpp"
 
 namespace srv
 {

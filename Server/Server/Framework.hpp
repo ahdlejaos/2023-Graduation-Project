@@ -124,6 +124,7 @@ private:
 
 	std::array<shared_ptr<srv::Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<srv::Session>, srv::MAX_ENTITIES> everySessions;
+	std::array<shared_ptr<srv::Session>, srv::MAX_USERS> lobbySessions;
 	atomic<unsigned> numberRooms;
 	atomic<unsigned> numberUsers;
 
