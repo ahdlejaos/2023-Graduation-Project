@@ -1,10 +1,6 @@
 ﻿#include "pch.hpp"
 #include "DatabaseService.hpp"
 
-#pragma warning(disable : 4996)
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-
 DatabaseService::DatabaseService()
 	: myEnvironment(NULL), myConnector(NULL)
 {}
@@ -109,4 +105,51 @@ bool DatabaseService::Disconnect()
 	}
 
 	return true;
+}
+
+std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring& query) const
+
+{
+	std::optional<DatabaseQuery> result{};
+	SQLHSTMT hstmt{};
+
+	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
+
+	if (SQLSucceed(sqlcode))
+	{
+		sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(query.data()), SQL_NTS);
+
+		if (SQLSucceed(sqlcode))
+		{
+			result = { query, hstmt };
+		}
+	}
+
+	return result;
+}
+
+std::optional<DatabaseQuery> DatabaseService::CreateQuery(std::wstring_view query, std::wformat_args&& args) const
+
+{
+	std::optional<DatabaseQuery> result{};
+	SQLHSTMT hstmt{};
+
+	//SQLWCHAR* statement = L"SELECT ID, NICKNAME, LEVEL FROM USER ORDER BY 2, 1, 3";
+
+	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
+
+	if (SQLSucceed(sqlcode))
+	{
+		const auto copied = query;
+		const auto formatted = std::vformat(query, args);
+
+		sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(formatted.data()), SQL_NTS);
+
+		if (SQLSucceed(sqlcode))
+		{
+			result = { copied, hstmt };
+		}
+	}
+
+	return result;
 }

@@ -2,6 +2,7 @@
 #include "AsyncPoolService.hpp"
 #include "ConnectService.hpp"
 #include "DatabaseService.hpp"
+#include "DatabaseQuery.hpp"
 #include "Packet.hpp"
 #include "Asynchron.hpp"
 #include "Spinlock.inl"

@@ -4,6 +4,7 @@
 
 #include <SDKDDKVER.h>
 
+// NETWORK
 #define NOATOM
 #define NOGDI
 #define NOGDICAPMASKS
@@ -24,6 +25,17 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <WS2tcpip.h>
 #include <MSWSock.h>
+
+// SQL
+#include <sql.h>
+#include <sqlext.h>
+
+// JSON
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+#pragma warning(pop)
 
 namespace srv
 {
@@ -474,4 +486,77 @@ template<std::size_t Length>
 inline constexpr void Clear(char (&buffer)[Length], const char& value)
 {
 	std::fill(buffer, buffer + Length, value);
+}
+
+extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept
+{
+	return (SQL_SUCCEEDED(code));
+}
+
+extern "C" let bool SQLSucceedWithInfo(const SQLRETURN code) noexcept
+{
+	return (code == SQL_SUCCESS_WITH_INFO);
+}
+
+extern "C" let bool SQLFetchEnded(const SQLRETURN code) noexcept
+{
+	return (code == SQL_NO_DATA_FOUND);
+}
+
+extern "C" let bool SQLHasParameters(const SQLRETURN code) noexcept
+{
+	return (code == SQL_PARAM_DATA_AVAILABLE);
+}
+
+extern "C" let bool SQLFailed(const SQLRETURN code) noexcept
+{
+	return (code == SQL_ERROR);
+}
+
+template<typename Ty>
+constexpr int DeductSQLType()
+{
+	using PureTy = std::remove_cvref_t<Ty>;
+	using NotArray = std::remove_all_extents_t<PureTy>;
+
+	if constexpr (std::is_array_v<PureTy>)
+	{
+		if constexpr (std::is_base_of_v<char, NotArray>)
+		{
+			return SQL_C_CHAR;
+		}
+	}
+	else if constexpr (std::is_floating_point_v<PureTy>)
+	{
+		if constexpr (std::is_same_v<PureTy, double>)
+		{
+			return SQL_C_DOUBLE;
+		}
+		else
+		{
+			return SQL_C_FLOAT;
+		}
+		return SQL_C_LONG;
+	}
+	else
+	{
+		if constexpr (std::is_same_v<PureTy, short>)
+		{
+			return SQL_C_SHORT;
+		}
+		else if constexpr (std::is_same_v<PureTy, unsigned short>)
+		{
+			return SQL_C_USHORT;
+		}
+		else if constexpr (std::is_unsigned_v<PureTy>)
+		{
+			return SQL_C_ULONG;
+		}
+		else
+		{
+			return SQL_C_LONG;
+		}
+	}
+
+	return 0;
 }

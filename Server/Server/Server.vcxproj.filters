@@ -66,6 +66,9 @@
     <ClCompile Include="DatabaseService.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="DatabaseQuery.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -126,11 +129,14 @@
     <ClInclude Include="ConnectService.hpp">
       <Filter>헤더 파일\System</Filter>
     </ClInclude>
-    <ClInclude Include="DatabaseService.hpp">
-      <Filter>헤더 파일\System</Filter>
-    </ClInclude>
     <ClInclude Include="Framework.hpp">
       <Filter>헤더 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseService.hpp">
+      <Filter>헤더 파일\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseQuery.hpp">
+      <Filter>헤더 파일\Database</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

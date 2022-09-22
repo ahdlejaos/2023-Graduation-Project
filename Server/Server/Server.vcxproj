@@ -65,6 +65,7 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="DebugProperties.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -162,6 +163,7 @@
     <ClCompile Include="AsyncPoolService.cpp" />
     <ClCompile Include="Asynchron.cpp" />
     <ClCompile Include="ConnectService.cpp" />
+    <ClCompile Include="DatabaseQuery.cpp" />
     <ClCompile Include="DatabaseService.cpp" />
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -189,6 +191,7 @@
     <ClInclude Include="AsyncPoolService.hpp" />
     <ClInclude Include="Asynchron.hpp" />
     <ClInclude Include="ConnectService.hpp" />
+    <ClInclude Include="DatabaseQuery.hpp" />
     <ClInclude Include="DatabaseService.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="GameObject.hpp" />
