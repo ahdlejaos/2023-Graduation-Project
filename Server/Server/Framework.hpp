@@ -59,9 +59,9 @@ public:
 	void Update();
 	void Release();
 
-	void DBAddPlayer(UserBlob data) const;
-	void DBFindPlayer(const PID id) const;
-	void DBUpdatePlayer(UserBlob data) const;
+	void DBAddPlayer(UserBlob data);
+	void DBFindPlayer(const PID id);
+	void DBUpdatePlayer(UserBlob data);
 
 	void Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedAccept(srv::Asynchron* context);

@@ -483,11 +483,13 @@ inline constexpr void Clear(Ty(&buffer)[Length], const Ty& value)
 }
 
 template<std::size_t Length>
-inline constexpr void Clear(char (&buffer)[Length], const char& value)
+inline constexpr void Clear(char(&buffer)[Length], const char& value)
 {
 	std::fill(buffer, buffer + Length, value);
 }
 
+#ifndef __SQL_UTILITIES__
+#define __SQL_UTILITIES__
 extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept
 {
 	return (SQL_SUCCEEDED(code));
@@ -496,6 +498,16 @@ extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept
 extern "C" let bool SQLSucceedWithInfo(const SQLRETURN code) noexcept
 {
 	return (code == SQL_SUCCESS_WITH_INFO);
+}
+
+extern "C" let bool SQLStatementHasDiagnotics(const SQLRETURN code) noexcept
+{
+	return (code == SQL_ERROR || code == SQL_SUCCESS_WITH_INFO);
+}
+
+extern "C" let bool SQLDiagEmpty(const SQLRETURN code) noexcept
+{
+	return (code == SQL_NO_DATA_FOUND);
 }
 
 extern "C" let bool SQLFetchEnded(const SQLRETURN code) noexcept
@@ -511,6 +523,30 @@ extern "C" let bool SQLHasParameters(const SQLRETURN code) noexcept
 extern "C" let bool SQLFailed(const SQLRETURN code) noexcept
 {
 	return (code == SQL_ERROR);
+}
+
+extern "C" inline SQLRETURN SQLDiagnostics(const SQLSMALLINT& type, const SQLHANDLE& target)
+{
+	static SQLSMALLINT records = 0;
+	static SQLINTEGER native{};
+	static SQLWCHAR state[7]{};
+	static SQLWCHAR msg[512]{};
+	static SQLSMALLINT msg_length{};
+
+	SQLRETURN sqlcode = SQLGetDiagRec(type, target
+		, ++records
+		, state, &native
+		, msg, sizeof(msg), &msg_length);
+
+	if (!SQLDiagEmpty(sqlcode))
+	{
+		const std::wstring temp_state{ state, state + 7 };
+		const std::wstring temp_msg{ msg, msg + 256 };
+
+		std::wcout << "state: " << temp_state << "\nmsg(" << native << "): " << temp_msg << '\n';
+	}
+
+	return sqlcode;
 }
 
 template<typename Ty>
@@ -560,3 +596,4 @@ constexpr int DeductSQLType()
 
 	return 0;
 }
+#endif

@@ -112,7 +112,7 @@ void Framework::Start()
 
 	Println("¼­¹ö ½ÃÀÛµÊ!");
 
-	DBAddPlayer({ 100, L"yoyofa@hotmail.com", L"iconer", L"1234!@#$" });
+	DBAddPlayer({ 200, L"yoyofa@naver.com", L"iconer", L"1234!@#$" });
 	DBFindPlayer(100);
 }
 
@@ -145,28 +145,61 @@ void Framework::Release()
 	workersBreaker.request_stop();
 }
 
-void Framework::DBAddPlayer(UserBlob data) const
+void Framework::DBAddPlayer(UserBlob data)
 {
-	auto query = myDBProvider.CreateQuery(L"INSERT INTO USER (ID, EMAIL, NICKNAME, PASSWORD) VALUES ({}, {}, {}, {});", std::make_wformat_args(data.id, data.email, data.nickname, data.password));
+	//auto query = myDBProvider.CreateQuery(L"INSERT INTO Users ([ID], [NICKNAME], [PASSWORD]) VALUES ({}, '{}', '{}')", std::make_wformat_args(data.id, data.nickname, data.password));
+	
+	//auto query = myDBProvider.CreateQuery(L"INSERT INTO Users ([ID], [NICKNAME], [PASSWORD]) VALUES (300, 'iconer', '12452531')");
 
-	int result{};
-	SQLLEN result_length{};
-	query->Bind(1, &result, 1, &result_length);
-	query->Execute();
+	auto query = myDBProvider.CreateQuery(L"SELECT TOP (1000) * FROM Users");
+	
+	//int result{};
+	//SQLLEN result_length{};
+	//query->Bind(1, &result, 1, &result_length);
+	auto ok = query->Execute();
 
 	auto status = query->FetchOnce();
 }
 
-void Framework::DBFindPlayer(const PID id) const
+void Framework::DBFindPlayer(const PID id)
 {
-	auto query = myDBProvider.CreateQuery(L"SELECT ID FROM USER WHERE ID = {}", std::make_wformat_args(id));
+	//auto statement = FormatQuery(L"SELECT ID FROM USERS WHERE ID = {}", id);
 
-	int result{};
-	SQLLEN result_length{};
-	query->Bind(1, &result, 1, &result_length);
-	query->Execute();
+	wchar_t statement[200]{};
 
-	auto status = query->FetchOnce();
+	wsprintf(statement, L"SELECT ID FROM Users WHERE ID = %d ", id);
+
+	SQLHSTMT hstmt{};
+
+	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myDBProvider.myConnector, &hstmt);
+
+	sqlcode = SQLPrepare(hstmt, (statement), SQL_NTS);
+	if (SQLSucceed(sqlcode))
+	{
+		sqlcode = SQLExecute(hstmt);
+
+		if (SQLSucceed(sqlcode))
+		{
+			//
+		}
+		else
+		{
+			SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
+		}
+	}
+	else
+	{
+		SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
+	}
+
+	//auto query = myDBProvider.CreateQuery(statement);
+
+	//int result{};
+	//SQLLEN result_length{};
+	//query->Bind(1, &result, 1, &result_length);
+	//query->Execute();
+
+	//auto status = query->FetchOnce();
 }
 
 void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)

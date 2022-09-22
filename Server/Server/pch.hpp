@@ -11,6 +11,7 @@ class DatabaseJob;
 class ConnectService;
 class AsyncPoolService;
 class DatabaseService;
+class DatabaseQuery;
 
 struct UserBlob;
 

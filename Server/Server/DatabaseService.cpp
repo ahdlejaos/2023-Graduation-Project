@@ -1,5 +1,6 @@
 ﻿#include "pch.hpp"
 #include "DatabaseService.hpp"
+#include "DatabaseQuery.hpp"
 
 DatabaseService::DatabaseService()
 	: myEnvironment(NULL), myConnector(NULL)
@@ -59,7 +60,7 @@ bool DatabaseService::Awake()
 	// Set the ODBC version environment attribute
 	if (SQLSucceed(sqlcode))
 	{
-		sqlcode = SQLSetEnvAttr(myEnvironment, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*) SQL_OV_ODBC3, 0);
+		sqlcode = SQLSetEnvAttr(myEnvironment, SQL_ATTR_ODBC_VERSION, SQLPOINTER(SQL_OV_ODBC3), 0);
 
 		// Allocate connection handle
 		if (SQLSucceed(sqlcode))
@@ -78,6 +79,10 @@ bool DatabaseService::Awake()
 				if (SQLSucceed(sqlcode))
 				{
 					return true;
+				}
+				else
+				{
+					std::cout << "SQL 서버 로그인 실패!\n";
 				}
 			}
 		}
@@ -107,49 +112,45 @@ bool DatabaseService::Disconnect()
 	return true;
 }
 
-std::optional<DatabaseQuery> DatabaseService::CreateQuery(const std::wstring& query) const
-
+std::optional<DatabaseQuery>
+DatabaseService::CreateQuery(std::wstring_view query)
 {
-	std::optional<DatabaseQuery> result{};
-	SQLHSTMT hstmt{};
+	std::optional<DatabaseQuery> result = { std::wstring{ query } };
 
-	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
+	auto sqlcode = CreateStatementAt(result->myQuery);
 
 	if (SQLSucceed(sqlcode))
 	{
-		sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(query.data()), SQL_NTS);
+		sqlcode = PrepareStatement(result->myQuery, query);
 
-		if (SQLSucceed(sqlcode))
+		if (!SQLSucceed(sqlcode))
 		{
-			result = { query, hstmt };
+			result.reset();
 		}
+	}
+	else
+	{
+		result.reset();
 	}
 
 	return result;
 }
 
-std::optional<DatabaseQuery> DatabaseService::CreateQuery(std::wstring_view query, std::wformat_args&& args) const
-
+SQLHSTMT DatabaseService::CreateStatement()
 {
-	std::optional<DatabaseQuery> result{};
 	SQLHSTMT hstmt{};
 
-	//SQLWCHAR* statement = L"SELECT ID, NICKNAME, LEVEL FROM USER ORDER BY 2, 1, 3";
+	SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
 
-	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &hstmt);
+	return hstmt;
+}
 
-	if (SQLSucceed(sqlcode))
-	{
-		const auto copied = query;
-		const auto formatted = std::vformat(query, args);
+SQLRETURN DatabaseService::CreateStatementAt(SQLHSTMT& place)
+{
+	return SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &place);
+}
 
-		sqlcode = SQLPrepare(hstmt, const_cast<SQLWCHAR*>(formatted.data()), SQL_NTS);
-
-		if (SQLSucceed(sqlcode))
-		{
-			result = { copied, hstmt };
-		}
-	}
-
-	return result;
+SQLRETURN DatabaseService::PrepareStatement(const SQLHSTMT& statement, const std::wstring_view& query)
+{
+	return SQLPrepare(statement, (SQLWCHAR*)(query.data()), SQL_NTS);
 }

@@ -8,14 +8,19 @@ public:
 		, myQuery(NULL)
 	{}
 
-	constexpr DatabaseQuery(const SQLHSTMT query)
+	constexpr DatabaseQuery(const SQLHSTMT& query)
 		: myStatement()
 		, myQuery(query)
 	{}
 
-	constexpr DatabaseQuery(const std::wstring_view& statement, const SQLHSTMT query)
+	constexpr DatabaseQuery(const std::wstring& statement, const SQLHSTMT& query)
 		: myStatement(statement)
 		, myQuery(query)
+	{}
+
+	constexpr DatabaseQuery(std::wstring&& statement)
+		: myStatement(std::forward<std::wstring>(statement))
+		, myQuery()
 	{}
 
 	~DatabaseQuery()
@@ -27,20 +32,7 @@ public:
 		}
 	}
 
-	bool Execute()
-	{
-		if (NULL != myQuery)
-		{
-			auto sqlcode = SQLExecute(myQuery);
-
-			if (SQLSucceed(sqlcode))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
+	bool Execute();
 
 	template<typename Ty>
 	SQLRETURN Bind(int column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
