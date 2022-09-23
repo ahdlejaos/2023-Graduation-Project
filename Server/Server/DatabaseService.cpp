@@ -150,10 +150,7 @@ DatabaseQuery& DatabaseService::PushJobByTag(std::wstring_view&& tag, std::wform
 
 	const auto formatted = std::vformat(statement, std::forward<std::wformat_args>(args));
 
-	query->myStatement = formatted;
-	myJobQueue.push(query);
-
-	return *query;
+	return PushJob(formatted);
 }
 
 shared_ptr<DatabaseQuery> DatabaseService::PopJob()
