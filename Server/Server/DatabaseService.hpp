@@ -13,12 +13,15 @@ public:
 	DatabaseQuery& PushJob(std::wstring_view&& statement);
 	DatabaseQuery& PushJob(shared_ptr<DatabaseQuery> query);
 	DatabaseQuery& PushJobByTag(std::wstring_view&& tag, std::wformat_args&& args);
+	DatabaseQuery& PushJobByTag(std::wstring_view&& tag);
 	shared_ptr<DatabaseQuery> PopJob();
 
 	DatabaseQuery& RegisterQuery(std::wstring_view tag, std::wstring_view statement);
 	const std::pair<const std::wstring&, const shared_ptr<const DatabaseQuery>> GetStatement(std::wstring_view tag) const;
 	const std::pair<std::wstring, shared_ptr<DatabaseQuery>> GetStatement(std::wstring_view tag);
 
+	bool IsEmpty() const noexcept;
+	bool IsPreparedEmpty() const noexcept;
 	DatabaseQuery& GetQuery(std::wstring_view&& tag);
 	const DatabaseQuery& GetQuery(std::wstring_view&& tag) const;
 

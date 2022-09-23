@@ -153,6 +153,15 @@ DatabaseQuery& DatabaseService::PushJobByTag(std::wstring_view&& tag, std::wform
 	return PushJob(formatted);
 }
 
+DatabaseQuery& DatabaseService::PushJobByTag(std::wstring_view&& tag)
+{
+	std::scoped_lock locken{ JobBarrier };
+
+	auto [statement, query] = GetStatement(std::forward<std::wstring_view>(tag));
+
+	return PushJob(statement);
+}
+
 shared_ptr<DatabaseQuery> DatabaseService::PopJob()
 {
 	std::scoped_lock locken{ JobBarrier };
@@ -227,6 +236,16 @@ const std::pair<std::wstring, shared_ptr<DatabaseQuery>>
 DatabaseService::GetStatement(std::wstring_view tag)
 {
 	return std::make_pair(myStatements.at(tag), myQueries.at(tag));
+}
+
+bool DatabaseService::IsEmpty() const noexcept
+{
+	return myJobQueue.empty();
+}
+
+bool DatabaseService::IsPreparedEmpty() const noexcept
+{
+	return myQueries.empty();
 }
 
 DatabaseQuery& DatabaseService::GetQuery(std::wstring_view&& tag)
