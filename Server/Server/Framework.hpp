@@ -30,7 +30,6 @@ enum class DB_JOB_TYPES : unsigned char
 };
 
 struct TimerBlob;
-struct DatabaseBlob;
 
 class Framework
 {
@@ -172,48 +171,6 @@ protected:
 	TIMED_JOB_TYPES myType;
 	char myData[100];
 	void* myReturn;
-};
-
-class DatabaseJob
-{
-public: 
-	DatabaseJob(DB_JOB_TYPES type)
-		: myType(type)
-		, myData()
-		, userSearcher(), userCertifier()
-	{}
-
-	inline void Execute()
-	{
-
-	}
-
-	let void SetData(const std::span<char, 100> data) noexcept(false)
-	{
-		std::copy(data.begin(), data.end(), std::begin(myData));
-	}
-
-	let void SetData(char* data, const std::integral auto offset) noexcept(false)
-	{
-		std::copy(data.begin(), data.end(), std::advance(std::begin(myData), offset));
-	}
-
-	let bool operator==(const DatabaseJob& rhs) const noexcept
-	{
-		return (this == std::addressof(rhs));
-	}
-
-	let std::strong_ordering operator<=>(const DatabaseJob& rhs) const noexcept
-	{
-		return this <=> std::addressof(rhs);
-	}
-
-protected:
-	DB_JOB_TYPES myType;
-	char myData[100];
-
-	std::packaged_task<bool(const Sentence user_id)> userSearcher;
-	std::packaged_task<bool(const Sentence user_id, const Sentence user_pw)> userCertifier;
 };
 
 struct UserBlob

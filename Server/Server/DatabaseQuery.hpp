@@ -5,23 +5,13 @@ class DatabaseQuery
 {
 public:
 	constexpr DatabaseQuery()
-		: myStatement()
-		, myQuery(NULL)
+		: myStatement(), myQuery(NULL)
+		, isEnded(false)
 	{}
 
-	constexpr DatabaseQuery(const SQLHSTMT& query)
-		: myStatement()
-		, myQuery(query)
-	{}
-
-	constexpr DatabaseQuery(const std::wstring& statement, const SQLHSTMT& query)
-		: myStatement(statement)
-		, myQuery(query)
-	{}
-
-	constexpr DatabaseQuery(std::wstring&& statement)
-		: myStatement(std::forward<std::wstring>(statement))
-		, myQuery()
+	constexpr DatabaseQuery(const std::wstring_view& statement)
+		: myStatement(statement), myQuery(NULL)
+		, isEnded(false)
 	{}
 
 	~DatabaseQuery()
@@ -67,5 +57,5 @@ public:
 	std::wstring myStatement;
 	SQLHSTMT myQuery;
 
-	bool isEnded = false;
+	bool isEnded;
 };
