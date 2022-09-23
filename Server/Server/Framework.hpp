@@ -125,7 +125,6 @@ private:
 	std::priority_queue<TimedJob> timerQueue;
 
 	unique_ptr<Thread> databaseWorker;
-	std::unordered_set<DatabaseJob> databaseQueue;
 
 	std::array<shared_ptr<srv::Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<srv::Session>, srv::MAX_ENTITIES> everySessions;

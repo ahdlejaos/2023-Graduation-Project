@@ -17,7 +17,7 @@ Framework::Framework(unsigned int concurrent_hint)
 	, myWorkers(), workersBreaker()
 	, concurrentOutputLock()
 	, timerWorker(nullptr), timerQueue()
-	, databaseWorker(nullptr), databaseQueue()
+	, databaseWorker(nullptr)
 	, everyRooms(), everySessions(), lobbySessions()
 	, numberRooms(0), numberUsers(0)
 	, lastPacketType(srv::Protocol::NONE)
@@ -29,8 +29,6 @@ Framework::Framework(unsigned int concurrent_hint)
 	std::cin.tie(nullptr);
 	std::cerr.tie(nullptr);
 	std::clog.tie(nullptr);
-
-	databaseQueue.reserve(100);
 }
 
 Framework::~Framework()
@@ -112,7 +110,6 @@ void Framework::Start()
 
 	Println("서버 시작됨!");
 
-	DBAddPlayer({ 500, L"yoyofa@naver.com", L"iconer", L"1234!@#$" });
 	DBFindPlayer(100);
 }
 
@@ -147,60 +144,29 @@ void Framework::Release()
 
 void Framework::DBAddPlayer(UserBlob data)
 {
-	//auto statement = std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}')", std::make_wformat_args(data.id, data.nickname, data.password));
-	
-	auto statement = std::vformat(L"SELECT ID FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100));
+	auto& query = myDBProvider.PushJob(std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}');", std::make_wformat_args(data.id, data.nickname, data.password)));
 
-	auto query = myDBProvider.CreateQuery(statement);
+	SQLINTEGER result{};
+	SQLLEN result_length{};
 
-	query->Execute();
-	auto sqlcode = query->Fetch();
+	query.Bind(1, &result, 0, &result_length);
+	auto ok = query.Execute();
+	auto sqlcode = query.Fetch();
 }
 
 void Framework::DBFindPlayer(const PID id)
 {
-	//auto statement = FormatQuery(L"SELECT ID FROM USERS WHERE ID = {}", id);
+	auto& query = myDBProvider.PushJob(std::vformat(L"SELECT [ID, NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 
-	wchar_t statement[200]{};
+	SQLINTEGER result_id{};
+	SQLWCHAR result_nickname[100]{};
+	SQLLEN result_length{};
 
-	wsprintf(statement, L"SELECT ID FROM [Users] WHERE ID = 100;");
+	query.Bind(1, &result_id, 0, &result_length);
+	query.Bind(2, result_nickname, 100, &result_length);
 
-	SQLHSTMT hstmt{};
-	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myDBProvider.myConnector, &hstmt);
-
-	sqlcode = SQLPrepare(hstmt, (statement), SQL_NTS);
-	if (SQLSucceed(sqlcode))
-	{
-		SQLINTEGER result{};
-		SQLLEN result_length{};
-
-		constexpr auto sqltype = sql::Deduct<decltype(result)>();
-		
-		sqlcode = SQLBindCol(hstmt, 1, SQL_C_LONG, &result, 0, &result_length);
-
-		sqlcode = SQLExecute(hstmt);
-
-		if (SQLStatementHasDiagnotics(sqlcode))
-		{
-			SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
-		}
-		else if (SQLSucceed(sqlcode))
-		{
-		}
-	}
-	else
-	{
-		SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
-	}
-
-	//auto query = myDBProvider.CreateQuery(statement);
-
-	//int result{};
-	//SQLLEN result_length{};
-	//query->Bind(1, &result, 1, &result_length);
-	//query->Execute();
-
-	//auto status = query->FetchOnce();
+	auto ok = query.Execute();
+	auto sqlcode = query.Fetch();
 }
 
 void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
@@ -597,11 +563,17 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 {
 	auto token = stopper.get_token();
 
+	auto& service = me.myDBProvider;
 	while (true)
 	{
 		if (token.stop_requested()) [[unlikely]] {
 			break;
 		}
+
+		
+
+		using namespace std::literals::chrono_literals;
+		std::this_thread::sleep_for(0.01s);
 	}
 
 	me.Println("DB 작업 스레드 ", std::this_thread::get_id(), " 종료");

@@ -97,6 +97,12 @@ namespace sql
 		};
 
 		template<>
+		struct SQLTypeFilter<SQLWCHAR>
+		{
+			static constexpr SQLSMALLINT value = SQL_C_WCHAR;
+		};
+
+		template<>
 		struct SQLTypeFilter<char*>
 		{
 			static constexpr SQLSMALLINT value = SQL_C_CHAR;

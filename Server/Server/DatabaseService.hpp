@@ -1,11 +1,6 @@
 #pragma once
 #include "MySQL.hpp"
 
-struct DatabaseJob
-{
-	shared_ptr<DatabaseQuery> query;
-};
-
 class DatabaseService
 {
 public:
