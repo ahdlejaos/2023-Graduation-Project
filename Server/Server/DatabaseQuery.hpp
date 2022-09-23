@@ -1,4 +1,5 @@
 #pragma once
+#include "MySQL.hpp"
 
 class DatabaseQuery
 {
@@ -43,7 +44,7 @@ public:
 	template<typename Ty>
 	SQLRETURN Bind(int column, Ty* place, SQLLEN length, SQLLEN* result_length)
 	{
-		return SQLBindCol(myQuery, column, DeductSQLType<Ty>(), place, length, result_length);
+		return SQLBindCol(myQuery, column, sql::Deduct<Ty>(), place, length, result_length);
 	}
 
 	SQLRETURN FetchOnce()

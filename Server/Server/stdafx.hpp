@@ -26,10 +26,6 @@
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 
-// SQL
-#include <sql.h>
-#include <sqlext.h>
-
 // JSON
 #pragma warning(push)
 #pragma warning(disable : 4996)
@@ -50,6 +46,7 @@ namespace srv
 	}
 }
 
+// D3D
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
@@ -57,6 +54,7 @@ namespace srv
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
+// STD
 #include <iostream>
 #include <syncstream>
 #include <fstream>
@@ -487,113 +485,3 @@ inline constexpr void Clear(char(&buffer)[Length], const char& value)
 {
 	std::fill(buffer, buffer + Length, value);
 }
-
-#ifndef __SQL_UTILITIES__
-#define __SQL_UTILITIES__
-extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept
-{
-	return (SQL_SUCCEEDED(code));
-}
-
-extern "C" let bool SQLSucceedWithInfo(const SQLRETURN code) noexcept
-{
-	return (code == SQL_SUCCESS_WITH_INFO);
-}
-
-extern "C" let bool SQLStatementHasDiagnotics(const SQLRETURN code) noexcept
-{
-	return (code == SQL_ERROR || code == SQL_SUCCESS_WITH_INFO);
-}
-
-extern "C" let bool SQLDiagEmpty(const SQLRETURN code) noexcept
-{
-	return (code == SQL_NO_DATA_FOUND);
-}
-
-extern "C" let bool SQLFetchEnded(const SQLRETURN code) noexcept
-{
-	return (code == SQL_NO_DATA_FOUND);
-}
-
-extern "C" let bool SQLHasParameters(const SQLRETURN code) noexcept
-{
-	return (code == SQL_PARAM_DATA_AVAILABLE);
-}
-
-extern "C" let bool SQLFailed(const SQLRETURN code) noexcept
-{
-	return (code == SQL_ERROR);
-}
-
-extern "C" inline SQLRETURN SQLDiagnostics(const SQLSMALLINT& type, const SQLHANDLE& target)
-{
-	static SQLSMALLINT records = 0;
-	static SQLINTEGER native{};
-	static SQLWCHAR state[7]{};
-	static SQLWCHAR msg[512]{};
-	static SQLSMALLINT msg_length{};
-
-	SQLRETURN sqlcode = SQLGetDiagRec(type, target
-		, ++records
-		, state, &native
-		, msg, sizeof(msg), &msg_length);
-
-	if (!SQLDiagEmpty(sqlcode))
-	{
-		const std::wstring temp_state{ state, state + 7 };
-		const std::wstring temp_msg{ msg, msg + 256 };
-
-		std::wcout << "state: " << temp_state << "\nmsg(" << native << "): " << temp_msg << '\n';
-	}
-
-	return sqlcode;
-}
-
-template<typename Ty>
-constexpr int DeductSQLType()
-{
-	using PureTy = std::remove_cvref_t<Ty>;
-	using NotArray = std::remove_all_extents_t<PureTy>;
-
-	if constexpr (std::is_array_v<PureTy>)
-	{
-		if constexpr (std::is_base_of_v<char, NotArray>)
-		{
-			return SQL_C_CHAR;
-		}
-	}
-	else if constexpr (std::is_floating_point_v<PureTy>)
-	{
-		if constexpr (std::is_same_v<PureTy, double>)
-		{
-			return SQL_C_DOUBLE;
-		}
-		else
-		{
-			return SQL_C_FLOAT;
-		}
-		return SQL_C_LONG;
-	}
-	else
-	{
-		if constexpr (std::is_same_v<PureTy, short>)
-		{
-			return SQL_C_SHORT;
-		}
-		else if constexpr (std::is_same_v<PureTy, unsigned short>)
-		{
-			return SQL_C_USHORT;
-		}
-		else if constexpr (std::is_unsigned_v<PureTy>)
-		{
-			return SQL_C_ULONG;
-		}
-		else
-		{
-			return SQL_C_LONG;
-		}
-	}
-
-	return 0;
-}
-#endif

@@ -1,4 +1,5 @@
 #pragma once
+#include "MySQL.hpp"
 
 class DatabaseService
 {
@@ -24,12 +25,3 @@ private:
 	SQLRETURN CreateStatementAt(SQLHSTMT& place);
 	SQLRETURN PrepareStatement(const SQLHSTMT& statement, const std::wstring_view& query);
 };
-
-template<typename... Ty>
-inline auto FormatQuery(std::wstring query, Ty... args)
-{
-	//query.replace(query.begin(), query.end(), L"{}", args);
-
-	//std::replace(query.begin(), query.end(), L"{}");
-	return std::format(query, args...);
-}

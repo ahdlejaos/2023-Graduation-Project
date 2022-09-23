@@ -112,7 +112,7 @@ void Framework::Start()
 
 	Println("¼­¹ö ½ÃÀÛµÊ!");
 
-	DBAddPlayer({ 200, L"yoyofa@naver.com", L"iconer", L"1234!@#$" });
+	DBAddPlayer({ 500, L"yoyofa@naver.com", L"iconer", L"1234!@#$" });
 	DBFindPlayer(100);
 }
 
@@ -151,14 +151,62 @@ void Framework::DBAddPlayer(UserBlob data)
 	
 	//auto query = myDBProvider.CreateQuery(L"INSERT INTO Users ([ID], [NICKNAME], [PASSWORD]) VALUES (300, 'iconer', '12452531')");
 
-	auto query = myDBProvider.CreateQuery(L"SELECT TOP (1000) * FROM Users");
+	//auto query = myDBProvider.CreateQuery(L"SELECT TOP (1000) * FROM Users");
 	
-	//int result{};
-	//SQLLEN result_length{};
-	//query->Bind(1, &result, 1, &result_length);
-	auto ok = query->Execute();
+	wchar_t statement[] = L"SELECT TOP (1000) * FROM [Users];";
 
-	auto status = query->FetchOnce();
+	SQLHSTMT hstmt{};
+	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myDBProvider.myConnector, &hstmt);
+
+	sqlcode = SQLPrepare(hstmt, (statement), SQL_NTS);
+	if (SQLSucceed(sqlcode))
+	{
+		int result_id{};
+		wchar_t result_nickname[32]{};
+		wchar_t result_password[32]{};
+		SQLLEN result_length{};
+
+		sqlcode = SQLBindCol(hstmt, 1, SQL_INTEGER, &result_id, 0, &result_length);
+		
+		sqlcode = SQLBindCol(hstmt, 2, SQL_WCHAR, result_nickname, 32, &result_length);
+		
+		sqlcode = SQLBindCol(hstmt, 3, SQL_WCHAR, result_password, 32, &result_length);
+
+		sqlcode = SQLExecute(hstmt);
+
+		if (SQLStatementHasDiagnotics(sqlcode))
+		{
+			SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
+		}
+		else if (SQLSucceed(sqlcode))
+		{
+			do
+			{
+				sqlcode = SQLFetch(hstmt);
+				
+				if (SQLStatementHasDiagnotics(sqlcode))
+				{
+					SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
+				}
+			}
+			while (!SQLFetchEnded(sqlcode));
+		}
+	}
+	else
+	{
+		SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
+	}
+
+	//query->Bind(1, SQL_INTEGER, &result_id, 1, &id_length);
+	//query->Bind(2, &result_nickname, 32, &nn_length);
+	//query->Bind(3, &result_password, 32, &pw_length);
+
+	//auto ok = query->Execute();
+
+	SQLSMALLINT result_meta_count = 0;
+	//auto status = SQLNumResultCols(query->myQuery, &result_meta_count);
+
+	//status = query->FetchOnce();
 }
 
 void Framework::DBFindPlayer(const PID id)
@@ -167,24 +215,29 @@ void Framework::DBFindPlayer(const PID id)
 
 	wchar_t statement[200]{};
 
-	wsprintf(statement, L"SELECT ID FROM Users WHERE ID = %d ", id);
+	wsprintf(statement, L"SELECT ID FROM [Users] WHERE ID = 100;");
 
 	SQLHSTMT hstmt{};
-
 	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myDBProvider.myConnector, &hstmt);
 
 	sqlcode = SQLPrepare(hstmt, (statement), SQL_NTS);
 	if (SQLSucceed(sqlcode))
 	{
+		SQLINTEGER result{};
+		SQLLEN result_length{};
+
+		constexpr auto sqltype = sql::Deduct<decltype(result)>();
+		
+		sqlcode = SQLBindCol(hstmt, 1, SQL_C_LONG, &result, 0, &result_length);
+
 		sqlcode = SQLExecute(hstmt);
 
-		if (SQLSucceed(sqlcode))
-		{
-			//
-		}
-		else
+		if (SQLStatementHasDiagnotics(sqlcode))
 		{
 			SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
+		}
+		else if (SQLSucceed(sqlcode))
+		{
 		}
 	}
 	else
