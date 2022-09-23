@@ -4,11 +4,15 @@
 
 DatabaseService::DatabaseService()
 	: myEnvironment(NULL), myConnector(NULL)
+	, isConnected(false)
 {}
 
 DatabaseService::~DatabaseService()
 {
-	Disconnect();
+	if (isConnected)
+	{
+		Disconnect();
+	}
 }
 
 bool DatabaseService::Awake()
@@ -97,6 +101,8 @@ bool DatabaseService::Disconnect()
 
 	if (NULL != myConnector)
 	{
+		isConnected = false;
+
 		auto sqlcode = SQLDisconnect(myConnector);
 		if (SQLSucceed(sqlcode))
 		{
@@ -112,25 +118,26 @@ bool DatabaseService::Disconnect()
 	return true;
 }
 
-std::optional<DatabaseQuery>
-DatabaseService::CreateQuery(std::wstring_view query)
+shared_ptr<DatabaseQuery> DatabaseService::CreateQuery(std::wstring_view statement)
 {
-	std::optional<DatabaseQuery> result = { std::wstring{ query } };
+	auto result = make_shared<DatabaseQuery>(std::wstring{ statement });
 
-	auto sqlcode = CreateStatementAt(result->myQuery);
+	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &result->myQuery);
+		//CreateStatementAt(result.myQuery);
 
 	if (SQLSucceed(sqlcode))
 	{
-		sqlcode = PrepareStatement(result->myQuery, query);
+		sqlcode = SQLPrepare(result->myQuery, (SQLWCHAR*) (statement.data()), SQL_NTS);
+			//PrepareStatement(result.myQuery, statement);
 
 		if (!SQLSucceed(sqlcode))
 		{
-			result.reset();
+			throw std::runtime_error("SQL Error!");
 		}
 	}
 	else
 	{
-		result.reset();
+		throw std::runtime_error("SQL Error!");
 	}
 
 	return result;
@@ -152,5 +159,20 @@ SQLRETURN DatabaseService::CreateStatementAt(SQLHSTMT& place)
 
 SQLRETURN DatabaseService::PrepareStatement(const SQLHSTMT& statement, const std::wstring_view& query)
 {
-	return SQLPrepare(statement, (SQLWCHAR*)(query.data()), SQL_NTS);
+	return SQLPrepare(statement, (SQLWCHAR*) (query.data()), SQL_NTS);
+}
+
+const std::wstring& DatabaseService::GetStatement(std::wstring_view tag) const
+{
+	return myReadyStatement.at(tag);
+}
+
+DatabaseQuery& DatabaseService::GetQuery(std::wstring_view tag)
+{
+	return *(myQueries.at(tag));
+}
+
+const DatabaseQuery& DatabaseService::GetQuery(std::wstring_view tag) const
+{
+	return *(myQueries.at(tag));
 }

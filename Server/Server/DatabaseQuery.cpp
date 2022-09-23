@@ -19,3 +19,27 @@ bool DatabaseQuery::Execute()
 
 	return false;
 }
+
+SQLRETURN DatabaseQuery::Fetch()
+{
+	SQLRETURN sqlcode{};
+
+	do
+	{
+		sqlcode = FetchOnce();
+
+		if (SQLStatementHasDiagnotics(sqlcode))
+		{
+			SQLDiagnostics(SQL_HANDLE_STMT, myQuery);
+			break;
+		}
+		else if (SQL_INVALID_HANDLE == sqlcode)
+		{
+			SQLDiagnostics(SQL_HANDLE_STMT, myQuery);
+			break;
+		}
+	}
+	while (!SQLFetchEnded(sqlcode));
+
+	return sqlcode;
+}

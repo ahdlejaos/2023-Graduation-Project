@@ -35,6 +35,8 @@ public:
 
 	bool Execute();
 
+	SQLRETURN Fetch();
+
 	template<typename Ty>
 	SQLRETURN Bind(int column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
 	{
@@ -50,41 +52,6 @@ public:
 	SQLRETURN FetchOnce()
 	{
 		return SQLFetch(myQuery);
-	}
-
-	bool Fetch()
-	{
-		SQLRETURN sqlcode{};
-
-		do
-		{
-			sqlcode = FetchOnce();
-
-			if (SQLFailed(sqlcode))
-			{
-				break;
-			}
-			else if (SQLSucceedWithInfo(sqlcode))
-			{
-
-				//return true;
-			}
-			else if (SQLSucceed(sqlcode))
-			{
-
-				//return true;
-			}
-			else if (SQLFetchEnded(sqlcode))
-			{
-				//result = SQL_NO_DATA_FOUND;
-				break;
-			}
-			else
-			{
-				break;
-			}
-		}
-		while (SQLFetchEnded(sqlcode));
 	}
 
 	SQLRETURN Cancel()

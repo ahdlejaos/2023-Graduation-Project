@@ -147,66 +147,14 @@ void Framework::Release()
 
 void Framework::DBAddPlayer(UserBlob data)
 {
-	//auto query = myDBProvider.CreateQuery(L"INSERT INTO Users ([ID], [NICKNAME], [PASSWORD]) VALUES ({}, '{}', '{}')", std::make_wformat_args(data.id, data.nickname, data.password));
+	//auto statement = std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}')", std::make_wformat_args(data.id, data.nickname, data.password));
 	
-	//auto query = myDBProvider.CreateQuery(L"INSERT INTO Users ([ID], [NICKNAME], [PASSWORD]) VALUES (300, 'iconer', '12452531')");
+	auto statement = std::vformat(L"SELECT ID FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100));
 
-	//auto query = myDBProvider.CreateQuery(L"SELECT TOP (1000) * FROM Users");
-	
-	wchar_t statement[] = L"SELECT TOP (1000) * FROM [Users];";
+	auto query = myDBProvider.CreateQuery(statement);
 
-	SQLHSTMT hstmt{};
-	auto sqlcode = SQLAllocHandle(SQL_HANDLE_STMT, myDBProvider.myConnector, &hstmt);
-
-	sqlcode = SQLPrepare(hstmt, (statement), SQL_NTS);
-	if (SQLSucceed(sqlcode))
-	{
-		int result_id{};
-		wchar_t result_nickname[32]{};
-		wchar_t result_password[32]{};
-		SQLLEN result_length{};
-
-		sqlcode = SQLBindCol(hstmt, 1, SQL_INTEGER, &result_id, 0, &result_length);
-		
-		sqlcode = SQLBindCol(hstmt, 2, SQL_WCHAR, result_nickname, 32, &result_length);
-		
-		sqlcode = SQLBindCol(hstmt, 3, SQL_WCHAR, result_password, 32, &result_length);
-
-		sqlcode = SQLExecute(hstmt);
-
-		if (SQLStatementHasDiagnotics(sqlcode))
-		{
-			SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
-		}
-		else if (SQLSucceed(sqlcode))
-		{
-			do
-			{
-				sqlcode = SQLFetch(hstmt);
-				
-				if (SQLStatementHasDiagnotics(sqlcode))
-				{
-					SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
-				}
-			}
-			while (!SQLFetchEnded(sqlcode));
-		}
-	}
-	else
-	{
-		SQLDiagnostics(SQL_HANDLE_STMT, hstmt);
-	}
-
-	//query->Bind(1, SQL_INTEGER, &result_id, 1, &id_length);
-	//query->Bind(2, &result_nickname, 32, &nn_length);
-	//query->Bind(3, &result_password, 32, &pw_length);
-
-	//auto ok = query->Execute();
-
-	SQLSMALLINT result_meta_count = 0;
-	//auto status = SQLNumResultCols(query->myQuery, &result_meta_count);
-
-	//status = query->FetchOnce();
+	query->Execute();
+	auto sqlcode = query->Fetch();
 }
 
 void Framework::DBFindPlayer(const PID id)
