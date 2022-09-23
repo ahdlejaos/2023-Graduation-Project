@@ -15,9 +15,9 @@ DatabaseService::~DatabaseService()
 {
 	if (isConnected)
 	{
-		if (myLastJob)
+		if (!myLastJob.expired())
 		{
-			myLastJob->Cancel();
+			myLastJob.lock()->Cancel();
 		}
 
 		Disconnect();
@@ -162,6 +162,9 @@ shared_ptr<DatabaseQuery> DatabaseService::PopJob()
 
 	auto result = myJobQueue.front();
 	myJobQueue.pop();
+
+	myLastJob = result;
+
 	return result;
 }
 

@@ -42,7 +42,7 @@ private:
 
 	std::queue<shared_ptr<DatabaseQuery>> myJobQueue;
 	std::mutex JobBarrier;
-	shared_ptr<DatabaseQuery> myLastJob;
+	weak_ptr<DatabaseQuery> myLastJob;
 
 	std::unordered_map<std::wstring_view, std::wstring> myStatements;
 	std::unordered_map<std::wstring_view, shared_ptr<DatabaseQuery>> myQueries;
