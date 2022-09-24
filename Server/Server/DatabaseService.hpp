@@ -38,6 +38,8 @@ private:
 	SQLRETURN PrepareStatement(const SQLHSTMT& statement, const std::wstring_view& query);
 	shared_ptr<DatabaseQuery> CreateQuery(std::wstring_view statement);
 
+	std::array<DatabaseJob, 100> myJobPool;
+
 	std::queue<shared_ptr<DatabaseQuery>> myJobQueue;
 	std::mutex JobBarrier;
 	weak_ptr<DatabaseQuery> myLastJob;
@@ -46,8 +48,31 @@ private:
 	std::unordered_map<std::wstring_view, shared_ptr<DatabaseQuery>> myQueries;
 };
 
-class DatabaseJob
+template<typename Ty>
+struct BasicDatabaseJob
+{
+	shared_ptr<DatabaseQuery> query;
+};
+
+class DatabaseJob : BasicDatabaseJob<DatabaseJob>
 {
 public:
-	shared_ptr<DatabaseQuery> query;
+};
+
+class JobUserFindByID : BasicDatabaseJob<JobUserFindByID>
+{
+public:
+	PID target_id;
+};
+
+class JobUserFindByNickname : BasicDatabaseJob<JobUserFindByNickname>
+{
+public:
+	wchar_t nickname[20];
+};
+
+class JobUserFindByNicknameIncluded : BasicDatabaseJob<JobUserFindByNicknameIncluded>
+{
+public:
+	wchar_t nickname[20];
 };
