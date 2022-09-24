@@ -12,7 +12,7 @@ void DBaseWorker(std::stop_source& stopper, Framework& me);
 Framework::Framework(unsigned int concurrent_hint)
 	: myID(srv::SERVER_ID)
 	, myEntryPoint(), myAsyncProvider()
-	, myDBProvider()
+	, myDatabaseService()
 	, concurrentsNumber(concurrent_hint), concurrentWatcher(concurrent_hint)
 	, myWorkers(), workersBreaker()
 	, concurrentOutputLock()
@@ -65,7 +65,7 @@ void Framework::Awake(unsigned short port_tcp)
 	std::cout << "서버를 준비하는 중...\n";
 
 	Println("DB 서비스를 준비하는 중...");
-	bool db_available = myDBProvider.Awake();
+	bool db_available = myDatabaseService.Awake();
 	if (!db_available)
 	{
 		Println("DB 오류!");
@@ -144,7 +144,7 @@ void Framework::Release()
 
 void Framework::DBAddPlayer(UserBlob data)
 {
-	auto& query = myDBProvider.PushJob(std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}');", std::make_wformat_args(data.id, data.nickname, data.password)));
+	auto& query = myDatabaseService.PushJob(std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}');", std::make_wformat_args(data.id, data.nickname, data.password)));
 
 	static SQLINTEGER result{};
 	static SQLLEN result_length{};
@@ -156,7 +156,7 @@ void Framework::DBAddPlayer(UserBlob data)
 
 void Framework::DBFindPlayer(const PID id)
 {
-	auto& query = myDBProvider.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
+	auto& query = myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 
 	static SQLINTEGER result_id{};
 	static SQLWCHAR result_nickname[100]{};
@@ -563,7 +563,7 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 {
 	auto token = stopper.get_token();
 
-	auto& service = me.myDBProvider;
+	auto& service = me.myDatabaseService;
 	while (true)
 	{
 		if (token.stop_requested()) [[unlikely]] {
@@ -593,7 +593,7 @@ void Framework::BuildSessions()
 	unsigned place = srv::USERS_ID_BEGIN;
 	for (auto& user : user_sessions)
 	{
-		user = srv::PlayingSession::Create(place++, myDBProvider);
+		user = srv::PlayingSession::Create(place++, myDatabaseService);
 	}
 
 	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
@@ -601,7 +601,7 @@ void Framework::BuildSessions()
 	place = srv::NPC_ID_BEGIN;
 	for (auto& npc : npc_sessions)
 	{
-		npc = srv::Session::Create(place++, myDBProvider);
+		npc = srv::Session::Create(place++, myDatabaseService);
 	}
 }
 

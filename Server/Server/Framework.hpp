@@ -113,7 +113,7 @@ private:
 
 	ConnectService myEntryPoint;
 	AsyncPoolService myAsyncProvider;
-	DatabaseService myDBProvider;
+	DatabaseService myDatabaseService;
 
 	unsigned int concurrentsNumber;
 	std::latch concurrentWatcher;
