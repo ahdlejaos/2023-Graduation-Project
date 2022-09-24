@@ -1,11 +1,13 @@
 #include "pch.hpp"
 #include "DatabaseQuery.hpp"
 
-bool DatabaseQuery::Execute()
+SQLRETURN DatabaseQuery::Execute()
 {
+	SQLRETURN sqlcode{};
+
 	if (NULL != myQuery)
 	{
-		auto sqlcode = SQLExecute(myQuery);
+		sqlcode = SQLExecute(myQuery);
 
 		if (SQLSucceed(sqlcode))
 		{
@@ -17,7 +19,7 @@ bool DatabaseQuery::Execute()
 		}
 	}
 
-	return false;
+	return sqlcode;
 }
 
 SQLRETURN DatabaseQuery::Fetch()

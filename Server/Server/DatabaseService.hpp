@@ -46,3 +46,8 @@ private:
 	std::unordered_map<std::wstring_view, shared_ptr<DatabaseQuery>> myQueries;
 };
 
+class DatabaseJob
+{
+public:
+	shared_ptr<DatabaseQuery> query;
+};

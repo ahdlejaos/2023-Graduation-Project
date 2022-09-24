@@ -146,27 +146,27 @@ void Framework::DBAddPlayer(UserBlob data)
 {
 	auto& query = myDBProvider.PushJob(std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}');", std::make_wformat_args(data.id, data.nickname, data.password)));
 
-	SQLINTEGER result{};
-	SQLLEN result_length{};
+	static SQLINTEGER result{};
+	static SQLLEN result_length{};
 
 	query.Bind(1, &result, 0, &result_length);
-	auto ok = query.Execute();
-	auto sqlcode = query.Fetch();
+	//auto ok = query.Execute();
+	//auto sqlcode = query.Fetch();
 }
 
 void Framework::DBFindPlayer(const PID id)
 {
-	auto& query = myDBProvider.PushJob(std::vformat(L"SELECT [ID, NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
+	auto& query = myDBProvider.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 
-	SQLINTEGER result_id{};
-	SQLWCHAR result_nickname[100]{};
-	SQLLEN result_length{};
+	static SQLINTEGER result_id{};
+	static SQLWCHAR result_nickname[100]{};
+	static SQLLEN result_length{};
 
 	query.Bind(1, &result_id, 0, &result_length);
 	query.Bind(2, result_nickname, 100, &result_length);
 
-	auto ok = query.Execute();
-	auto sqlcode = query.Fetch();
+	//auto ok = query.Execute();
+	//auto sqlcode = query.Fetch();
 }
 
 void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
@@ -568,9 +568,16 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 	{
 		if (token.stop_requested()) [[unlikely]] {
 			break;
-		}
+		};
 
-		
+		// 
+		if (!service.IsEmpty())
+		{
+			auto job = service.PopJob();
+
+			auto sqlcode = job->Execute();
+			sqlcode = job->Fetch();
+		}
 
 		using namespace std::literals::chrono_literals;
 		std::this_thread::sleep_for(0.01s);

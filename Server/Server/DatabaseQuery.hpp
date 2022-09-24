@@ -23,7 +23,7 @@ public:
 		}
 	}
 
-	bool Execute();
+	SQLRETURN Execute();
 
 	SQLRETURN Fetch();
 
