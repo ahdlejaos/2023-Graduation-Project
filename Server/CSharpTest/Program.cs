@@ -61,9 +61,18 @@ namespace CSharpTest
 
 				byte[] packet = new byte[256];
 
-				Parser.ParseStruct<BasicPacket>(packet);
+				LoginPacket pk_login = new();
 
-
+				var sent_login = program.SendPacket(pk_login);
+				if (sent_login.IsCompleted)
+				{
+					Console.WriteLine("로그인 패킷 보냄.");
+				}
+				else
+				{
+					Console.WriteLine("로그인 패킷을 보낼 수 없음.");
+					return;
+				}
 			}
 
 			while (true)
