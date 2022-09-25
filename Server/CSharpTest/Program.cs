@@ -76,8 +76,8 @@ namespace CSharpTest
 			userName = new("");
 			userPassword = new("");
 		}
-		
-		
+
+
 		public void OnDestroy()
 		{
 			if (tcpClient is not null && tcpClient.Connected)
@@ -109,7 +109,36 @@ namespace CSharpTest
 
 			return true;
 		}
-		
+
+		private void CallbackWrite(IAsyncResult result)
+		{
+			if (myClient is null || !myClient.Connected)
+			{
+				Console.WriteLine("TCP 송신 불가능!");
+				return;
+			}
+
+			var byte_sent = myClient.EndSend(result, out SocketError error_state);
+			Console.WriteLine("TCP 소켓으로 서버로 " + byte_sent + "바이트를 줌.");
+			Console.WriteLine("TCP 소켓 상태: " + error_state);
+
+			if (byte_sent <= 0)
+			{
+				throw new System.Exception("TCP 오류!");
+			}
+			else if (result.IsCompleted)
+			{
+				
+			} else
+			{
+
+			}
+		}
+		public IAsyncResult SendTCP(byte[] data)
+		{
+			return myClient.BeginSend(data, 0, data.Length, SocketFlags.None, CallbackWrite, null);
+		}
+
 		private void CallbackRead(IAsyncResult result)
 		{
 			if (myClient is null || !myClient.Connected)
