@@ -11,7 +11,8 @@ namespace CSharpTest
 	{
 		public static byte[] ParseBytes<T>(in T target) where T : BasicPacket
 		{
-			int sz = Marshal.SizeOf(typeof(T));
+			//int sz = Marshal.SizeOf(typeof(T));
+			int sz = Marshal.SizeOf(target);
 
 			byte[] result = new byte[sz];
 
@@ -39,5 +40,9 @@ namespace CSharpTest
 
 			return result;
 		}
+
+		public const int ptrProtocol = 0;
+		public const int ptrPacketkSize = sizeof(Protocol);
+		public const int ptrSpecial = ptrPacketkSize + sizeof(int);
 	}
 }

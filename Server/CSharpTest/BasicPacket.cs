@@ -12,9 +12,5 @@ namespace CSharpTest
 	{
 		public Protocol myProtocol;
 		public Int32 mySize;
-
-		public const int ptrProtocol = 0;
-		public const int ptrPacketkSize = sizeof(Protocol);
-		public const int ptrSpecial = ptrPacketkSize + sizeof(int);
 	}
 }

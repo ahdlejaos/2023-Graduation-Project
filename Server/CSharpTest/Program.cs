@@ -61,7 +61,7 @@ namespace CSharpTest
 
 				byte[] packet = new byte[256];
 
-				LoginPacket pk_login = new();
+				BasicPacket pk_login = new();
 
 				var sent_login = program.SendPacket(pk_login);
 				if (sent_login.IsCompleted)
