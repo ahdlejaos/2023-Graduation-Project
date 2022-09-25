@@ -132,13 +132,31 @@ namespace CSharpTest
 			}
 			else if (result.IsCompleted)
 			{
-				
-			} else
+
+			}
+			else
 			{
 
 			}
 		}
-		public IAsyncResult SendBuffer(byte[] data)
+		public IAsyncResult SendBuffer(in byte[] buffer)
+		{
+			return myClient.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, OnSend, null);
+		}
+		public IAsyncResult SendPacket<T>(in T packet) where T : BasicPacket
+		{
+			var buffer = Parser.ParseBytes(packet);
+
+			if (buffer is not null)
+			{
+				return SendBuffer(buffer);
+			}
+			else
+			{
+				throw new ContextMarshalException("패킷 변환 오류!");
+			}
+		}
+		public IAsyncResult SendPacketFromByte(in byte[] data)
 		{
 			return myClient.BeginSend(data, 0, data.Length, SocketFlags.None, OnSend, null);
 		}

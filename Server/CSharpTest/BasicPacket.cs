@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace CSharpTest
 {
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	internal struct BasicPacket
+	internal class BasicPacket
 	{
 		public Protocol myProtocol;
 		public Int32 mySize;

@@ -9,7 +9,7 @@ namespace CSharpTest
 {
 	internal class Parser
 	{
-		public static byte[] ParseBytes<T>(in T target) where T : struct
+		public static byte[] ParseBytes<T>(in T target) where T : BasicPacket
 		{
 			int sz = Marshal.SizeOf(typeof(T));
 
@@ -23,7 +23,7 @@ namespace CSharpTest
 			return result;
 		}
 
-		public static T? ParseStruct<T>(in byte[] buffer) where T : struct
+		public static T? ParseStruct<T>(in byte[] buffer) where T : BasicPacket
 		{
 			int sz = Marshal.SizeOf(typeof(T));
 			if (buffer is null || buffer.Length < sz)
