@@ -42,6 +42,15 @@ namespace CSharpTest
 					{
 						continue;
 					}
+					else
+					{
+						var trim = temp_username.Trim();
+
+						if (0 == trim.Length)
+						{
+							continue;
+						}
+					}
 
 					break;
 				}
@@ -55,6 +64,15 @@ namespace CSharpTest
 					{
 						continue;
 					}
+					else
+					{
+						var trim = temp_password.Trim();
+
+						if (0 == trim.Length)
+						{
+							continue;
+						}
+					}
 
 					break;
 				}
@@ -64,7 +82,7 @@ namespace CSharpTest
 				BasicPacket pk_login = new();
 
 				var sent_login = program.SendPacket(pk_login);
-				if (sent_login.IsCompleted)
+				if (sent_login is not null && sent_login.IsCompleted)
 				{
 					Console.WriteLine("로그인 패킷 보냄.");
 				}
@@ -148,9 +166,11 @@ namespace CSharpTest
 
 			}
 		}
-		public IAsyncResult SendBuffer(in byte[] buffer)
+		//public IAsyncResult SendBuffer(in byte[] buffer)
+		public int SendBuffer(in byte[] buffer)
 		{
-			return myClient.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, OnSend, null);
+			return myClient.Send(buffer, 0, buffer.Length, SocketFlags.None);
+			//return myClient.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, OnSend, null);
 		}
 		public IAsyncResult SendPacket<T>(in T packet) where T : BasicPacket
 		{
@@ -158,7 +178,8 @@ namespace CSharpTest
 
 			if (buffer is not null)
 			{
-				return SendBuffer(buffer);
+				SendBuffer(buffer);
+				return null;
 			}
 			else
 			{
