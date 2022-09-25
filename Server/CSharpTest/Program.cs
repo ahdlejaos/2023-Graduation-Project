@@ -61,17 +61,7 @@ namespace CSharpTest
 
 				byte[] packet = new byte[256];
 
-				var written = BitConverter.TryWriteBytes(packet[0], (int)(Protocol.CS_SIGNIN));
-				Int32Converter avcc = new();
-
-				Marshal.Copy(packet, 1, );
-
-				byte[] pk_type = new byte[4];
-				pk_type.Cast();
-
-				avcc.ConvertTo(pk_type, char);
-
-				var result = SendTCP(packet);
+				Parser.ParseStruct<BasicPacket>(packet);
 
 
 			}
@@ -113,7 +103,7 @@ namespace CSharpTest
 			{
 				Console.WriteLine("서버 접속 성공함.");
 
-				RecvTCP(0, BUFFSIZE);
+				ReceiveForSelf(0, BUFFSIZE);
 			}
 			else
 			{
@@ -124,7 +114,7 @@ namespace CSharpTest
 			return true;
 		}
 
-		private void CallbackWrite(IAsyncResult result)
+		private void OnSend(IAsyncResult result)
 		{
 			if (myClient is null || !myClient.Connected)
 			{
@@ -148,12 +138,11 @@ namespace CSharpTest
 
 			}
 		}
-		public IAsyncResult SendTCP(byte[] data)
+		public IAsyncResult SendBuffer(byte[] data)
 		{
-			return myClient.BeginSend(data, 0, data.Length, SocketFlags.None, CallbackWrite, null);
+			return myClient.BeginSend(data, 0, data.Length, SocketFlags.None, OnSend, null);
 		}
-
-		private void CallbackRead(IAsyncResult result)
+		private void OnReceive(IAsyncResult result)
 		{
 			if (myClient is null || !myClient.Connected)
 			{
@@ -201,11 +190,11 @@ namespace CSharpTest
 				Console.WriteLine("TCP 소켓으로부터 0바이트를 받음.");
 			}
 
-			RecvTCP(tcpReceived, BUFFSIZE - tcpReceived);
+			ReceiveForSelf(tcpReceived, BUFFSIZE - tcpReceived);
 		}
-		private IAsyncResult RecvTCP(int offset, int size)
+		private IAsyncResult ReceiveForSelf(int offset, int size)
 		{
-			return myClient.BeginReceive(recvBuffer, offset, size, SocketFlags.None, CallbackRead, null);
+			return myClient.BeginReceive(recvBuffer, offset, size, SocketFlags.None, OnReceive, null);
 		}
 		private BasicPacket? Filter()
 		{
