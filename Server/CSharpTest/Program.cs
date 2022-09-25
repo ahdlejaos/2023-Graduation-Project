@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace CSharpTest
 {
@@ -39,7 +40,6 @@ namespace CSharpTest
 
 					if (temp_username is null)
 					{
-						Console.Clear();
 						continue;
 					}
 
@@ -53,12 +53,25 @@ namespace CSharpTest
 
 					if (temp_password is null)
 					{
-						Console.Clear();
 						continue;
 					}
 
 					break;
 				}
+
+				byte[] packet = new byte[256];
+
+				var written = BitConverter.TryWriteBytes(packet[0], Int32(Protocol.CS_SIGNIN));
+				Int32Converter avcc = new();
+				
+				byte[] pk_type = new byte[4];
+				pk_type.Cast();
+
+				avcc.ConvertTo(pk_type, char);
+
+				var result = SendTCP(packet);
+
+
 			}
 
 			while (true)
@@ -76,7 +89,6 @@ namespace CSharpTest
 			userName = new("");
 			userPassword = new("");
 		}
-
 
 		public void OnDestroy()
 		{
