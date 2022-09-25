@@ -640,6 +640,8 @@ shared_ptr<srv::Session> Framework::AcceptPlayer(SOCKET target)
 			newbie->Release();
 
 			numberUsers.store(users_number + 1, std::memory_order_release);
+
+			newbie->BeginRecv();
 		}
 		else
 		{
