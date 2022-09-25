@@ -1,5 +1,7 @@
 #pragma once
 #include "MySQL.hpp"
+#include "BasicDatabaseJob.hpp"
+#include "DatabaseJob.hpp"
 
 class DatabaseService
 {
@@ -46,17 +48,6 @@ private:
 
 	std::unordered_map<std::wstring_view, std::wstring> myStatements;
 	std::unordered_map<std::wstring_view, shared_ptr<DatabaseQuery>> myQueries;
-};
-
-template<typename Ty>
-struct BasicDatabaseJob
-{
-	shared_ptr<DatabaseQuery> query;
-};
-
-class DatabaseJob : BasicDatabaseJob<DatabaseJob>
-{
-public:
 };
 
 class JobUserFindByID : BasicDatabaseJob<JobUserFindByID>

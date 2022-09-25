@@ -12,6 +12,8 @@ class ConnectService;
 class AsyncPoolService;
 class DatabaseService;
 class DatabaseQuery;
+template<typename Ty> class BasicDatabaseJob;
+class DatabaseJob;
 
 struct UserBlob;
 

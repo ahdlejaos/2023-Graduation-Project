@@ -22,6 +22,9 @@
     <Filter Include="헤더 파일\System">
       <UniqueIdentifier>{cce80d40-1a95-4400-921b-b1ab339257cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Database">
+      <UniqueIdentifier>{86805f52-ffd6-4b4c-83d8-2485bc841a21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp">
@@ -63,14 +66,20 @@
     <ClCompile Include="MD5.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DatabaseService.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="BasicDatabaseJob.cpp">
+      <Filter>소스 파일\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseJob.cpp">
+      <Filter>소스 파일\Database</Filter>
     </ClCompile>
     <ClCompile Include="DatabaseQuery.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseService.cpp">
+      <Filter>소스 파일\Database</Filter>
     </ClCompile>
     <ClCompile Include="MySQL.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +151,12 @@
       <Filter>헤더 파일\Database</Filter>
     </ClInclude>
     <ClInclude Include="MySQL.hpp">
+      <Filter>헤더 파일\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseJob.hpp">
+      <Filter>헤더 파일\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicDatabaseJob.hpp">
       <Filter>헤더 파일\Database</Filter>
     </ClInclude>
   </ItemGroup>

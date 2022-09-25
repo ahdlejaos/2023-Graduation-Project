@@ -166,7 +166,9 @@
   <ItemGroup>
     <ClCompile Include="AsyncPoolService.cpp" />
     <ClCompile Include="Asynchron.cpp" />
+    <ClCompile Include="BasicDatabaseJob.cpp" />
     <ClCompile Include="ConnectService.cpp" />
+    <ClCompile Include="DatabaseJob.cpp" />
     <ClCompile Include="DatabaseQuery.cpp" />
     <ClCompile Include="DatabaseService.cpp" />
     <ClCompile Include="Framework.cpp" />
@@ -195,7 +197,9 @@
   <ItemGroup>
     <ClInclude Include="AsyncPoolService.hpp" />
     <ClInclude Include="Asynchron.hpp" />
+    <ClInclude Include="BasicDatabaseJob.hpp" />
     <ClInclude Include="ConnectService.hpp" />
+    <ClInclude Include="DatabaseJob.hpp" />
     <ClInclude Include="DatabaseQuery.hpp" />
     <ClInclude Include="DatabaseService.hpp" />
     <ClInclude Include="Framework.hpp" />
