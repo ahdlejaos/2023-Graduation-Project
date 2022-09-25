@@ -61,9 +61,11 @@ namespace CSharpTest
 
 				byte[] packet = new byte[256];
 
-				var written = BitConverter.TryWriteBytes(packet[0], Int32(Protocol.CS_SIGNIN));
+				var written = BitConverter.TryWriteBytes(packet[0], (int)(Protocol.CS_SIGNIN));
 				Int32Converter avcc = new();
-				
+
+				Marshal.Copy(packet, 1, );
+
 				byte[] pk_type = new byte[4];
 				pk_type.Cast();
 

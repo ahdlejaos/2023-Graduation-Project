@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CSharpTest
 {
-	internal class BasicPacket
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	internal struct BasicPacket
 	{
-		public Protocol myProtocol = 0;
-		public Int32 mySize = 0;
+		public Protocol myProtocol;
+		public Int32 mySize;
+
+		public const int ptrProtocol = 0;
+		public const int ptrPacketkSize = sizeof(Protocol);
+		public const int ptrSpecial = ptrPacketkSize + sizeof(int);
 	}
 }

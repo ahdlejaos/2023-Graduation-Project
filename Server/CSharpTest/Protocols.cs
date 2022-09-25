@@ -11,11 +11,6 @@ namespace CSharpTest
 		public const short Port = 12000;
 	}
 
-	internal class Protocols
-	{
-
-	}
-
 	public enum Protocol : Int32
 	{
 		NONE = 0,
