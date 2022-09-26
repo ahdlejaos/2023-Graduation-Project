@@ -77,9 +77,12 @@ public:
 		}
 
 		std::cout << "소켓 풀을 구축하는 중... (" << socketsPool.size() << "개)\n";
+		ULONG_PTR id = static_cast<ULONG_PTR>(srv::USERS_ID_BEGIN);
 		for (SOCKET& place : socketsPool)
 		{
 			place = srv::CreateSocket();
+			
+			Link(place, id);
 		}
 	}
 

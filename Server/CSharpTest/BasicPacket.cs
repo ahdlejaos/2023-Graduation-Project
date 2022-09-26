@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CSharpTest
 {
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 1, Size = 8)]
 	internal class BasicPacket
 	{
 		public Protocol myProtocol;

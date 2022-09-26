@@ -7,7 +7,10 @@ namespace srv
 	public:
 		constexpr Asynchron(const Operations& service)
 			: Asynchron(service, {})
-		{}
+		{
+			myBuffer.buf = myData;
+			myBuffer.len = 0;
+		}
 
 		constexpr Asynchron(const Operations& service, const WSABUF& wbuffer)
 			: myOperation(service)
@@ -70,8 +73,6 @@ namespace srv
 		{
 			if (myBuffer.buf)
 			{
-				delete[myBuffer.len] myBuffer.buf;
-
 				myBuffer.buf = nullptr;
 				myBuffer.len = 0;
 			}
@@ -80,6 +81,8 @@ namespace srv
 		inline void Clear() noexcept
 		{
 			ZeroMemory(this, sizeof(WSAOVERLAPPED));
+			ZeroMemory(myData, BUFSIZ);
+			myBuffer.len = 0;
 		}
 
 		inline constexpr WSABUF& GetBuffer() noexcept

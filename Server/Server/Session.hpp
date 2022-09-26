@@ -63,7 +63,7 @@ namespace srv
 		/// </summary>
 		/// <param name="size">작업이 끝나고 받을 바이트의 총량</param>
 		/// <param name="bytes">수신받은 바이트의 수</param>
-		inline std::optional<BasisPacket*> Swallow(const unsigned size, _In_ const unsigned bytes)
+		inline std::optional<BasisPacket*> Swallow(const unsigned fullsize, _In_ const unsigned bytes)
 		{
 			Acquire();
 
@@ -81,13 +81,14 @@ namespace srv
 
 			if (min_size <= myRecvSize)
 			{
-				// 받은 버퍼를 패킷으로 해석
 				const auto& pk_proto = reinterpret_cast<BasisPacket*>(cbuffer);
 				const auto& pk_size = pk_proto->GetSize();
 
+				// 받은 버퍼를 패킷으로 해석
 				if (pk_size <= myRecvSize)
 				{
-					result = pk_proto;
+					std::copy(cbuffer, cbuffer + pk_size, myLastPacket);
+					result = reinterpret_cast<BasisPacket*>(myLastPacket);
 
 					myRecvSize -= pk_size;
 				}
@@ -102,7 +103,7 @@ namespace srv
 			}
 
 			// 나머지 패킷을 수신
-			const int op = Recv(size, myRecvSize);
+			const int op = Recv(fullsize, myRecvSize);
 
 			if (CheckError(op)) [[unlikely]] {
 				if (!CheckPending(op)) [[unlikely]] {
@@ -119,7 +120,7 @@ namespace srv
 		}
 
 		/// <summary>
-		/// 비동기 연결 해제를 요청합니다. 나중에 Cleanup()를 호출하도록 합니다.
+		/// 비동기 연결 해제를 요청합니다.나중에 Cleanup()를 호출하도록 합니다.
 		/// </summary>
 		inline void BeginDisconnect()
 		{

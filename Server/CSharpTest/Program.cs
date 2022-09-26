@@ -80,6 +80,8 @@ namespace CSharpTest
 				byte[] packet = new byte[256];
 
 				BasicPacket pk_login = new();
+				pk_login.myProtocol = Protocol.CS_SIGNIN;
+				pk_login.mySize = Marshal.SizeOf(pk_login);
 
 				var sent_login = program.SendPacket(pk_login);
 				if (sent_login is not null && sent_login.IsCompleted)

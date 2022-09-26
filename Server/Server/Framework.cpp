@@ -239,7 +239,6 @@ void Framework::RouteFailed(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 		case srv::Operations::DISPOSE:
 		{
 			std::cout << "연결 끊기 작업 실패: " << key << "\n";
-			ProceedDispose(context, key);
 		}
 		break;
 
@@ -404,7 +403,8 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 					case srv::SessionStates::ACCEPTED:
 					{
 						// 클라이언트의 접속 종료 (알리지 않고 조용히)
-						session->BeginDisconnect();
+						session->Disconnect();
+						myEntryPoint.Push(session->mySocket);
 						session->Release();
 					}
 					break;
@@ -510,8 +510,6 @@ void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 
 		numberUsers--;
 	}
-
-	delete context;
 }
 
 void Framework::ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key)
@@ -709,7 +707,7 @@ void Framework::BeginDisconnect(srv::Session* session)
 	session->BeginDisconnect();
 	session->Release();
 
-	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수" << numberUsers << "명)\n";
+	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수: " << numberUsers << "명)\n";
 }
 
 int Framework::SendTo(srv::Session* session, void* const data, const std::unsigned_integral auto size)
