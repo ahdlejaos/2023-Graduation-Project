@@ -63,11 +63,11 @@ namespace srv
 		/// </summary>
 		/// <param name="size">작업이 끝나고 받을 바이트의 총량</param>
 		/// <param name="bytes">수신받은 바이트의 수</param>
-		inline std::optional<BasisPacket*> Swallow(const unsigned fullsize, _In_ const unsigned bytes)
+		inline std::optional<BasicPacket*> Swallow(const unsigned fullsize, _In_ const unsigned bytes)
 		{
 			Acquire();
 
-			std::optional<BasisPacket*> result{};
+			std::optional<BasicPacket*> result{};
 
 			auto& wbuffer = myReceiver.myBuffer;
 			auto& cbuffer = wbuffer.buf;
@@ -77,18 +77,18 @@ namespace srv
 			myRecvSize += bytes;
 
 			// 패킷 조립
-			constexpr unsigned min_size = sizeof(BasisPacket);
+			constexpr unsigned min_size = sizeof(BasicPacket);
 
 			if (min_size <= myRecvSize)
 			{
-				const auto& pk_proto = reinterpret_cast<BasisPacket*>(cbuffer);
+				const auto& pk_proto = reinterpret_cast<BasicPacket*>(cbuffer);
 				const auto& pk_size = pk_proto->GetSize();
 
 				// 받은 버퍼를 패킷으로 해석
 				if (pk_size <= myRecvSize)
 				{
 					std::copy(cbuffer, cbuffer + pk_size, myLastPacket);
-					result = reinterpret_cast<BasisPacket*>(myLastPacket);
+					result = reinterpret_cast<BasicPacket*>(myLastPacket);
 
 					myRecvSize -= pk_size;
 				}

@@ -3,14 +3,19 @@
 
 namespace srv
 {
-	class BasisPacket
+#pragma pack(push, 1)
+	struct BasicPacket
 	{
 	public:
-		constexpr BasisPacket(const Protocol type, const std::uint32_t size)
+		constexpr BasicPacket()
+			: myProtocol(), mySize(sizeof(BasicPacket))
+		{}
+
+		constexpr BasicPacket(const Protocol type, const short size)
 			: myProtocol(type), mySize(size)
 		{}
 
-		constexpr virtual ~BasisPacket()
+		constexpr virtual ~BasicPacket()
 		{}
 
 		inline constexpr const auto& GetProtocol() const noexcept
@@ -25,6 +30,7 @@ namespace srv
 
 	protected:
 		const Protocol myProtocol;
-		const std::uint32_t mySize;
+		const short mySize;
 	};
+#pragma pack(pop)
 }

@@ -1,6 +1,7 @@
 namespace srv
 {
-	enum class Protocol : std::uint32_t
+#pragma pack(push, 1)
+	enum class Protocol : short
 	{
 		NONE = 0,
 
@@ -57,4 +58,5 @@ namespace srv
 
 		SC_CHAT, // 메시지 (시스템 알림, 방 대화, 대기실 대화, 1:1대화 등)
 	};
+#pragma pack(pop)
 }

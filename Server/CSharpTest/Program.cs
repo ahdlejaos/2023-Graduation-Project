@@ -81,7 +81,7 @@ namespace CSharpTest
 
 				BasicPacket pk_login = new();
 				pk_login.myProtocol = Protocol.CS_SIGNIN;
-				pk_login.mySize = Marshal.SizeOf(pk_login);
+				pk_login.mySize = Marshal.SizeOf(typeof(BasicPacket));
 
 				var sent_login = program.SendPacket(pk_login);
 				if (sent_login is not null && sent_login.IsCompleted)

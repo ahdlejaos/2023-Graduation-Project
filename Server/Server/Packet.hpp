@@ -7,7 +7,7 @@ namespace srv
 #pragma pack(push, 1)
 	template <class Derived>
 		requires std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
-	class Packet : public BasisPacket
+	class Packet : public BasicPacket
 	{
 	protected:
 		[[nodiscard]] constexpr Derived& Cast() noexcept
@@ -24,7 +24,7 @@ namespace srv
 
 	public:
 		constexpr Packet(const Protocol type, const std::uint32_t size)
-			: BasisPacket(type, size)
+			: BasicPacket(type, size)
 		{}
 
 		constexpr Packet(Protocol type)
