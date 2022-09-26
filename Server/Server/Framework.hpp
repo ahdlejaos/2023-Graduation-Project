@@ -1,5 +1,4 @@
 #pragma once
-#include "AsyncPoolService.hpp"
 #include "ConnectService.hpp"
 #include "DatabaseService.hpp"
 #include "DatabaseQuery.hpp"
@@ -70,7 +69,7 @@ public:
 	void ProceedDispose(srv::Asynchron* context, ULONG_PTR key);
 	void ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key);
 
-	friend void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
+	friend void Worker(std::stop_source& stopper, Framework& me, ConnectService& pool);
 	friend void TimerWorker(std::stop_source& stopper, Framework& me);
 	friend void DBaseWorker(std::stop_source& stopper, Framework& me);
 
@@ -113,7 +112,6 @@ private:
 	ULONG_PTR myID;
 
 	ConnectService myEntryPoint;
-	AsyncPoolService myAsyncProvider;
 	DatabaseService myDatabaseService;
 
 	unsigned int concurrentsNumber;

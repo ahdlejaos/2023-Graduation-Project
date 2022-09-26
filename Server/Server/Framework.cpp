@@ -5,14 +5,13 @@
 #include "PlayingSession.hpp"
 #include "Packet.hpp"
 
-void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool);
+void Worker(std::stop_source& stopper, Framework& me, ConnectService& pool);
 void TimerWorker(std::stop_source& stopper, Framework& me);
 void DBaseWorker(std::stop_source& stopper, Framework& me);
 
 Framework::Framework(unsigned int concurrent_hint)
 	: myID(srv::SERVER_ID)
-	, myEntryPoint(), myAsyncProvider()
-	, myDatabaseService()
+	, myEntryPoint(), myDatabaseService()
 	, concurrentsNumber(concurrent_hint), concurrentWatcher(concurrent_hint)
 	, myWorkers(), workersBreaker()
 	, concurrentOutputLock()
@@ -73,8 +72,7 @@ void Framework::Awake(unsigned short port_tcp)
 		srv::RaiseSystemError(std::errc::not_connected);
 	}
 
-	myAsyncProvider.Awake(concurrentsNumber);
-	myEntryPoint.Awake(port_tcp);
+	myEntryPoint.Awake(concurrentsNumber, port_tcp);
 
 	Println("자원을 불러오는 중...");
 
@@ -88,8 +86,7 @@ void Framework::Start()
 {
 	Println("서버를 시작하는 중...");
 
-	myAsyncProvider.Link(myEntryPoint.serverSocket, myID);
-	myEntryPoint.Start();
+	myEntryPoint.Start(myID);
 
 	auto stopper = std::ref(workersBreaker);
 	auto me = std::ref(*this);
@@ -97,7 +94,7 @@ void Framework::Start()
 	Println("주 작업 스레드를 시동하는 중...");
 	for (unsigned i = 0; i < concurrentsNumber; i++)
 	{
-		auto& th = myWorkers.emplace_back(Worker, stopper, me, std::ref(myAsyncProvider));
+		auto& th = myWorkers.emplace_back(Worker, stopper, me, std::ref(myEntryPoint));
 	}
 
 	Println(std::right, " (주 작업 스레드의 수: ", concurrentsNumber, "개)");
@@ -528,7 +525,7 @@ void Framework::ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key)
 	BeginDisconnect(session);
 }
 
-void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
+void Worker(std::stop_source& stopper, Framework& me, ConnectService& svc)
 {
 	auto token = stopper.get_token();
 	DWORD bytes = 0;
@@ -541,7 +538,7 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 	while (true)
 	{
-		result = pool.Async(std::addressof(bytes), std::addressof(key), std::addressof(overlap));
+		result = svc.Async(std::addressof(bytes), std::addressof(key), std::addressof(overlap));
 
 		if (token.stop_requested()) [[unlikely]] {
 			break;
