@@ -123,8 +123,11 @@ namespace srv
 		/// </summary>
 		inline void BeginDisconnect()
 		{
-			DisconnectEx(mySocket, &myDisconnector, 0, 0);
-			BeginCleanup();
+			if (SessionStates::NONE != myState)
+			{
+				DisconnectEx(mySocket, &myDisconnector, 0, 0);
+				BeginCleanup();
+			}
 		}
 
 		/// <summary>
@@ -132,8 +135,11 @@ namespace srv
 		/// </summary>
 		inline void Disconnect()
 		{
-			DisconnectEx(mySocket, nullptr, 0, 0);
-			Cleanup();
+			if (SessionStates::NONE != myState)
+			{
+				DisconnectEx(mySocket, nullptr, 0, 0);
+				Cleanup();
+			}
 		}
 
 		/// <summary>
@@ -199,8 +205,8 @@ namespace srv
 		/// <returns>WSARecv의 결과값</returns>
 		inline int Recv(unsigned size, const std::integral auto additional_offsets)
 		{
-			auto& wbuffer = myReceiver.myBuffer;
-			wbuffer.buf = myRecvBuffer + additional_offsets;
+			auto& wbuffer = myReceiver.GetBuffer();
+			wbuffer.buf = myReceiver.myData + additional_offsets;
 			wbuffer.len = static_cast<unsigned long>(size - additional_offsets);
 
 			return myReceiver.Recv(mySocket, nullptr, 0);
@@ -221,9 +227,9 @@ namespace srv
 
 		inline constexpr void ClearRecvBuffer(unsigned begin_offset = 0)
 		{
-			auto& wbuffer = myReceiver.myBuffer;
+			auto& wcbuffer = myReceiver.myBuffer.buf;
 
-			std::fill(std::begin(wbuffer) + begin_offset, std::end(wbuffer), 0);
+			std::fill(wcbuffer + begin_offset, wcbuffer + BUFSIZ, 0);
 		}
 
 		/// <summary>

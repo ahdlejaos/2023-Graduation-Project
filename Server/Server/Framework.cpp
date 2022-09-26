@@ -20,7 +20,6 @@ Framework::Framework(unsigned int concurrent_hint)
 	, databaseWorker(nullptr)
 	, everyRooms(), everySessions(), lobbySessions()
 	, numberRooms(0), numberUsers(0)
-	, userDisconnector(srv::Operations::DISPOSE)
 	, lastPacketType(srv::Protocol::NONE)
 	, login_succeed(), login_failure(), cached_pk_server_info(0, srv::MAX_USERS, srv::GAME_VERSION)
 {
@@ -269,18 +268,19 @@ void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
 {
-	auto& wbuffer = context->GetBuffer();
-	auto& buffer = wbuffer.buf;
-	auto& buffer_length = wbuffer.len;
-
 	const auto place = static_cast<const std::size_t>(key);
 	auto session = GetSession(place);
 	if (!session) [[unlikely]] {
 		std::cout << "수신부에서 잘못된 세션을 참조함! (키: " << key << ")\n";
+		return;
 	};
 
-	if (0 == bytes) [[unlikely]] // 연결 끊김은 이미 GetQueueCompletionStatus에서 거른다
+	if (0 == bytes) [[unlikely]]
 	{
+		auto& wbuffer = context->GetBuffer();
+		auto& buffer = wbuffer.buf;
+		auto& buffer_length = wbuffer.len;
+
 		if (!session->isFirstCommunication.load(std::memory_order_relaxed)) [[likely]] {
 			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 
