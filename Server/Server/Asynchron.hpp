@@ -51,14 +51,19 @@ namespace srv
 			myBuffer.len = static_cast<ULONG>(length);
 		}
 
-		inline int Send(SOCKET target, LPDWORD bytes, DWORD flags)
+		inline int Send(const SOCKET target, LPDWORD bytes, DWORD flags)
 		{
 			return WSASend(target, &myBuffer, 1, bytes, flags, this, nullptr);
 		}
 
-		inline int Recv(SOCKET target, LPDWORD bytes, DWORD flags)
+		inline int Recv(const SOCKET target, LPDWORD bytes, DWORD flags)
 		{
 			return WSARecv(target, &myBuffer, 1, bytes, &flags, this, nullptr);
+		}
+
+		inline int Recv(const SOCKET target)
+		{
+			return Recv(target, nullptr, 0);
 		}
 
 		inline void Release() noexcept

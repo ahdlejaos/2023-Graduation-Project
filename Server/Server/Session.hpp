@@ -14,7 +14,7 @@ namespace srv
 			: myAuthority(), dbService(db_service)
 			, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
 			, isFirstCommunication(false)
-			, myReceiver(Operations::RECV), myRecvBuffer(), myRecvSize()
+			, myReceiver(Operations::RECV), myRecvSize()
 			, myLastPacket()
 			, myDisconnector(Operations::DISPOSE)
 		{}
@@ -188,8 +188,6 @@ namespace srv
 		/// <returns>WSARecv의 결과값</returns>
 		inline int BeginRecv()
 		{
-			myReceiver.SetBuffer(myRecvBuffer, 0); // Page 락을 줄이기 위해 맨 처음에 0으로 받음
-
 			return myReceiver.Recv(mySocket, nullptr, 0);
 		}
 
@@ -216,7 +214,6 @@ namespace srv
 		inline int Recv(unsigned size)
 		{
 			auto& wbuffer = myReceiver.myBuffer;
-			wbuffer.buf = myRecvBuffer;
 			wbuffer.len = static_cast<unsigned long>(size);
 
 			return myReceiver.Recv(mySocket, nullptr, 0);
@@ -224,7 +221,9 @@ namespace srv
 
 		inline constexpr void ClearRecvBuffer(unsigned begin_offset = 0)
 		{
-			std::fill(std::begin(myRecvBuffer) + begin_offset, std::end(myRecvBuffer), 0);
+			auto& wbuffer = myReceiver.myBuffer;
+
+			std::fill(std::begin(wbuffer) + begin_offset, std::end(wbuffer), 0);
 		}
 
 		/// <summary>
@@ -379,7 +378,6 @@ namespace srv
 
 		atomic<bool> isFirstCommunication;
 		Asynchron myReceiver;
-		char myRecvBuffer[BUFSIZ];
 		unsigned myRecvSize;
 		char myLastPacket[200];
 
