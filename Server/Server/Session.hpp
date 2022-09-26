@@ -14,7 +14,7 @@ namespace srv
 			: myAuthority(), dbService(db_service)
 			, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
 			, isFirstCommunication(false)
-			, myReceiver(nullptr), myRecvBuffer(), myRecvSize()
+			, myReceiver(Operations::RECV), myRecvBuffer(), myRecvSize()
 			, myLastPacket()
 		{}
 
@@ -68,7 +68,7 @@ namespace srv
 
 			std::optional<BasisPacket*> result{};
 
-			auto& wbuffer = myReceiver->myBuffer;
+			auto& wbuffer = myReceiver.myBuffer;
 			auto& cbuffer = wbuffer.buf;
 			auto& cbuffer_length = wbuffer.len;
 
@@ -177,10 +177,9 @@ namespace srv
 		/// <returns>WSARecv의 결과값</returns>
 		inline int BeginRecv()
 		{
-			myReceiver = make_shared<Asynchron>(Operations::RECV);
-			myReceiver->SetBuffer(myRecvBuffer, 0); // Page 락을 줄이기 위해 맨 처음에 0으로 받음
+			myReceiver.SetBuffer(myRecvBuffer, 0); // Page 락을 줄이기 위해 맨 처음에 0으로 받음
 
-			return myReceiver->Recv(mySocket, nullptr, 0);
+			return myReceiver.Recv(mySocket, nullptr, 0);
 		}
 
 		/// <summary>
@@ -191,11 +190,11 @@ namespace srv
 		/// <returns>WSARecv의 결과값</returns>
 		inline int Recv(unsigned size, const std::integral auto additional_offsets)
 		{
-			auto& wbuffer = myReceiver->myBuffer;
+			auto& wbuffer = myReceiver.myBuffer;
 			wbuffer.buf = myRecvBuffer + additional_offsets;
 			wbuffer.len = static_cast<unsigned long>(size - additional_offsets);
 
-			return myReceiver->Recv(mySocket, nullptr, 0);
+			return myReceiver.Recv(mySocket, nullptr, 0);
 		}
 
 		/// <summary>
@@ -205,11 +204,11 @@ namespace srv
 		/// <returns>WSARecv의 결과값</returns>
 		inline int Recv(unsigned size)
 		{
-			auto& wbuffer = myReceiver->myBuffer;
+			auto& wbuffer = myReceiver.myBuffer;
 			wbuffer.buf = myRecvBuffer;
 			wbuffer.len = static_cast<unsigned long>(size);
 
-			return myReceiver->Recv(mySocket, nullptr, 0);
+			return myReceiver.Recv(mySocket, nullptr, 0);
 		}
 
 		inline constexpr void ClearRecvBuffer(unsigned begin_offset = 0)
@@ -368,7 +367,7 @@ namespace srv
 		atomic<shared_ptr<Room>> myRoom;
 
 		atomic<bool> isFirstCommunication;
-		shared_ptr<Asynchron> myReceiver;
+		Asynchron myReceiver;
 		char myRecvBuffer[BUFSIZ];
 		unsigned myRecvSize;
 		char myLastPacket[200];

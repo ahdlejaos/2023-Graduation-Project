@@ -66,6 +66,16 @@ namespace srv
 			ZeroMemory(this, sizeof(WSAOVERLAPPED));
 		}
 
+		inline constexpr WSABUF& GetBuffer() noexcept
+		{
+			return myBuffer;
+		}
+
+		inline constexpr const WSABUF& GetBuffer() const noexcept
+		{
+			return myBuffer;
+		}
+
 		const Operations myOperation;
 		WSABUF myBuffer;
 	};

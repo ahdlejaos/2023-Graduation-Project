@@ -268,7 +268,7 @@ void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
 {
-	auto& wbuffer = context->myBuffer;
+	auto& wbuffer = context->GetBuffer();
 	auto& buffer = wbuffer.buf;
 	auto& buffer_length = wbuffer.len;
 
@@ -280,7 +280,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 
 	if (0 == bytes) [[unlikely]] // 연결 끊김은 이미 GetQueueCompletionStatus에서 거른다
 	{
-		if (!session->isFirstCommunication) [[likely]] {
+		if (!session->isFirstCommunication.load(std::memory_order_relaxed)) [[likely]] {
 			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
 
 			BeginDisconnect(session);
