@@ -167,6 +167,7 @@
     <ClCompile Include="AsyncPoolService.cpp" />
     <ClCompile Include="Asynchron.cpp" />
     <ClCompile Include="BasicDatabaseJob.cpp" />
+    <ClCompile Include="BasicPacket.cpp" />
     <ClCompile Include="ConnectService.cpp" />
     <ClCompile Include="DatabaseJob.cpp" />
     <ClCompile Include="DatabaseQuery.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="AsyncPoolService.hpp" />
     <ClInclude Include="Asynchron.hpp" />
     <ClInclude Include="BasicDatabaseJob.hpp" />
+    <ClInclude Include="BasicPacket.hpp" />
     <ClInclude Include="ConnectService.hpp" />
     <ClInclude Include="DatabaseJob.hpp" />
     <ClInclude Include="DatabaseQuery.hpp" />

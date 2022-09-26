@@ -2,30 +2,8 @@
 
 namespace srv
 {
-	class BasisPacket
-	{
-	public:
-		constexpr BasisPacket(const Protocol type, const std::uint32_t size)
-			: myProtocol(type), mySize(size)
-		{}
+#pragma pack(push, 1)
 
-		constexpr virtual ~BasisPacket()
-		{}
-
-		inline constexpr const auto& GetProtocol() const noexcept
-		{
-			return myProtocol;
-		}
-
-		inline constexpr const auto& GetSize() const noexcept
-		{
-			return mySize;
-		}
-
-	protected:
-		const Protocol myProtocol;
-		const std::uint32_t mySize;
-	};
 
 	template <class Derived>
 		requires std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
@@ -66,6 +44,7 @@ namespace srv
 		template<typename... Args>
 		friend Derived CreateLocalPacket(Args&&... _Args);
 	};
+#pragma pack(pop)
 
 	template <class Pk>
 	concept packets = std::is_class_v<Pk> && std::derived_from<Pk, Packet<Pk>>;
