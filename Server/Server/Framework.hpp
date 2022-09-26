@@ -62,7 +62,8 @@ public:
 	void DBFindPlayer(const PID id);
 	void DBUpdatePlayer(UserBlob data);
 
-	void Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
+	void RouteSucceed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
+	void RouteFailed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedAccept(srv::Asynchron* context);
 	void ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);

@@ -160,7 +160,9 @@ namespace srv
 			AssignID(0);
 			AssignSocket(NULL);
 
+			myReceiver.Clear();
 			myRecvSize = 0;
+			myDisconnector.Clear();
 		}
 
 		/// <summary>

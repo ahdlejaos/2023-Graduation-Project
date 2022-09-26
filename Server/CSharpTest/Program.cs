@@ -93,6 +93,8 @@ namespace CSharpTest
 				}
 			}
 
+			var recv = program.BeginReceive();
+
 			while (true)
 			{
 				if (program.userLoginned)
@@ -109,13 +111,6 @@ namespace CSharpTest
 			userPassword = new("");
 		}
 
-		public void OnDestroy()
-		{
-			if (tcpClient is not null && tcpClient.Connected)
-			{
-				tcpClient.Close();
-			}
-		}
 		public bool Connect()
 		{
 			Console.WriteLine("서버 접속 중...");
@@ -129,8 +124,6 @@ namespace CSharpTest
 			if (myClient is not null && myClient.Connected)
 			{
 				Console.WriteLine("서버 접속 성공함.");
-
-				ReceiveForSelf(0, BUFFSIZE);
 			}
 			else
 			{
@@ -139,6 +132,37 @@ namespace CSharpTest
 			}
 
 			return true;
+		}
+
+		public IAsyncResult BeginReceive()
+		{
+			return ReceiveForSelf(0, BUFFSIZE);
+		}
+		private IAsyncResult ReceiveForSelf(int offset, int size)
+		{
+			return myClient.BeginReceive(recvBuffer, offset, size, SocketFlags.None, OnReceive, null);
+		}
+		//public IAsyncResult SendBuffer(in byte[] buffer)
+		public IAsyncResult SendBuffer(in byte[] buffer)
+		{
+			return myClient.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, OnSend, null);
+		}
+		public IAsyncResult SendPacket<T>(in T packet) where T : BasicPacket
+		{
+			var buffer = Parser.ParseBytes(packet);
+
+			if (buffer is not null)
+			{
+				return SendBuffer(buffer);
+			}
+			else
+			{
+				throw new ContextMarshalException("패킷 변환 오류!");
+			}
+		}
+		public IAsyncResult SendPacketFromByte(in byte[] data)
+		{
+			return myClient.BeginSend(data, 0, data.Length, SocketFlags.None, OnSend, null);
 		}
 
 		private void OnSend(IAsyncResult result)
@@ -166,30 +190,6 @@ namespace CSharpTest
 
 			}
 		}
-		//public IAsyncResult SendBuffer(in byte[] buffer)
-		public int SendBuffer(in byte[] buffer)
-		{
-			return myClient.Send(buffer, 0, buffer.Length, SocketFlags.None);
-			//return myClient.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, OnSend, null);
-		}
-		public IAsyncResult SendPacket<T>(in T packet) where T : BasicPacket
-		{
-			var buffer = Parser.ParseBytes(packet);
-
-			if (buffer is not null)
-			{
-				SendBuffer(buffer);
-				return null;
-			}
-			else
-			{
-				throw new ContextMarshalException("패킷 변환 오류!");
-			}
-		}
-		public IAsyncResult SendPacketFromByte(in byte[] data)
-		{
-			return myClient.BeginSend(data, 0, data.Length, SocketFlags.None, OnSend, null);
-		}
 		private void OnReceive(IAsyncResult result)
 		{
 			if (myClient is null || !myClient.Connected)
@@ -208,24 +208,51 @@ namespace CSharpTest
 			//if (result.IsCompleted)
 			if (0 < byte_recv)
 			{
-				if (BitConverter.IsLittleEndian)
-				{
-					Array.Reverse(recvBuffer[(tcpReceived)..(tcpReceived + byte_recv)]);
-				}
-
 				tcpReceived += byte_recv;
 
-				if (4 <= tcpReceived)
+				var sz_prot = sizeof(Protocol);
+				var sz_size = sizeof(Int32);
+
+				var ptr_prot = 0;
+				var ptr_end_prot = sz_prot;
+				var ptr_size = sz_prot;
+				var ptr_end_size = sz_prot + sz_size;
+
+				if (sz_prot <= tcpReceived)
 				{
-					var packet = Filter();
+					var cb = recvBuffer.AsSpan();
+					
+					var packet_type = (Protocol)(BitConverter.ToInt32(cb[ptr_prot..ptr_end_prot]));
 
-					if (packet is not null)
+					if (sz_prot + sz_size <= tcpReceived)
 					{
+						var pk_size = BitConverter.ToInt32(cb[ptr_size..ptr_end_size]);
+						var cb_size = pk_size + sz_prot + sz_size;
 
+						if (cb_size <= tcpReceived)
+						{
+							if (BUFFSIZE <= pk_size)
+							{
+								Console.WriteLine("이상한 패킷을 받음!");
+								return;
+							}
+
+							// 패킷 처리
+							Console.WriteLine("패킷을 받음: " + packet_type.ToString());
+
+							tcpReceived -= cb_size;
+
+							ShiftLeft(recvBuffer, cb_size);
+						}
+						else
+						{
+							var lack = cb_size - tcpReceived;
+							Console.WriteLine("TCP 소켓으로부터 받은 바이트가 " + lack + "만큼 부족함.");
+						}
 					}
 					else
 					{
-
+						Console.WriteLine("TCP 소켓으로부터 받은 바이트가 부족함.");
 					}
 				}
 				else
@@ -240,54 +267,12 @@ namespace CSharpTest
 
 			ReceiveForSelf(tcpReceived, BUFFSIZE - tcpReceived);
 		}
-		private IAsyncResult ReceiveForSelf(int offset, int size)
+		public void OnDestroy()
 		{
-			return myClient.BeginReceive(recvBuffer, offset, size, SocketFlags.None, OnReceive, null);
-		}
-		private BasicPacket? Filter()
-		{
-			BasicPacket? result = null;
-
-			var buffer = recvBuffer.AsSpan<byte>();
-			var temp_type = BitConverter.ToInt32(buffer[0..4]);
-			var packet_type = (Protocol)(temp_type);
-
-			if (8 <= tcpReceived)
+			if (tcpClient is not null && tcpClient.Connected)
 			{
-				var packet_size = BitConverter.ToInt32(buffer[4..8]);
-
-				if (packet_size <= tcpReceived)
-				{
-					if (BUFFSIZE <= packet_size)
-					{
-						Console.WriteLine("이상한 패킷을 받음!");
-					}
-
-					// 패킷 처리
-					Console.WriteLine("패킷을 받음: " + packet_type.ToString());
-
-					result = new()
-					{
-						myProtocol = packet_type,
-						mySize = packet_size
-					};
-
-					tcpReceived -= packet_size;
-
-					ShiftLeft(recvBuffer, packet_size);
-				}
-				else
-				{
-					var lack = packet_size - tcpReceived;
-					Console.WriteLine("TCP 소켓으로부터 받은 바이트가 " + lack + "만큼 부족함.");
-				}
+				tcpClient.Close();
 			}
-			else
-			{
-				Console.WriteLine("TCP 소켓으로부터 받은 바이트가 부족함.");
-			}
-
-			return result;
 		}
 
 		public static void ShiftLeft(Span<byte> lst, int shifts)

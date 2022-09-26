@@ -109,8 +109,6 @@ void Framework::Start()
 	auto& db_thread = myWorkers.emplace_back(DBaseWorker, stopper, me);
 
 	Println("서버 시작됨!");
-
-	DBFindPlayer(100);
 }
 
 void Framework::Update()
@@ -169,7 +167,7 @@ void Framework::DBFindPlayer(const PID id)
 	//auto sqlcode = query.Fetch();
 }
 
-void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+void Framework::RouteSucceed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
 {
 	const auto operation = context->myOperation;
 
@@ -195,6 +193,55 @@ void Framework::Route(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
 
 		case srv::Operations::DISPOSE:
 		{
+			ProceedDispose(context, key);
+		}
+		break;
+
+		default:
+		{
+
+		}
+		break;
+	}
+}
+
+void Framework::RouteFailed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+{
+	const auto operation = context->myOperation;
+
+	switch (operation)
+	{
+		case srv::Operations::ACCEPT:
+		{
+			ProceedBeginDiconnect(context, key);
+		}
+		break;
+
+		case srv::Operations::SEND:
+		{
+			std::cout << "수신 작업 실패: " << key << "\n";
+			if (0 == bytes)
+			{
+				std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
+			}
+		}
+		break;
+
+		case srv::Operations::RECV:
+		{
+			std::cout << "송신 작업 실패: " << key << "\n";
+			if (0 == bytes)
+			{
+				std::cout << "송신 오류 발생: 받는 바이트 수가 0임.\n";
+			}
+
+			ProceedBeginDiconnect(context, key);
+		}
+		break;
+
+		case srv::Operations::DISPOSE:
+		{
+			std::cout << "연결 끊기 작업 실패: " << key << "\n";
 			ProceedDispose(context, key);
 		}
 		break;
@@ -275,209 +322,177 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 		return;
 	};
 
-	if (0 == bytes) [[unlikely]]
+	// 패킷 처리
+	const auto result = session->Swallow(BUFSIZ, bytes);
+
+	if (result)
 	{
-		auto& wbuffer = context->GetBuffer();
-		auto& buffer = wbuffer.buf;
-		auto& buffer_length = wbuffer.len;
+		session->Acquire();
 
-		if (!session->isFirstCommunication.load(std::memory_order_relaxed)) [[likely]] {
-			std::cout << "수신 오류 발생: 보내는 바이트 수가 0임.\n";
+		const auto& packet = result.value();
+		const auto& pk_type = packet->GetProtocol();
 
-			BeginDisconnect(session);
-		}
-		else
+		switch (pk_type)
 		{
-			session->Acquire();
-
-			session->SetReceiveVirgin(false); // Page lock 해제
-
-			const auto result = session->Recv(BUFSIZ); // 실질적인 첫번째 수신
-			if (srv::CheckError(result))
+			// 로그인
+			case srv::Protocol::CS_SIGNIN:
 			{
-				const int error = WSAGetLastError();
-				if (!srv::CheckPending(error)) [[unlikely]] {
-					std::cout << "첫 수신에서 오류 발생! (ID: " << key << ")\n";
+				const auto real_pk = reinterpret_cast<srv::CSPacketSignIn*>(packet);
+
+				const auto& user_id = real_pk->userAccount;
+				const auto& user_pw = real_pk->userPN;
+
+				if (lstrlen(user_id) < 4)
+				{
+					// 로그인 무조건 실패!
+					login_failure.cause = srv::SIGNIN_CAUSE::FAILURE_WRONG_SINGIN_INFOS;
+
+					SendLoginResult(session.get(), login_failure);
+				}
+				else
+				{
+					// 로그인 성공 여부 검증
+					SendLoginResult(session.get(), login_succeed);
 				}
 			}
+			break;
 
-			session->Release();
-		}
-	}
-	else
-	{
-		// 패킷 처리
-		const auto result = session->Swallow(BUFSIZ, bytes);
-
-		if (result)
-		{
-			session->Acquire();
-
-			const auto& packet = result.value();
-			const auto& pk_type = packet->GetProtocol();
-
-			switch (pk_type)
+			// 로그아웃
+			case srv::Protocol::CS_SIGNOUT:
 			{
-				// 로그인
-				case srv::Protocol::CS_SIGNIN:
-				{
-					const auto real_pk = reinterpret_cast<srv::CSPacketSignIn*>(packet);
-
-					const auto& user_id = real_pk->userAccount;
-					const auto& user_pw = real_pk->userPN;
-
-					if (lstrlen(user_id) < 4)
-					{
-						// 로그인 무조건 실패!
-						login_failure.cause = srv::SIGNIN_CAUSE::FAILURE_WRONG_SINGIN_INFOS;
-
-						SendLoginResult(session.get(), login_failure);
-					}
-					else
-					{
-						// 로그인 성공 여부 검증
-						SendLoginResult(session.get(), login_succeed);
-					}
-				}
-				break;
-
-				// 로그아웃
-				case srv::Protocol::CS_SIGNOUT:
-				{
-					//const auto real_pk = reinterpret_cast<srv::CSPacketSignUp *>(packet);
-				}
-				break;
-
-				// 회원 가입
-				case srv::Protocol::CS_SIGNUP:
-				{
-					const auto real_pk = reinterpret_cast<srv::CSPacketSignUp*>(packet);
-				}
-				break;
-
-				// 범용 종료
-				case srv::Protocol::CS_DISPOSE:
-				{
-					auto session_state = session->myState.load(std::memory_order_acquire);
-
-					switch (session_state)
-					{
-						case srv::SessionStates::ROOM_INGAME:
-						{
-						}
-						break;
-
-						case srv::SessionStates::ROOM_COMPLETE:
-						{
-						}
-						break;
-
-						case srv::SessionStates::ROOM_LOBBY:
-						{
-						}
-						break;
-
-						case srv::SessionStates::ROOM_MAIN:
-						{
-						}
-						break;
-
-						case srv::SessionStates::CONNECTED:
-						{
-							// 클라이언트의 접속 종료 (알림)
-						}
-						break;
-
-						case srv::SessionStates::ACCEPTED:
-						{
-							// 클라이언트의 접속 종료 (알리지 않고 조용히)
-							session->BeginDisconnect();
-							session->Release();
-						}
-						break;
-
-						case srv::SessionStates::NONE:
-						{
-							// 오류!
-						}
-						break;
-					}
-
-					session->myState.store(session_state, std::memory_order_release);
-				}
-				break;
-
-				// 버전
-				case srv::Protocol::CS_REQUEST_VERSION:
-				{
-					// 패킷 정보는 필요없다.
-					auto users_number = numberUsers.load(std::memory_order_acq_rel);
-
-					// 유저 수 갱신
-					cached_pk_server_info.usersCount = users_number;
-
-					// 서버 상태 전송
-					auto [ticket, asynchron] = srv::CreateTicket(cached_pk_server_info);
-
-					session->BeginSend(asynchron);
-					session->Release();
-				}
-				break;
-
-				// 유저 목록
-				case srv::Protocol::CS_REQUEST_USERS:
-				{
-				}
-				break;
-
-				// 방 목록
-				case srv::Protocol::CS_REQUEST_ROOMS:
-				{
-				}
-				break;
-
-				// 대화 메시지
-				case srv::Protocol::CS_CHAT:
-				{
-				}
-				break;
-
-				// 방 생성
-				case srv::Protocol::CS_CREATE_A_ROOM:
-				{
-				}
-				break;
-
-				// 방 나감
-				case srv::Protocol::CS_LEAVE_A_ROOM:
-				{
-				}
-				break;
-
-				// 방폭 (방의 유저들은 방 나가기)
-				case srv::Protocol::CS_DESTROY_A_ROOM:
-				{
-				}
-				break;
-
-				// 방 선택 후 입장
-				case srv::Protocol::CS_PICK_A_ROOM:
-				{
-				}
-				break;
-
-				// 자동 방 매치
-				case srv::Protocol::CS_MATCH_A_ROOM:
-				{
-				}
-				break;
-
-				default:
-				{
-					session->Release();
-				}
-				break;
+				//const auto real_pk = reinterpret_cast<srv::CSPacketSignUp *>(packet);
 			}
+			break;
+
+			// 회원 가입
+			case srv::Protocol::CS_SIGNUP:
+			{
+				const auto real_pk = reinterpret_cast<srv::CSPacketSignUp*>(packet);
+			}
+			break;
+
+			// 범용 종료
+			case srv::Protocol::CS_DISPOSE:
+			{
+				auto session_state = session->myState.load(std::memory_order_acquire);
+
+				switch (session_state)
+				{
+					case srv::SessionStates::ROOM_INGAME:
+					{
+					}
+					break;
+
+					case srv::SessionStates::ROOM_COMPLETE:
+					{
+					}
+					break;
+
+					case srv::SessionStates::ROOM_LOBBY:
+					{
+					}
+					break;
+
+					case srv::SessionStates::ROOM_MAIN:
+					{
+					}
+					break;
+
+					case srv::SessionStates::CONNECTED:
+					{
+						// 클라이언트의 접속 종료 (알림)
+					}
+					break;
+
+					case srv::SessionStates::ACCEPTED:
+					{
+						// 클라이언트의 접속 종료 (알리지 않고 조용히)
+						session->BeginDisconnect();
+						session->Release();
+					}
+					break;
+
+					case srv::SessionStates::NONE:
+					{
+						// 오류!
+					}
+					break;
+				}
+
+				session->myState.store(session_state, std::memory_order_release);
+			}
+			break;
+
+			// 버전
+			case srv::Protocol::CS_REQUEST_VERSION:
+			{
+				// 패킷 정보는 필요없다.
+				auto users_number = numberUsers.load(std::memory_order_acq_rel);
+
+				// 유저 수 갱신
+				cached_pk_server_info.usersCount = users_number;
+
+				// 서버 상태 전송
+				auto [ticket, asynchron] = srv::CreateTicket(cached_pk_server_info);
+
+				session->BeginSend(asynchron);
+				session->Release();
+			}
+			break;
+
+			// 유저 목록
+			case srv::Protocol::CS_REQUEST_USERS:
+			{
+			}
+			break;
+
+			// 방 목록
+			case srv::Protocol::CS_REQUEST_ROOMS:
+			{
+			}
+			break;
+
+			// 대화 메시지
+			case srv::Protocol::CS_CHAT:
+			{
+			}
+			break;
+
+			// 방 생성
+			case srv::Protocol::CS_CREATE_A_ROOM:
+			{
+			}
+			break;
+
+			// 방 나감
+			case srv::Protocol::CS_LEAVE_A_ROOM:
+			{
+			}
+			break;
+
+			// 방폭 (방의 유저들은 방 나가기)
+			case srv::Protocol::CS_DESTROY_A_ROOM:
+			{
+			}
+			break;
+
+			// 방 선택 후 입장
+			case srv::Protocol::CS_PICK_A_ROOM:
+			{
+			}
+			break;
+
+			// 자동 방 매치
+			case srv::Protocol::CS_MATCH_A_ROOM:
+			{
+			}
+			break;
+
+			default:
+			{
+				session->Release();
+			}
+			break;
 		}
 	}
 }
@@ -492,6 +507,7 @@ void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 	else
 	{
 		session->Acquire();
+		myEntryPoint.Push(session->mySocket);
 		session->Cleanup();
 		session->Release();
 
@@ -533,11 +549,11 @@ void Worker(std::stop_source& stopper, Framework& me, AsyncPoolService& pool)
 
 		auto asynchron = static_cast<srv::Asynchron*>(overlap);
 		if (TRUE == result) [[likely]] {
-			me.Route(asynchron, key, static_cast<int>(bytes));
+			me.RouteSucceed(asynchron, key, static_cast<int>(bytes));
 		}
 		else
 		{
-			me.ProceedBeginDiconnect(asynchron, key);
+			me.RouteFailed(asynchron, key, static_cast<int>(bytes));
 		}
 	}
 
