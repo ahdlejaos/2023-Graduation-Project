@@ -131,7 +131,6 @@ private:
 	std::array<shared_ptr<srv::Session>, srv::MAX_USERS> lobbySessions;
 	atomic<unsigned> numberRooms;
 	atomic<unsigned> numberUsers;
-	srv::Asynchron userDisconnector;
 
 	atomic<PID> playerIDs;
 	srv::Protocol lastPacketType;

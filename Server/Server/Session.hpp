@@ -16,6 +16,7 @@ namespace srv
 			, isFirstCommunication(false)
 			, myReceiver(Operations::RECV), myRecvBuffer(), myRecvSize()
 			, myLastPacket()
+			, myDisconnector(Operations::DISPOSE)
 		{}
 
 	public:
@@ -122,7 +123,17 @@ namespace srv
 		/// </summary>
 		inline void BeginDisconnect()
 		{
-			DisconnectEx(mySocket, CreateAsynchron(Operations::DISPOSE), 0, 0);
+			DisconnectEx(mySocket, &myDisconnector, 0, 0);
+			BeginCleanup();
+		}
+
+		/// <summary>
+		/// 즉시 연결을 해제하고 Cleanup()을 호출합니다.
+		/// </summary>
+		inline void Disconnect()
+		{
+			DisconnectEx(mySocket, nullptr, 0, 0);
+			Cleanup();
 		}
 
 		/// <summary>
@@ -371,6 +382,8 @@ namespace srv
 		char myRecvBuffer[BUFSIZ];
 		unsigned myRecvSize;
 		char myLastPacket[200];
+
+		Asynchron myDisconnector;
 
 	protected:
 		DatabaseService& dbService;
