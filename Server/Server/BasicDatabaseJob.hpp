@@ -1,7 +1,8 @@
 #pragma once
 
 template<typename Ty>
-struct BasicDatabaseJob
+class BasicDatabaseJob
 {
+public:
 	shared_ptr<DatabaseQuery> query;
 };

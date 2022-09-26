@@ -11,13 +11,24 @@ namespace srv
 
 		constexpr Asynchron(const Operations& service, const WSABUF& wbuffer)
 			: myOperation(service)
-			, myBuffer(wbuffer)
-		{}
+			, myBuffer(wbuffer), myData()
+		{
+			myBuffer.buf = myData;
+			myBuffer.len = wbuffer.len;
+
+			//CopyMemory(wbuffer.buf, myData, wbuffer.len);
+			std::copy(wbuffer.buf, wbuffer.buf + wbuffer.len, std::ranges::begin(myData));
+		}
 
 		constexpr Asynchron(const Operations& service, WSABUF&& wbuffer)
 			: myOperation(service)
-			, myBuffer(std::forward<WSABUF>(wbuffer))
-		{}
+			, myBuffer(std::forward<WSABUF>(wbuffer)), myData()
+		{
+			myBuffer.buf = myData;
+			myBuffer.len = std::forward<ULONG>(wbuffer.len);
+
+			std::copy(wbuffer.buf, wbuffer.buf + wbuffer.len, std::ranges::begin(myData));
+		}
 
 		~Asynchron()
 		{
@@ -78,6 +89,7 @@ namespace srv
 
 		const Operations myOperation;
 		WSABUF myBuffer;
+		CHAR myData[BUFSIZ];
 	};
 
 	inline constexpr Asynchron* CreateAsynchron(const Operations& op)
