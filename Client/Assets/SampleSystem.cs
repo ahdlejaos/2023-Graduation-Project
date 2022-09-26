@@ -106,7 +106,7 @@ public class SampleSystem : MonoBehaviour
 			if (4 <= tcpReceived)
 			{
 				var temp_type = BitConverter.ToInt32(recvBuffer[0..4]);
-				var packet_type = (NetworkManager.Protocol)(temp_type);
+				var packet_type = (Protocols)(temp_type);
 
 				if (8 <= tcpReceived)
 				{
