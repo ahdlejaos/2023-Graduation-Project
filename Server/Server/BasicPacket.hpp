@@ -1,26 +1,30 @@
 #include "pch.hpp"
+#include "Protocol.hpp"
 
-class BasisPacket
+namespace srv
 {
-public:
-	constexpr BasisPacket(const Protocol type, const std::uint32_t size)
-		: myProtocol(type), mySize(size)
-	{}
-
-	constexpr virtual ~BasisPacket()
-	{}
-
-	inline constexpr const auto& GetProtocol() const noexcept
+	class BasisPacket
 	{
-		return myProtocol;
-	}
+	public:
+		constexpr BasisPacket(const Protocol type, const std::uint32_t size)
+			: myProtocol(type), mySize(size)
+		{}
 
-	inline constexpr const auto& GetSize() const noexcept
-	{
-		return mySize;
-	}
+		constexpr virtual ~BasisPacket()
+		{}
 
-protected:
-	const Protocol myProtocol;
-	const std::uint32_t mySize;
-};
+		inline constexpr const auto& GetProtocol() const noexcept
+		{
+			return myProtocol;
+		}
+
+		inline constexpr const auto& GetSize() const noexcept
+		{
+			return mySize;
+		}
+
+	protected:
+		const Protocol myProtocol;
+		const std::uint32_t mySize;
+	};
+}

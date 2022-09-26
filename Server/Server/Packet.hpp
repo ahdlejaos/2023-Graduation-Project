@@ -1,10 +1,10 @@
 #pragma once
+#include "BasicPacket.hpp"
+#include "Protocol.hpp"
 
 namespace srv
 {
 #pragma pack(push, 1)
-
-
 	template <class Derived>
 		requires std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
 	class Packet : public BasisPacket

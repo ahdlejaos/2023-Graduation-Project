@@ -179,6 +179,7 @@
     <ClCompile Include="Packet.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PlayingSession.cpp" />
+    <ClCompile Include="Protocol.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="Session.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="Packet.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="PlayingSession.hpp" />
+    <ClInclude Include="Protocol.hpp" />
     <ClInclude Include="Room.hpp" />
     <ClInclude Include="Runnable.hpp" />
     <ClInclude Include="Session.hpp" />
