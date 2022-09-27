@@ -29,7 +29,9 @@ using PID = unsigned long long;
 
 namespace srv
 {
+	class Context;
 	class Asynchron;
+	class DatabaseContext;
 	class Session;
 	class PlayingSession;
 	class Room;
