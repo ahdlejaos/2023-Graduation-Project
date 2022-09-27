@@ -17,7 +17,7 @@ Framework::Framework(unsigned int concurrent_hint)
 	, myWorkers(), workersBreaker()
 	, concurrentOutputLock()
 	, timerWorker(nullptr), timerQueue()
-	, databaseWorker(nullptr)
+	, databaseWorker(nullptr), databaseAsyncer(srv::Operations::DB_OVERLAPPED)
 	, everyRooms(), everySessions(), lobbySessions(), dictSessions()
 	, numberRooms(0), numberUsers(0)
 	, lastPacketType(srv::Protocol::NONE)
@@ -146,6 +146,21 @@ void Framework::Release()
 	Println("서버 종료 중...");
 
 	workersBreaker.request_stop();
+}
+
+BOOL Framework::PostDatabaseJob(const PID user_id, const DWORD data)
+{
+	return myEntryPoint.Post(data, static_cast<ULONG_PTR>(user_id), &databaseAsyncer);
+}
+
+BOOL Framework::PostDatabaseJob(const PID user_id, const srv::DatabaseTasks type, void* blob)
+{
+	return 0;
+}
+
+BOOL Framework::PostDatabaseJob(const ULONG_PTR user_id, const DWORD data)
+{
+	return 0;
 }
 
 DatabaseQuery& Framework::DBAddPlayer(BasicUserBlob data)
@@ -355,6 +370,9 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 				}
 				else
 				{
+					auto post = PostDatabaseJob(key, 0);
+
+
 					BasicUserBlob blob{
 						.id = 10,
 					};

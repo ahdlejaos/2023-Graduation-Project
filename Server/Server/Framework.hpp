@@ -58,6 +58,8 @@ public:
 	void Update();
 	void Release();
 
+	BOOL PostDatabaseJob(const PID user_id, const DWORD data);
+	BOOL PostDatabaseJob(const PID user_id, const srv::DatabaseTasks type, void* blob);
 	DatabaseQuery& DBAddPlayer(BasicUserBlob data);
 	DatabaseQuery& DBFindPlayer(const std::wstring_view& email);
 	DatabaseQuery& DBFindPlayerByNickname(const std::wstring_view& nickname);
@@ -126,6 +128,7 @@ private:
 	std::priority_queue<TimedJob> timerQueue;
 
 	unique_ptr<Thread> databaseWorker;
+	srv::Asynchron databaseAsyncer;
 
 	std::array<shared_ptr<srv::Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<srv::Session>, srv::MAX_ENTITIES> everySessions;

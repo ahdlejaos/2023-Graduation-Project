@@ -175,6 +175,11 @@ namespace srv
 		SEND,
 		DISPOSE,
 
+		DB_OVERLAPPED,
+		DB_FIND_USER,
+		DB_ADD_USER,
+
+
 		ENTITY_MOVE,
 	};
 

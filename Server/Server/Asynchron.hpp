@@ -12,8 +12,8 @@ namespace srv
 			myBuffer.len = 0;
 		}
 
-		constexpr Asynchron(const Operations& service, const WSABUF& wbuffer)
-			: myOperation(service)
+		constexpr Asynchron(const Operations& op, const WSABUF& wbuffer)
+			: myOperation(op)
 			, myBuffer(wbuffer), myData()
 		{
 			myBuffer.buf = myData;
