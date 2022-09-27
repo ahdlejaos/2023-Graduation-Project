@@ -58,9 +58,9 @@ public:
 	void Update();
 	void Release();
 
-	void DBAddPlayer(UserBlob data);
-	void DBFindPlayer(const PID id);
-	void DBUpdatePlayer(UserBlob data);
+	DatabaseQuery& DBAddPlayer(BasicUserBlob data);
+	DatabaseQuery& DBFindPlayer(const PID id);
+	DatabaseQuery& DBUpdatePlayer(const PID id, BasicUserBlob data);
 
 	void RouteSucceed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void RouteFailed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
@@ -172,12 +172,18 @@ protected:
 	void* myReturn;
 };
 
-struct UserBlob
+struct BasicUserBlob
 {
 	PID id;
-	std::wstring email;
-	std::wstring nickname;
-	std::wstring password;
+	wchar_t email[20];
+	wchar_t nickname[16];
+	wchar_t password[16];
+};
+
+struct UserBlob : BasicUserBlob
+{
+	unsigned int win, lose;
+	unsigned long level, exp;
 };
 
 struct TimerBlob

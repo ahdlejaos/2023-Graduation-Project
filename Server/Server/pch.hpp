@@ -15,7 +15,9 @@ class DatabaseQuery;
 template<typename Ty> class BasicDatabaseJob;
 class DatabaseJob;
 
+struct BasicUserBlob;
 struct UserBlob;
+struct TimerBlob;
 
 class GameObject;
 class GameEntity;
