@@ -65,8 +65,8 @@ public:
 	DatabaseQuery& DBFindPlayerByNickname(const std::wstring_view& nickname);
 	DatabaseQuery& DBUpdatePlayer(const PID id, BasicUserBlob data);
 
-	void RouteSucceed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
-	void RouteFailed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
+	void RouteSucceed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes);
+	void RouteFailed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes);
 	void ProceedAccept(srv::Asynchron* context);
 	void ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
 	void ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);

@@ -187,33 +187,34 @@ DatabaseQuery& Framework::DBFindPlayerByNickname(const std::wstring_view& nickna
 	//return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 }
 
-void Framework::RouteSucceed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+void Framework::RouteSucceed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes)
 {
-	const auto operation = context->myOperation;
+	auto asynchron = static_cast<srv::Asynchron*>(context);
+	const auto operation = asynchron->myOperation;
 
 	switch (operation)
 	{
 		case srv::Operations::ACCEPT:
 		{
-			ProceedAccept(context);
+			ProceedAccept(asynchron);
 		}
 		break;
 
 		case srv::Operations::SEND:
 		{
-			ProceedSent(context, key, bytes);
+			ProceedSent(asynchron, key, bytes);
 		}
 		break;
 
 		case srv::Operations::RECV:
 		{
-			ProceedRecv(context, key, bytes);
+			ProceedRecv(asynchron, key, bytes);
 		}
 		break;
 
 		case srv::Operations::DISPOSE:
 		{
-			ProceedDispose(context, key);
+			ProceedDispose(asynchron, key);
 		}
 		break;
 
@@ -225,15 +226,16 @@ void Framework::RouteSucceed(srv::Asynchron* context, ULONG_PTR key, unsigned by
 	}
 }
 
-void Framework::RouteFailed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+void Framework::RouteFailed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes)
 {
-	const auto operation = context->myOperation;
+	auto asynchron = static_cast<srv::Asynchron*>(context);
+	const auto operation = asynchron->myOperation;
 
 	switch (operation)
 	{
 		case srv::Operations::ACCEPT:
 		{
-			ProceedBeginDiconnect(context, key);
+			ProceedBeginDiconnect(asynchron, key);
 		}
 		break;
 
@@ -255,7 +257,7 @@ void Framework::RouteFailed(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 				std::cout << "송신 오류 발생: 받는 바이트 수가 0임.\n";
 			}
 
-			ProceedBeginDiconnect(context, key);
+			ProceedBeginDiconnect(asynchron, key);
 		}
 		break;
 
@@ -585,13 +587,12 @@ void Worker(std::stop_source& stopper, Framework& me, ConnectService& svc)
 			break;
 		}
 
-		auto asynchron = static_cast<srv::Asynchron*>(overlap);
 		if (TRUE == result) [[likely]] {
-			me.RouteSucceed(asynchron, key, static_cast<int>(bytes));
+			me.RouteSucceed(overlap, key, static_cast<int>(bytes));
 		}
 		else
 		{
-			me.RouteFailed(asynchron, key, static_cast<int>(bytes));
+			me.RouteFailed(overlap, key, static_cast<int>(bytes));
 		}
 	}
 
