@@ -1,6 +1,9 @@
 #pragma once
 
-class DatabaseContext : public WSAOVERLAPPED
+namespace srv
 {
-public:
-};
+	class DatabaseContext : public WSAOVERLAPPED
+	{
+	public:
+	};
+}
