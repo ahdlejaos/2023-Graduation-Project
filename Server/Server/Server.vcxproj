@@ -169,6 +169,7 @@
     <ClCompile Include="BasicDatabaseJob.cpp" />
     <ClCompile Include="BasicPacket.cpp" />
     <ClCompile Include="ConnectService.cpp" />
+    <ClCompile Include="DatabaseContext.cpp" />
     <ClCompile Include="DatabaseJob.cpp" />
     <ClCompile Include="DatabaseQuery.cpp" />
     <ClCompile Include="DatabaseService.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="BasicDatabaseJob.hpp" />
     <ClInclude Include="BasicPacket.hpp" />
     <ClInclude Include="ConnectService.hpp" />
+    <ClInclude Include="DatabaseContext.hpp" />
     <ClInclude Include="DatabaseJob.hpp" />
     <ClInclude Include="DatabaseQuery.hpp" />
     <ClInclude Include="DatabaseService.hpp" />
