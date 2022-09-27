@@ -15,9 +15,6 @@ namespace srv
 			: myProtocol(type), mySize(size)
 		{}
 
-		constexpr virtual ~BasicPacket()
-		{}
-
 		inline constexpr const auto& GetProtocol() const noexcept
 		{
 			return myProtocol;
