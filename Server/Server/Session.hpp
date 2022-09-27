@@ -112,8 +112,8 @@ namespace srv
 					BeginDisconnect();
 
 					result.reset();
-				}
-			}
+				};
+			};
 			Release();
 
 			return result;

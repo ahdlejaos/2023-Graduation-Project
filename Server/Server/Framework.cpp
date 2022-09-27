@@ -4,6 +4,7 @@
 #include "Session.hpp"
 #include "PlayingSession.hpp"
 #include "Packet.hpp"
+#include <stdexcept>
 
 void Worker(std::stop_source& stopper, Framework& me, ConnectService& pool);
 void TimerWorker(std::stop_source& stopper, Framework& me);
@@ -17,7 +18,7 @@ Framework::Framework(unsigned int concurrent_hint)
 	, concurrentOutputLock()
 	, timerWorker(nullptr), timerQueue()
 	, databaseWorker(nullptr)
-	, everyRooms(), everySessions(), lobbySessions()
+	, everyRooms(), everySessions(), lobbySessions(), dictSessions()
 	, numberRooms(0), numberUsers(0)
 	, lastPacketType(srv::Protocol::NONE)
 	, login_succeed(), login_failure(), cached_pk_server_info(0, srv::MAX_USERS, srv::GAME_VERSION)
@@ -75,10 +76,20 @@ void Framework::Awake(unsigned short port_tcp)
 	myEntryPoint.Awake(concurrentsNumber, port_tcp);
 
 	Println("자원을 불러오는 중...");
+	try
+	{
+		dictSessions.reserve(srv::MAX_USERS);
 
-	BuildSessions();
-	BuildRooms();
-	BuildResources();
+		BuildSessions();
+		BuildRooms();
+		BuildResources();
+	}
+	catch (std::exception& e)
+	{
+		Println("메모리 할당 중에 오류 발생!");
+		return;
+	}
+
 	Println("자원의 불러오기 완료");
 }
 
@@ -149,19 +160,16 @@ DatabaseQuery& Framework::DBAddPlayer(BasicUserBlob data)
 	//auto sqlcode = query.Fetch();
 }
 
-DatabaseQuery& Framework::DBFindPlayer(const PID id)
+DatabaseQuery& Framework::DBFindPlayer(const std::wstring_view& email)
+{
+	return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [E] = {};", std::make_wformat_args(100)));
+}
+
+DatabaseQuery& Framework::DBFindPlayerByNickname(const std::wstring_view& nickname)
 {
 	return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 
-	//static SQLINTEGER result_id{};
-	//static SQLWCHAR result_nickname[100]{};
-	//static SQLLEN result_length{};
-
-	//query.Bind(1, &result_id, 0, &result_length);
-	//query.Bind(2, result_nickname, 100, &result_length);
-
-	//auto ok = query.Execute();
-	//auto sqlcode = query.Fetch();
+	//return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 }
 
 void Framework::RouteSucceed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
@@ -347,7 +355,20 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 				}
 				else
 				{
-					// 로그인 성공 여부 검증
+					BasicUserBlob blob{
+						.id = 10,
+					};
+
+					// query_check_user: 로그인 성공 여부 검증
+					auto& query = DBFindPlayer(user_id);
+
+					static SQLINTEGER result_id{};
+					static SQLWCHAR result_nickname[30]{};
+					static SQLLEN result_length{};
+
+					query.Bind(1, &result_id, 0, &result_length);
+					query.Bind(2, result_nickname, 30, &result_length);
+
 					SendLoginResult(session.get(), login_succeed);
 				}
 			}
@@ -503,8 +524,12 @@ void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 	}
 	else
 	{
-		session->Acquire();
+		auto rit = dictSessions.find(session->GetID());
+		dictSessions.erase(rit);
+
 		myEntryPoint.Push(session->mySocket);
+
+		session->Acquire();
 		session->Cleanup();
 		session->Release();
 

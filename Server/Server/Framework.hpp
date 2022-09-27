@@ -59,7 +59,8 @@ public:
 	void Release();
 
 	DatabaseQuery& DBAddPlayer(BasicUserBlob data);
-	DatabaseQuery& DBFindPlayer(const PID id);
+	DatabaseQuery& DBFindPlayer(const std::wstring_view& email);
+	DatabaseQuery& DBFindPlayerByNickname(const std::wstring_view& nickname);
 	DatabaseQuery& DBUpdatePlayer(const PID id, BasicUserBlob data);
 
 	void RouteSucceed(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
@@ -129,6 +130,7 @@ private:
 	std::array<shared_ptr<srv::Room>, srv::MAX_ROOMS> everyRooms;
 	std::array<shared_ptr<srv::Session>, srv::MAX_ENTITIES> everySessions;
 	std::array<shared_ptr<srv::Session>, srv::MAX_USERS> lobbySessions;
+	std::unordered_map<PID, shared_ptr<srv::Session>> dictSessions;
 	atomic<unsigned> numberRooms;
 	atomic<unsigned> numberUsers;
 
