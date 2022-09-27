@@ -137,28 +137,28 @@ void Framework::Release()
 	workersBreaker.request_stop();
 }
 
-void Framework::DBAddPlayer(UserBlob data)
+DatabaseQuery& Framework::DBAddPlayer(BasicUserBlob data)
 {
-	auto& query = myDatabaseService.PushJob(std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}');", std::make_wformat_args(data.id, data.nickname, data.password)));
+	return myDatabaseService.PushJob(std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}');", std::make_wformat_args(data.id, data.nickname, data.password)));
 
-	static SQLINTEGER result{};
-	static SQLLEN result_length{};
+	//static SQLINTEGER result{};
+	//static SQLLEN result_length{};
 
-	query.Bind(1, &result, 0, &result_length);
+	//query.Bind(1, &result, 0, &result_length);
 	//auto ok = query.Execute();
 	//auto sqlcode = query.Fetch();
 }
 
-void Framework::DBFindPlayer(const PID id)
+DatabaseQuery& Framework::DBFindPlayer(const PID id)
 {
-	auto& query = myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
+	return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 
-	static SQLINTEGER result_id{};
-	static SQLWCHAR result_nickname[100]{};
-	static SQLLEN result_length{};
+	//static SQLINTEGER result_id{};
+	//static SQLWCHAR result_nickname[100]{};
+	//static SQLLEN result_length{};
 
-	query.Bind(1, &result_id, 0, &result_length);
-	query.Bind(2, result_nickname, 100, &result_length);
+	//query.Bind(1, &result_id, 0, &result_length);
+	//query.Bind(2, result_nickname, 100, &result_length);
 
 	//auto ok = query.Execute();
 	//auto sqlcode = query.Fetch();
