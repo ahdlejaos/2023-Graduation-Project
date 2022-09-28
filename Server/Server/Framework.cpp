@@ -173,18 +173,26 @@ DatabaseQuery& Framework::DBFindPlayer(const std::wstring_view& email)
 {
 	return myDatabaseService.PushJob
 	(
-		std::vformat(L"SELECT [user.ID], [user.NICKNAME] FROM [Users] AS [user], [UserStaticInfos] AS [info] WHERE [info.EMAIL] = {} AND [user.ID] = [info.ID]"
-		, std::make_wformat_args(email))
-	);
+		std::vformat
+		(
+		L"SELECT [bf_user].[ID], [bf_user].[NICKNAME]"
+		"FROM [Users] AS [bf_user], [UserStaticInfos] AS [bf_info]"
+		"WHERE [bf_info].[EMAIL] = 'iconer'"
+
+		, std::make_wformat_args(email)
+	));
 }
 
 DatabaseQuery& Framework::DBFindPlayerByNickname(const std::wstring_view& nickname)
 {
 	return myDatabaseService.PushJob
 	(
-		std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [NICKNAME] = {}"
-		, std::make_wformat_args(nickname))
-	);
+		std::vformat
+		(
+		L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [NICKNAME] = {}"
+
+		, std::make_wformat_args(nickname)
+	));
 
 	//return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 }
