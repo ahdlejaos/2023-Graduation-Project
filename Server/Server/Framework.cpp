@@ -171,12 +171,20 @@ DatabaseQuery& Framework::DBAddPlayer(BasicUserBlob data)
 
 DatabaseQuery& Framework::DBFindPlayer(const std::wstring_view& email)
 {
-	return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [E] = {};", std::make_wformat_args(100)));
+	return myDatabaseService.PushJob
+	(
+		std::vformat(L"SELECT [user.ID], [user.NICKNAME] FROM [Users] AS [user], [UserStaticInfos] AS [info] WHERE [info.EMAIL] = {} AND [user.ID] = [info.ID]"
+		, std::make_wformat_args(email))
+	);
 }
 
 DatabaseQuery& Framework::DBFindPlayerByNickname(const std::wstring_view& nickname)
 {
-	return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
+	return myDatabaseService.PushJob
+	(
+		std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [NICKNAME] = {}"
+		, std::make_wformat_args(nickname))
+	);
 
 	//return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 }
@@ -577,13 +585,13 @@ void Worker(std::stop_source& stopper, Framework& me, ConnectService& svc)
 			break;
 		}
 
-		if (TRUE == result) [[likely]] {
-			me.RouteSucceed(overlap, key, static_cast<int>(bytes));
-		}
-		else
-		{
-			me.RouteFailed(overlap, key, static_cast<int>(bytes));
-		}
+			if (TRUE == result) [[likely]] {
+				me.RouteSucceed(overlap, key, static_cast<int>(bytes));
+			}
+			else
+			{
+				me.RouteFailed(overlap, key, static_cast<int>(bytes));
+			}
 	}
 
 	me.Println("작업자 스레드 ", std::this_thread::get_id(), " 종료");
