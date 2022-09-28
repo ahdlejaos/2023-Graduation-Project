@@ -78,11 +78,23 @@ public class NetConnector
 	}
 	public IAsyncResult BeginReceive(ref ManagedBuffer buffer)
 	{
-		return Receive(ref buffer.GetData(), 0);
+		return Receive(ref buffer, 0);
 	}
-	private IAsyncResult Receive(ref byte[] buffer, int offset, int size = NetConstants.BUFSIZ, object info = null)
+	public IAsyncResult Receive(ref byte[] buffer, int offset, int size = NetConstants.BUFSIZ, object info = null)
 	{
 		return tcpClient.BeginReceive(buffer, offset, size - offset, SocketFlags.None, recvCallback, info);
+	}
+	public IAsyncResult Receive(ref ManagedBuffer buffer, object info = null)
+	{
+		return Receive(ref buffer.GetData(), buffer.myOffset, NetConstants.BUFSIZ - buffer.myOffset, info);
+	}
+	public int EndReceive(IAsyncResult result)
+	{
+		return tcpClient.EndReceive(result);
+	}
+	public int EndReceive(IAsyncResult result, out SocketError error)
+	{
+		return tcpClient.EndReceive(result, out error);
 	}
 
 	// 

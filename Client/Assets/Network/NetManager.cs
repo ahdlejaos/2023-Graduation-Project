@@ -42,79 +42,177 @@ public class NetManager : MonoBehaviour
 	// 
 	public void OnReceive(IAsyncResult result)
 	{
-		if (result.IsCompleted)
-		{
-
-		}
-		else
-		{
-
-		}
-
-
-		if (!TcpClient.CanRead)
+		if (IsDisconnected())
 		{
 			Debug.LogError("TCP 수신 불가능!");
 			return;
 		}
 
-		var byte_recv = tcpStream.EndRead(result);
-		Debug.Log("TCP 소켓으로 서버로부터 " + byte_recv + "바이트를 받음.");
+		int bytes = myConnector.EndReceive(result);
+		Debug.Log("TCP 소켓으로 서버로부터 " + bytes + "바이트를 받음.");
 
-		if (0 < byte_recv)
+		int buffer_last_offset = myBuffer.ApplyReceived(bytes);
+
+		if (NetConstants.szPkMinimum <= buffer_last_offset)
 		{
-			if (BitConverter.IsLittleEndian)
+			ref byte[] data = ref myBuffer.GetData();
+
+			var tempch = BitConverter.ToChar(data[0..2]);
+			var packet_type = (Protocols) (tempch);
+
+			var tempst = BitConverter.ToInt16(data[2..4]);
+			var packet_size = (short) (tempst);
+
+			if (packet_size <= buffer_last_offset)
 			{
-				Array.Reverse(recvBuffer[(tcpReceived)..(tcpReceived + byte_recv)]);
-			}
+				// 패킷 처리
+				Debug.Log("패킷을 받음: " + packet_type.ToString());
+				
+				var ok = myBuffer.TryRead<BasicPacket>(out var packet);
+				Debug.Log("받은 패킷: " + packet);
 
-			tcpReceived += byte_recv;
-
-			if (NetConstants.szPkProtocol <= tcpReceived)
-			{
-				var temp_type = BitConverter.ToInt32(recvBuffer[0..4]);
-				var packet_type = (Protocols) (temp_type);
-
-				if (NetConstants.szPkMinimum <= tcpReceived)
+				switch (packet_type)
 				{
-					var packet_size = BitConverter.ToInt32(recvBuffer[4..8]);
-
-					if (packet_size <= tcpReceived)
+					case Protocols.SC_SERVER_INFO:
 					{
-						if (NetConstants.BUFSIZ <= packet_size)
-						{
-							Debug.LogError("이상한 패킷을 받음!");
-						}
-
-						// 패킷 처리
-						Debug.Log("패킷을 받음: " + packet_type.ToString());
-
-						tcpReceived -= packet_size;
-
-						ShiftLeft(recvBuffer, packet_size);
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
 					}
-					else
+					break;
+
+					case Protocols.SC_SIGNIN_SUCCESS:
 					{
-						var lack = packet_size - tcpReceived;
-						Debug.Log("TCP 소켓으로부터 받은 바이트가 " + lack + "만큼 부족함.");
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
 					}
-				}
-				else
-				{
-					Debug.Log("TCP 소켓으로부터 받은 바이트가 부족함.");
+					break;
+
+					case Protocols.SC_SIGNIN_FAILURE:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_SIGNUP_SUCCESS:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_SIGNUP_FAILURE:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_RESPOND_ROOMS:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_RESPOND_USERS:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_RESPOND_VERSION:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_ROOM_CREATED:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_GAME_START:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_CREATE_PLAYER:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_CREATE_ENTITY:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_CREATE_OBJET:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_MOVE_CHARACTER:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_MOVE_OBJET:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_UPDATE_CHARACTER:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_UPDATE_OBJET:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_REMOVE_CHARACTER:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_REMOVE_OBJET:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
+
+					case Protocols.SC_CHAT:
+					{
+						//ok = myBuffer.TryRead<PacketLogin>(out var packet);
+					}
+					break;
 				}
 			}
 			else
 			{
-				Debug.Log("TCP 소켓으로부터 받은 바이트가 부족해서 패킷의 종류를 알 수 없음.");
+				var lack = packet_size - buffer_last_offset;
+				Debug.Log("TCP 소켓으로부터 받은 바이트가 소켓에서 " + lack + "만큼 부족함.");
 			}
 		}
 		else
 		{
-			Debug.Log("TCP 소켓으로부터 0바이트를 받음.");
+			Debug.Log("TCP 소켓으로부터 받은 바이트가 부족해서 패킷을 조립할 수 없음.");
 		}
 
-		RecvTCP(tcpReceived, NetConstants.BUFSIZ - tcpReceived);
+		if (result.IsCompleted)
+		{
+		}
+		else
+		{
+		}
+
+		myConnector.Receive(ref myBuffer);
 	}
 	public void OnSend(IAsyncResult result)
 	{

@@ -7,6 +7,88 @@ using System.Runtime.InteropServices;
 [Serializable]
 public static class NetUtils
 {
+	public static string ToString(this Protocols protocol)
+	{
+		switch (protocol)
+		{
+			case Protocols.NONE:
+			{
+				return "none";
+			}
+
+			case Protocols.CS_SIGNIN:
+			{
+				return "cs-signin";
+			}
+
+			case Protocols.CS_SIGNUP:
+			{
+				return "cs-signup";
+			}
+
+			case Protocols.CS_SIGNOUT:
+			{
+				return "cs-signout";
+			}
+
+			case Protocols.CS_DISPOSE:
+			{
+				return "cs-dispose";
+			}
+
+			case Protocols.CS_REQUEST_ROOMS:
+			{
+				return "cs-request-roomlist";
+			}
+
+			case Protocols.CS_REQUEST_USERS:
+			{
+				return "cs-request-userlist";
+			}
+
+			case Protocols.CS_REQUEST_VERSION:
+			{
+				return "cs-request-version";
+			}
+
+			case Protocols.CS_CREATE_A_ROOM:
+			{
+				return "ca-room-create";
+			}
+
+			case Protocols.CS_DESTROY_A_ROOM:
+			{
+				return "cs-room-destroy";
+			}
+
+			case Protocols.CS_JOIN_A_ROOM:
+			{
+				return "cs-room-join";
+			}
+
+			case Protocols.CS_LEAVE_A_ROOM:
+			{
+				return "cs-room-leave";
+			}
+
+			case Protocols.CS_MASTER_A_ROOM:
+			{
+				return "cs-room-master";
+			}
+
+			case Protocols.CS_CHAT:
+			{
+				return "cs-chatting";
+			}
+
+			default:
+			{
+				throw new NotImplementedException("구현되지 않음!");
+			}
+		}
+
+		return "blank";
+	}
 	public static int SizeOf<T>() where T : class => Marshal.SizeOf(typeof(T));
 	public static int SizeOf<T>(Type type) => Marshal.SizeOf<Type>(type);
 	public static int SizeOf<T>(T obj) where T : class => Marshal.SizeOf(obj);

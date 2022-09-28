@@ -148,6 +148,12 @@ public class ManagedBuffer
 		return true;
 	}
 
+	//
+	public int ApplyReceived(int bytes)
+	{
+		return (myOffset += bytes);
+	}
+
 	// 
 	public ref byte[] GetData()
 	{
