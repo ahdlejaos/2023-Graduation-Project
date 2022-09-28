@@ -4,14 +4,14 @@
 class DatabaseQuery
 {
 public:
-	constexpr DatabaseQuery()
+	DatabaseQuery()
 		: myStatement(), myQuery(NULL)
-		, isEnded(false)
+		, myBackend(), isEnded(false)
 	{}
 
-	constexpr DatabaseQuery(const std::wstring_view& statement)
+	DatabaseQuery(const std::wstring_view& statement)
 		: myStatement(statement), myQuery(NULL)
-		, isEnded(false)
+		, myBackend(), isEnded(false)
 	{}
 
 	~DatabaseQuery()
@@ -28,34 +28,36 @@ public:
 	SQLRETURN Fetch();
 
 	template<typename Ty>
-	SQLRETURN Bind(int column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
+	inline SQLRETURN Bind(int column, SQLSMALLINT sql_type, Ty* place, SQLLEN length, SQLLEN* result_length)
 	{
 		return SQLBindCol(myQuery, column, sql_type, place, length, result_length);
 	}
 
 	template<typename Ty>
-	SQLRETURN Bind(int column, Ty* place, SQLLEN length, SQLLEN* result_length)
+	inline SQLRETURN Bind(int column, Ty* place, SQLLEN length, SQLLEN* result_length)
 	{
 		return SQLBindCol(myQuery, column, sql::Deduct<Ty>(), place, length, result_length);
 	}
 
-	SQLRETURN FetchOnce()
+	inline SQLRETURN FetchOnce()
 	{
 		return SQLFetch(myQuery);
 	}
 
-	SQLRETURN Cancel()
+	inline SQLRETURN Cancel()
 	{
 		return SQLCancel(myQuery);
 	}
 
-	SQLRETURN Destroy()
+	inline SQLRETURN Destroy()
 	{
 		return SQLFreeHandle(SQL_HANDLE_STMT, myQuery);
 	}
 
 	std::wstring myStatement;
 	SQLHSTMT myQuery;
+
+	std::promise<void> myBackend;
 
 	bool isEnded;
 };
