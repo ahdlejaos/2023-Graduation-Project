@@ -17,8 +17,7 @@ public class SampleSystem : MonoBehaviour
 
 	public int tcpReceived = 0;
 
-	public const int BUFFSIZE = 1024;
-	public byte[] recvBuffer = new byte[BUFFSIZE];
+	public byte[] recvBuffer = new byte[NetConstants.BUFSIZ];
 
 	void Awake()
 	{
@@ -75,7 +74,7 @@ public class SampleSystem : MonoBehaviour
 				throw new Exception("소켓 연결 실패!");
 			}
 
-			RecvTCP(0, BUFFSIZE);
+			RecvTCP(0, NetConstants.BUFSIZ);
 		}
 		else
 		{
@@ -103,18 +102,18 @@ public class SampleSystem : MonoBehaviour
 
 			tcpReceived += byte_recv;
 
-			if (4 <= tcpReceived)
+			if (NetConstants.szPkProtocol <= tcpReceived)
 			{
 				var temp_type = BitConverter.ToInt32(recvBuffer[0..4]);
 				var packet_type = (Protocols)(temp_type);
 
-				if (8 <= tcpReceived)
+				if (NetConstants.szPkMinimum <= tcpReceived)
 				{
 					var packet_size = BitConverter.ToInt32(recvBuffer[4..8]);
 
 					if (packet_size <= tcpReceived)
 					{
-						if (BUFFSIZE <= packet_size)
+						if (NetConstants.BUFSIZ <= packet_size)
 						{
 							Debug.LogError("이상한 패킷을 받음!");
 						}
@@ -147,7 +146,7 @@ public class SampleSystem : MonoBehaviour
 			Debug.Log("TCP 소켓으로부터 0바이트를 받음.");
 		}
 
-		RecvTCP(tcpReceived, BUFFSIZE - tcpReceived);
+		RecvTCP(tcpReceived, NetConstants.BUFSIZ - tcpReceived);
 	}
 	IAsyncResult RecvTCP(int offset, int size)
 	{

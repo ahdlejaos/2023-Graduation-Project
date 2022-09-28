@@ -6,8 +6,8 @@ using System.Runtime.InteropServices;
 
 using UnityEngine;
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct BasicPacket
+[Serializable, StructLayout(LayoutKind.Sequential, Pack = 1)]
+public class BasicPacket
 {
 	public Protocols myProtocol;
 	public short mySize;

@@ -1,7 +1,7 @@
 using System;
 
 [Serializable]
-public enum Protocols : short
+public enum Protocols : byte
 {
 	NONE = 0,
 
