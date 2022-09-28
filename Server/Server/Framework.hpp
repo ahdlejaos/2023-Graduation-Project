@@ -90,6 +90,7 @@ public:
 	using DBinUsersSearcher = bool(const Sentence user_id);
 
 private:
+	void BuildDatabase();
 	void BuildSessions();
 	void BuildRooms();
 	void BuildResources();

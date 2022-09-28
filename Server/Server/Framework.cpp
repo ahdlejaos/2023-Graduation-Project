@@ -63,22 +63,12 @@ void Framework::Awake(unsigned short port_tcp)
 {
 	std::cout << "서버를 준비하는 중...\n";
 
-	Println("DB 서비스를 준비하는 중...");
-	bool db_available = myDatabaseService.Awake();
-	if (!db_available)
-	{
-		Println("DB 오류!");
-
-		srv::RaiseSystemError(std::errc::not_connected);
-	}
-
 	myEntryPoint.Awake(concurrentsNumber, port_tcp);
 
 	Println("자원을 불러오는 중...");
 	try
 	{
-		dictSessions.reserve(srv::MAX_USERS);
-
+		BuildDatabase();
 		BuildSessions();
 		BuildRooms();
 		BuildResources();
@@ -648,8 +638,22 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 	me.Println("DB 작업 스레드 ", std::this_thread::get_id(), " 종료");
 }
 
+void Framework::BuildDatabase()
+{
+	Println("DB 서비스를 준비하는 중...");
+
+	if (!myDatabaseService.Awake())
+	{
+		Println("데이터베이스 오류!");
+
+		srv::RaiseSystemError(std::errc::operation_not_permitted);
+	}
+}
+
 void Framework::BuildSessions()
 {
+	dictSessions.reserve(srv::MAX_USERS);
+
 	auto user_sessions = everySessions | std::views::take(srv::MAX_USERS);
 
 	unsigned place = srv::USERS_ID_BEGIN;

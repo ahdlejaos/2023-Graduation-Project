@@ -65,8 +65,6 @@ namespace srv
 		/// <param name="bytes">수신받은 바이트의 수</param>
 		inline std::optional<BasicPacket*> Swallow(const unsigned fullsize, _In_ const unsigned bytes)
 		{
-			Acquire();
-
 			std::optional<BasicPacket*> result{};
 
 			auto& wbuffer = myReceiver.myBuffer;
@@ -94,26 +92,34 @@ namespace srv
 				}
 				else
 				{
-					std::cout << "세션 " << myID.load(std::memory_order_relaxed) << "에서 패킷을 조립하지 못했습니다.\n";
+					std::cout << "세션 " << GetID() << "에서 패킷을 조립하지 못했습니다.\n";
 				}
 			}
 			else
 			{
-				std::cout << "세션 " << myID.load(std::memory_order_relaxed) << "에서 최소 요건이 맞지 않아서 패킷을 조립하지 못했습니다.\n";
+				std::cout << "세션 " << GetID() << "에서 최소 요건이 맞지 않아서 패킷을 조립하지 못했습니다.\n";
 			}
 
-			// 나머지 패킷을 수신
-			const int op = Recv(fullsize, myRecvSize);
+			Acquire();
+			if (GetState() == SessionStates::NONE)
+			{
+				std::cout << "세션 " << GetID() << "에서 연결이 되지 않았을 때 수신이 이루어졌습니다.\n";
+			}
+			else
+			{
+				// 나머지 패킷을 수신
+				const int op = Recv(fullsize, myRecvSize);
 
-			if (CheckError(op)) [[unlikely]] {
-				if (!CheckPending(op)) [[unlikely]] {
-					std::cout << "세션 " << myID.load(std::memory_order_relaxed) << "에서 수신 오류 발생!\n";
+				if (CheckError(op)) [[unlikely]] {
+					if (!CheckPending(op)) [[unlikely]] {
+						std::cout << "세션 " << GetID() << "에서 수신 오류 발생!\n";
 
-					BeginDisconnect();
+						BeginDisconnect();
 
-					result.reset();
+						result.reset();
+					};
 				};
-			};
+			}
 			Release();
 
 			return result;
@@ -377,6 +383,11 @@ namespace srv
 		inline PID GetID() const noexcept
 		{
 			return myID.load(std::memory_order_relaxed);
+		}
+
+		inline SessionStates GetState() const noexcept
+		{
+			return myState.load(std::memory_order_relaxed);
 		}
 
 		const unsigned int myPlace;
