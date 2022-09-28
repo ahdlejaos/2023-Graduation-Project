@@ -132,7 +132,7 @@ namespace srv
 			const std::size_t user_id
 		)
 			: Packet(Protocol::SC_ROOM_ENTERED)
-			, roomPlace(room_place), userID(userID)
+			, roomPlace(room_place), userID()
 		{}
 
 		const std::size_t roomPlace;
@@ -163,7 +163,7 @@ namespace srv
 			const std::size_t user_id
 		)
 			: Packet(Protocol::SC_ROOM_CREATED)
-			, roomPlace(room_place), userID(userID)
+			, roomPlace(room_place), userID()
 		{}
 
 		const std::size_t roomPlace;
