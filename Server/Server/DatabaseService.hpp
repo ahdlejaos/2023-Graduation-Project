@@ -22,10 +22,11 @@ public:
 	const std::pair<const std::wstring&, const shared_ptr<const DatabaseQuery>> GetStatement(std::wstring_view tag) const;
 	const std::pair<std::wstring, shared_ptr<DatabaseQuery>> GetStatement(std::wstring_view tag);
 
-	bool IsEmpty() const noexcept;
-	bool IsPreparedEmpty() const noexcept;
 	DatabaseQuery& GetQuery(std::wstring_view&& tag);
 	const DatabaseQuery& GetQuery(std::wstring_view&& tag) const;
+
+	bool IsEmpty() const noexcept;
+	bool IsPreparedEmpty() const noexcept;
 
 	const std::wstring myEntry = L"2023-Graduation-Project";
 	const Filepath mySecrets = ".//data//Secrets.json";

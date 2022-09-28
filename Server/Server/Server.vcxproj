@@ -185,6 +185,7 @@
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="StringHasher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Arithmetics.inl">
@@ -219,6 +220,7 @@
     <ClInclude Include="Runnable.hpp" />
     <ClInclude Include="Session.hpp" />
     <ClInclude Include="stdafx.hpp" />
+    <ClInclude Include="StringHasher.hpp" />
     <ClInclude Include="Transformer.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
