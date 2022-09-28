@@ -5,7 +5,6 @@
 #include "Packet.hpp"
 #include "Asynchron.hpp"
 #include "Spinlock.inl"
-#include "Protocol.hpp"
 
 template<>
 struct std::hash<DatabaseJob>

@@ -4,7 +4,6 @@
 #include "Session.hpp"
 #include "PlayingSession.hpp"
 #include "Packet.hpp"
-#include <stdexcept>
 
 void Worker(std::stop_source& stopper, Framework& me, ConnectService& pool);
 void TimerWorker(std::stop_source& stopper, Framework& me);
@@ -154,11 +153,6 @@ BOOL Framework::PostDatabaseJob(const PID user_id, const DWORD data)
 }
 
 BOOL Framework::PostDatabaseJob(const PID user_id, const srv::DatabaseTasks type, void* blob)
-{
-	return 0;
-}
-
-BOOL Framework::PostDatabaseJob(const ULONG_PTR user_id, const DWORD data)
 {
 	return 0;
 }
@@ -525,13 +519,9 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 			{
 			}
 			break;
-
-			default:
-			{
-				session->Release();
-			}
-			break;
 		}
+
+		//session->Release();
 	}
 }
 

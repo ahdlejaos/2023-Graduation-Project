@@ -84,9 +84,6 @@
     <ClCompile Include="BasicPacket.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Protocol.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="DatabaseContext.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -172,9 +169,6 @@
       <Filter>헤더 파일\Database</Filter>
     </ClInclude>
     <ClInclude Include="BasicPacket.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Protocol.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DatabaseContext.hpp">

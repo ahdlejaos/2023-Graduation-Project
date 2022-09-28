@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "Protocol.hpp"
 
 namespace srv
 {
@@ -11,7 +10,7 @@ namespace srv
 			: myProtocol(), mySize(sizeof(BasicPacket))
 		{}
 
-		constexpr BasicPacket(const Protocol type, const short size)
+		constexpr BasicPacket(const Protocol type, const unsigned short size)
 			: myProtocol(type), mySize(size)
 		{}
 
@@ -27,7 +26,7 @@ namespace srv
 
 	protected:
 		const Protocol myProtocol;
-		const short mySize;
+		const unsigned short mySize;
 	};
 #pragma pack(pop)
 }

@@ -1,10 +1,9 @@
 #pragma once
 #include "BasicPacket.hpp"
-#include "Protocol.hpp"
 
+#pragma pack(push, 1)
 namespace srv
 {
-#pragma pack(push, 1)
 	template <class Derived>
 		requires std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
 	class Packet : public BasicPacket
@@ -41,7 +40,6 @@ namespace srv
 		template<typename... Args>
 		friend Derived CreateLocalPacket(Args&&... _Args);
 	};
-#pragma pack(pop)
 
 	template <class Pk>
 	concept packets = std::is_class_v<Pk> && std::derived_from<Pk, Packet<Pk>>;
@@ -305,3 +303,4 @@ namespace srv
 		return Pk(std::forward<Args>(args)...);
 	}
 }
+#pragma pack(pop)
