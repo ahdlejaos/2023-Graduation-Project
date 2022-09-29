@@ -137,56 +137,6 @@ void Framework::Release()
 	workersBreaker.request_stop();
 }
 
-BOOL Framework::PostDatabaseJob(const PID user_id, const DWORD data)
-{
-	return myEntryPoint.Post(data, static_cast<ULONG_PTR>(user_id), &databaseAsyncer);
-}
-
-BOOL Framework::PostDatabaseJob(const PID user_id, const srv::DatabaseTasks type, void* blob)
-{
-	return 0;
-}
-
-DatabaseQuery& Framework::DBAddPlayer(BasicUserBlob data)
-{
-	return myDatabaseService.PushJob(std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}');", std::make_wformat_args(data.id, data.nickname, data.password)));
-
-	//static SQLINTEGER result{};
-	//static SQLLEN result_length{};
-
-	//query.Bind(1, &result, 0, &result_length);
-	//auto ok = query.Execute();
-	//auto sqlcode = query.Fetch();
-}
-
-DatabaseQuery& Framework::DBFindPlayer(const std::wstring_view& email)
-{
-	return myDatabaseService.PushJob
-	(
-		std::vformat
-		(
-		L"SELECT [bf_user].[ID], [bf_user].[NICKNAME]"
-		"FROM [Users] AS [bf_user], [UserStaticInfos] AS [bf_info]"
-		"WHERE [bf_info].[EMAIL] = 'iconer'"
-
-		, std::make_wformat_args(email)
-	));
-}
-
-DatabaseQuery& Framework::DBFindPlayerByNickname(const std::wstring_view& nickname)
-{
-	return myDatabaseService.PushJob
-	(
-		std::vformat
-		(
-		L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [NICKNAME] = {}"
-
-		, std::make_wformat_args(nickname)
-	));
-
-	//return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
-}
-
 void Framework::RouteSucceed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes)
 {
 	auto asynchron = static_cast<srv::Asynchron*>(context);
@@ -638,52 +588,6 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 	me.Println("DB 작업 스레드 ", std::this_thread::get_id(), " 종료");
 }
 
-void Framework::BuildDatabase()
-{
-	Println("DB 서비스를 준비하는 중...");
-
-	if (!myDatabaseService.Awake())
-	{
-		Println("데이터베이스 오류!");
-
-		srv::RaiseSystemError(std::errc::operation_not_permitted);
-	}
-}
-
-void Framework::BuildSessions()
-{
-	dictSessions.reserve(srv::MAX_USERS);
-
-	auto user_sessions = everySessions | std::views::take(srv::MAX_USERS);
-
-	unsigned place = srv::USERS_ID_BEGIN;
-	for (auto& user : user_sessions)
-	{
-		user = srv::PlayingSession::Create(place++, myDatabaseService);
-	}
-
-	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
-
-	place = srv::NPC_ID_BEGIN;
-	for (auto& npc : npc_sessions)
-	{
-		npc = srv::Session::Create(place++, myDatabaseService);
-	}
-}
-
-void Framework::BuildRooms()
-{
-	unsigned place = 0;
-
-	for (auto& room : everyRooms)
-	{
-		room = srv::Room::Create(place++);
-	}
-}
-
-void Framework::BuildResources()
-{}
-
 shared_ptr<srv::Session> Framework::AcceptPlayer(SOCKET target)
 {
 	auto newbie = SeekNewbiePlace();
@@ -796,6 +700,56 @@ int Framework::SendLoginResult(srv::Session* session, const login_failure_t& inf
 	return session->BeginSend(as);
 }
 
+BOOL Framework::PostDatabaseJob(const PID user_id, const DWORD data)
+{
+	return myEntryPoint.Post(data, static_cast<ULONG_PTR>(user_id), &databaseAsyncer);
+}
+
+BOOL Framework::PostDatabaseJob(const PID user_id, const srv::DatabaseTasks type, void* blob)
+{
+	return 0;
+}
+
+DatabaseQuery& Framework::DBAddPlayer(BasicUserBlob data)
+{
+	return myDatabaseService.PushJob(std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}');", std::make_wformat_args(data.id, data.nickname, data.password)));
+
+	//static SQLINTEGER result{};
+	//static SQLLEN result_length{};
+
+	//query.Bind(1, &result, 0, &result_length);
+	//auto ok = query.Execute();
+	//auto sqlcode = query.Fetch();
+}
+
+DatabaseQuery& Framework::DBFindPlayer(const std::wstring_view& email)
+{
+	return myDatabaseService.PushJob
+	(
+		std::vformat
+		(
+		L"SELECT [bf_user].[ID], [bf_user].[NICKNAME]"
+		"FROM [Users] AS [bf_user], [UserStaticInfos] AS [bf_info]"
+		"WHERE [bf_info].[EMAIL] = 'iconer'"
+
+		, std::make_wformat_args(email)
+	));
+}
+
+DatabaseQuery& Framework::DBFindPlayerByNickname(const std::wstring_view& nickname)
+{
+	return myDatabaseService.PushJob
+	(
+		std::vformat
+		(
+		L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [NICKNAME] = {}"
+
+		, std::make_wformat_args(nickname)
+	));
+
+	//return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
+}
+
 bool Framework::CanAcceptPlayer() const noexcept
 {
 	return numberUsers.load(std::memory_order_consume) < srv::MAX_USERS;
@@ -851,3 +805,51 @@ unsigned long long Framework::MakeNewbieID() noexcept
 {
 	return playerIDs++;
 }
+
+void Framework::BuildDatabase()
+{
+	Println("DB 서비스를 준비하는 중...");
+
+	if (!myDatabaseService.Awake())
+	{
+		Println("데이터베이스 오류!");
+
+		srv::RaiseSystemError(std::errc::operation_not_permitted);
+	}
+
+	myDatabaseService.Start();
+}
+
+void Framework::BuildSessions()
+{
+	dictSessions.reserve(srv::MAX_USERS);
+
+	auto user_sessions = everySessions | std::views::take(srv::MAX_USERS);
+
+	unsigned place = srv::USERS_ID_BEGIN;
+	for (auto& user : user_sessions)
+	{
+		user = srv::PlayingSession::Create(place++, myDatabaseService);
+	}
+
+	auto npc_sessions = everySessions | std::views::drop(srv::MAX_USERS);
+
+	place = srv::NPC_ID_BEGIN;
+	for (auto& npc : npc_sessions)
+	{
+		npc = srv::Session::Create(place++, myDatabaseService);
+	}
+}
+
+void Framework::BuildRooms()
+{
+	unsigned place = 0;
+
+	for (auto& room : everyRooms)
+	{
+		room = srv::Room::Create(place++);
+	}
+}
+
+void Framework::BuildResources()
+{}
