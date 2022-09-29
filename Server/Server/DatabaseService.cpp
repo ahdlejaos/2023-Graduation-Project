@@ -89,13 +89,10 @@ bool DatabaseService::Awake()
 				// Connect to data source
 				sqlcode = SQLConnect(myConnector, entry, SQL_NTS, username, userlen, password, passlen);
 
-				if (SQLSucceed(sqlcode))
-				{
-					return true;
-				}
-				else
+				if (!SQLSucceed(sqlcode))
 				{
 					std::cout << "SQL 서버 로그인 실패!\n";
+					return false;
 				}
 			}
 		}
@@ -103,6 +100,9 @@ bool DatabaseService::Awake()
 
 	return false;
 }
+
+void DatabaseService::Start()
+{}
 
 bool DatabaseService::Disconnect()
 {
