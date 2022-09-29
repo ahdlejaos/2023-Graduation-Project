@@ -103,20 +103,34 @@ bool DatabaseService::Awake()
 
 void DatabaseService::Start()
 {
-	constexpr auto myPreparedStatements = MakePreparedStatements();
+	auto prepared_statements = BuildPreparedStatements();
 
-	for (const auto& [tag, statement] : myPreparedStatements)
+	for (const auto& [tag, statement] : prepared_statements)
 	{
 		RegisterStatement(tag, statement);
 	};
 }
 
-constexpr std::vector<std::tuple<std::wstring_view, std::wstring_view>> MakePreparedStatements()
+constexpr std::vector<std::wstring_view> BuildDatabaseTags()
 {
+	return std::vector<std::wstring_view>
+	{
+		L"FIND_USER_NN",
+		L"FIND_USERS_ALL",
+		L"FIND_USER_EMAIL",
+		L"FIND_USER_PW"
+	};
+}
+
+constexpr std::vector<std::tuple<std::wstring_view, std::wstring_view>> BuildPreparedStatements()
+{
+	const auto tags = BuildDatabaseTags();
+
 	std::vector<std::tuple<std::wstring_view, std::wstring_view>> result{};
 	result.reserve(10);
 
-	result.emplace_back(std::tie(L"aa", L"aa"));
+	result.emplace_back(tags.at(0)
+		, L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [NICKNAME] = {}");
 
 	return result;
 }

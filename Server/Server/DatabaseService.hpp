@@ -53,7 +53,9 @@ private:
 	std::unordered_map<std::wstring_view, shared_ptr<DatabaseQuery>> myQueries;
 };
 
-constexpr std::vector<std::tuple<std::wstring_view, std::wstring_view>> MakePreparedStatements();
+constexpr std::vector<std::wstring_view> BuildDatabaseTags();
+
+constexpr std::vector<std::tuple<std::wstring_view, std::wstring_view>> BuildPreparedStatements();
 
 class JobUserFindByID : BasicDatabaseJob<JobUserFindByID>
 {

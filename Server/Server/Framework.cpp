@@ -741,8 +741,7 @@ DatabaseQuery& Framework::DBFindPlayerByNickname(const std::wstring_view& nickna
 	return myDatabaseService.PushJob
 	(
 		std::vformat
-		(
-		L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [NICKNAME] = {}"
+		(L""
 
 		, std::make_wformat_args(nickname)
 	));
