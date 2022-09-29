@@ -102,7 +102,24 @@ bool DatabaseService::Awake()
 }
 
 void DatabaseService::Start()
-{}
+{
+	constexpr auto myPreparedStatements = MakePreparedStatements();
+
+	for (const auto& [tag, statement] : myPreparedStatements)
+	{
+		RegisterStatement(tag, statement);
+	};
+}
+
+constexpr std::vector<std::tuple<std::wstring_view, std::wstring_view>> MakePreparedStatements()
+{
+	std::vector<std::tuple<std::wstring_view, std::wstring_view>> result{};
+	result.reserve(10);
+
+	result.emplace_back(std::tie(L"aa", L"aa"));
+
+	return result;
+}
 
 bool DatabaseService::Disconnect()
 {
@@ -174,7 +191,7 @@ shared_ptr<DatabaseQuery> DatabaseService::PopJob()
 	return result;
 }
 
-DatabaseQuery& DatabaseService::RegisterQuery(std::wstring_view tag, std::wstring_view statement)
+DatabaseQuery& DatabaseService::RegisterStatement(std::wstring_view tag, std::wstring_view statement)
 {
 	std::scoped_lock locken{ JobBarrier };
 

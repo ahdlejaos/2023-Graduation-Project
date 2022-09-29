@@ -19,7 +19,8 @@ public:
 	DatabaseQuery& PushJobByTag(std::wstring_view&& tag);
 	shared_ptr<DatabaseQuery> PopJob();
 
-	DatabaseQuery& RegisterQuery(std::wstring_view tag, std::wstring_view statement);
+	DatabaseQuery& RegisterStatement(std::wstring_view tag, std::wstring_view statement);
+
 	const std::pair<const std::wstring&, const shared_ptr<const DatabaseQuery>> GetStatement(std::wstring_view tag) const;
 	const std::pair<std::wstring, shared_ptr<DatabaseQuery>> GetStatement(std::wstring_view tag);
 
@@ -51,6 +52,8 @@ private:
 	std::unordered_map<std::wstring_view, std::wstring> myStatements;
 	std::unordered_map<std::wstring_view, shared_ptr<DatabaseQuery>> myQueries;
 };
+
+constexpr std::vector<std::tuple<std::wstring_view, std::wstring_view>> MakePreparedStatements();
 
 class JobUserFindByID : BasicDatabaseJob<JobUserFindByID>
 {
