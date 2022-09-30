@@ -520,11 +520,6 @@ void Framework::ProceedBeginDiconnect(shared_ptr<srv::Session> session)
 	BeginDisconnect(session);
 }
 
-void Framework::ProceedBeginDiconnect(srv::Session* session)
-{
-	BeginDisconnect(session);
-}
-
 void Worker(std::stop_source& stopper, Framework& me, ConnectService& svc)
 {
 	auto token = stopper.get_token();
@@ -658,6 +653,28 @@ shared_ptr<srv::Session> Framework::ConnectPlayer(shared_ptr<srv::Session> sessi
 	session->Release();
 
 	return session;
+}
+
+void Framework::ProceedBeginDiconnect(ULONG_PTR key)
+{
+	const auto place = static_cast<size_t>(key);
+	auto session = GetSession(place);
+	if (!session) [[unlikely]] {
+		std::cout << "연결을 끊을 세션이 없음! (키: " << key << ")\n";
+		return;
+	};
+
+	BeginDisconnect(session);
+}
+
+void Framework::ProceedBeginDiconnect(shared_ptr<srv::Session> session)
+{
+	BeginDisconnect(session);
+}
+
+void Framework::ProceedBeginDiconnect(srv::Session* session)
+{
+	BeginDisconnect(session);
 }
 
 void Framework::BeginDisconnect(const std::size_t place)
