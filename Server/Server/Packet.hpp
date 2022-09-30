@@ -31,6 +31,9 @@ namespace srv
 			: Packet(type, sizeof(Derived))
 		{}
 
+		constexpr ~Packet()
+		{}
+
 		friend inline constexpr Derived* CreatePacket(const Derived&);
 		friend inline constexpr Derived* CreatePacket(Derived&&);
 
