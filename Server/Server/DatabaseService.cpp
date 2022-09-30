@@ -98,27 +98,32 @@ bool db::Service::Awake()
 					}
 					else
 					{
+						sql::GrabDiagnostics(SQL_HANDLE_DBC, myConnector);
 						RaiseDatabaseError("SQL 서버 로그인을 실패!");
 						return false;
 					}
 				}
 				else
 				{
+					sql::GrabDiagnostics(SQL_HANDLE_DBC, myConnector);
 					RaiseDatabaseError("SQL 연결의 재시도 시간을 설정하는데 실패!");
 				}
 			}
 			else
 			{
+				sql::GrabDiagnostics(SQL_HANDLE_DBC, myConnector);
 				RaiseDatabaseError("SQL 연결자 할당에 실패!");
 			}
 		}
 		else
 		{
+			sql::GrabDiagnostics(SQL_HANDLE_ENV, myEnvironment);
 			RaiseDatabaseError("SQL 버전 설정을 실패!");
 		}
 	}
 	else
 	{
+		sql::GrabDiagnostics(SQL_HANDLE_ENV, myEnvironment);
 		RaiseDatabaseError("SQL 환경변수 할당에 실패!");
 	}
 
@@ -229,14 +234,11 @@ shared_ptr<db::Query> db::Service::PopJob()
 	return result;
 }
 
-db::Query& db::Service::RegisterStatement(std::wstring_view tag, std::wstring_view statement)
+void db::Service::RegisterStatement(std::wstring_view tag, std::wstring_view statement)
 {
 	std::scoped_lock locken{ JobBarrier };
 
 	myStatements.try_emplace(tag, statement);
-	auto& tagged = myQueries[tag] = CreateQuery(statement);
-
-	return *tagged;
 }
 
 shared_ptr<db::Query> db::Service::CreateQuery(std::wstring_view statement)
@@ -251,11 +253,13 @@ shared_ptr<db::Query> db::Service::CreateQuery(std::wstring_view statement)
 
 		if (!sql::IsSucceed(sqlcode))
 		{
+			sql::GrabDiagnostics(SQL_HANDLE_STMT, result->myQuery);
 			RaiseDatabaseError("SQL Error!");
 		}
 	}
 	else
 	{
+		sql::GrabDiagnostics(SQL_HANDLE_STMT, result->myQuery);
 		RaiseDatabaseError("SQL Error!");
 	}
 

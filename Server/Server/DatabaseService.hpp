@@ -20,7 +20,7 @@ namespace db
 		db::Query& PushJobByTag(std::wstring_view&& tag);
 		shared_ptr<db::Query> PopJob();
 
-		db::Query& RegisterStatement(std::wstring_view tag, std::wstring_view statement);
+		void RegisterStatement(std::wstring_view tag, std::wstring_view statement);
 
 		const std::pair<const std::wstring&, const shared_ptr<const db::Query>> GetStatement(std::wstring_view tag) const;
 		const std::pair<std::wstring, shared_ptr<db::Query>> GetStatement(std::wstring_view tag);
