@@ -14,7 +14,7 @@ namespace srv
 		}
 
 		constexpr Asynchron(const Operations& op, const WSABUF& wbuffer)
-			: myOperation(op)
+			: Context(op)
 			, myBuffer(wbuffer), myData()
 		{
 			myBuffer.buf = myData;
@@ -25,7 +25,7 @@ namespace srv
 		}
 
 		constexpr Asynchron(const Operations& op, WSABUF&& wbuffer)
-			: myOperation(op)
+			: Context(op)
 			, myBuffer(std::forward<WSABUF>(wbuffer)), myData()
 		{
 			myBuffer.buf = myData;
@@ -97,7 +97,6 @@ namespace srv
 			return myBuffer;
 		}
 
-		const Operations myOperation;
 		WSABUF myBuffer;
 		CHAR myData[BUFSIZ];
 	};
