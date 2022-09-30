@@ -67,10 +67,14 @@ public:
 	void RouteSucceed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes);
 	void RouteFailed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes);
 
-	void ProceedAccept(srv::BasicContext* context);
-	void ProceedSent(srv::BasicContext* context, ULONG_PTR key, unsigned bytes);
-	void ProceedRecv(srv::BasicContext* context, ULONG_PTR key, unsigned bytes);
-	void ProceedDispose(srv::BasicContext* context, ULONG_PTR key);
+	void ProceedAccept(srv::Asynchron* context);
+	template<crtp Context>
+	void ProceedSent(srv::BasicContext<Context>* context, ULONG_PTR key, unsigned bytes);
+	template<crtp Context>
+	void ProceedRecv(srv::BasicContext<Context>* context, ULONG_PTR key, unsigned bytes);
+	template<crtp Context>
+	void ProceedDispose(srv::BasicContext<Context>* context, ULONG_PTR key);
+
 	void ProceedBeginDiconnect(ULONG_PTR key);
 	void ProceedBeginDiconnect(shared_ptr<srv::Session> session);
 	void ProceedBeginDiconnect(srv::Session* session);

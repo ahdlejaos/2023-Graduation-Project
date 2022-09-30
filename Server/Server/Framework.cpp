@@ -225,7 +225,7 @@ void Framework::RouteFailed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned byt
 	}
 }
 
-void Framework::ProceedAccept(srv::BasicContext* context)
+void Framework::ProceedAccept(srv::Asynchron* context)
 {
 	const SOCKET target = myEntryPoint.Update();
 
