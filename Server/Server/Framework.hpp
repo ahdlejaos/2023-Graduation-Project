@@ -15,19 +15,6 @@ struct std::hash<db::Job>
 	}
 };
 
-enum class TIMED_JOB_TYPES : unsigned char
-{
-	NONE = 0,
-
-};
-
-enum class DB_JOB_TYPES : unsigned char
-{
-	NONE = 0,
-	CHECK_ID,
-	FIND_USER,
-};
-
 struct TimerBlob;
 
 class Framework
@@ -148,7 +135,7 @@ private:
 class TimedJob
 {
 public:
-	constexpr TimedJob(TIMED_JOB_TYPES type, Clock time)
+	constexpr TimedJob(srv::DatabaseTasks type, Clock time)
 		: myType(type), myTime(time)
 		, myData()
 		, myReturn(nullptr)
@@ -176,7 +163,7 @@ public:
 
 protected:
 	Clock myTime;
-	TIMED_JOB_TYPES myType;
+	srv::DatabaseTasks myType;
 	char myData[100];
 	void* myReturn;
 };
