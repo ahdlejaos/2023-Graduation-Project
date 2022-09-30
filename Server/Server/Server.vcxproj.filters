@@ -102,6 +102,9 @@
     <ClCompile Include="Context.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="DatabaseException.cpp">
+      <Filter>소스 파일\Database</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -194,6 +197,9 @@
     </ClInclude>
     <ClInclude Include="Context.hpp">
       <Filter>헤더 파일\Asynchronizer</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseException.hpp">
+      <Filter>헤더 파일\Database</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

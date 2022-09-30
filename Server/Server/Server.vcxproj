@@ -89,7 +89,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)lib;$(SolutionDir)lib;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\plugin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>false</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,7 +114,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)lib;$(SolutionDir)lib;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\plugin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>false</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -135,7 +135,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)lib;$(SolutionDir)lib;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\plugin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>false</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,7 +160,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)lib;$(SolutionDir)lib;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\vs14;D:\Program Files\MySQL\MySQL Connector C++ 8.0\lib64\plugin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>false</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -172,6 +172,7 @@
     <ClCompile Include="ConnectService.cpp" />
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="DatabaseContext.cpp" />
+    <ClCompile Include="DatabaseException.cpp" />
     <ClCompile Include="DatabaseJob.cpp" />
     <ClCompile Include="DatabaseQuery.cpp" />
     <ClCompile Include="DatabaseService.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="DatabaseJob.hpp" />
     <ClInclude Include="DatabaseQuery.hpp" />
     <ClInclude Include="DatabaseService.hpp" />
+    <ClInclude Include="DatabaseException.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="GameObject.hpp" />
     <ClInclude Include="MD5.hpp" />
