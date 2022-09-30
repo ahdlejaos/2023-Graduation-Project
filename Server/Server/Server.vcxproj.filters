@@ -156,9 +156,6 @@
     <ClInclude Include="BasicDatabaseJob.hpp">
       <Filter>헤더 파일\Database</Filter>
     </ClInclude>
-    <ClInclude Include="StringHasher.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Asynchron.hpp">
       <Filter>헤더 파일\Asynchronizer</Filter>
     </ClInclude>
@@ -188,6 +185,9 @@
     </ClInclude>
     <ClInclude Include="GameObject.hpp">
       <Filter>헤더 파일\Contents</Filter>
+    </ClInclude>
+    <ClInclude Include="StringHasher.hpp">
+      <Filter>헤더 파일\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
