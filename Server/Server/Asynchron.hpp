@@ -83,8 +83,7 @@ namespace srv
 
 		inline void Clear() noexcept
 		{
-			ZeroMemory(this, sizeof(WSAOVERLAPPED));
-			ZeroMemory(myData, BUFSIZ);
+			ZeroMemory(myData, sizeof(myData));
 			myBuffer.len = 0;
 		}
 

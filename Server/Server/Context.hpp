@@ -29,5 +29,12 @@ namespace srv
 		constexpr Context(const Operations& op)
 			: BasicContext(op)
 		{}
+
+		inline void Clear() noexcept
+		{
+			ZeroMemory(this, sizeof(WSAOVERLAPPED));
+
+			this->Cast()->Clear();
+		}
 	};
 }
