@@ -302,7 +302,7 @@ namespace srv
 		SC_CHAT, // 메시지 (시스템 알림, 방 대화, 대기실 대화, 1:1대화 등)
 	};
 
-	class Context;
+	template<typename Derived> class Context;
 	class Asynchron;
 	class DatabaseContext;
 	class Session;
@@ -310,16 +310,19 @@ namespace srv
 	class Room;
 }
 
+namespace db
+{
+	class Serivce;
+	class Job;
+	class Query;
+	template<typename Ty> class BasicJob;
+}
+
 class Framework;
 class TimedJob;
-class DatabaseJob;
 
 class ConnectService;
 class AsyncPoolService;
-class DatabaseService;
-class DatabaseQuery;
-template<typename Ty> class BasicDatabaseJob;
-class DatabaseJob;
 
 struct BasicUserBlob;
 struct UserBlob;
