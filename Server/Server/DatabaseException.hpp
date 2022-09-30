@@ -17,16 +17,7 @@ namespace db
 	};
 }
 
-namespace sql
-{
-	static SQLSMALLINT records = 0;
-	static SQLINTEGER native{};
-	static SQLWCHAR state[7]{};
-	static SQLWCHAR msg[1024]{};
-	static SQLSMALLINT msg_length{};
-}
-
 inline void RaiseDatabaseError(const char* const what) noexcept(false)
 {
-	throw db::Exception(what, sql::state, sql::msg, sql::native);
+	throw db::Exception{ what, sql::state, sql::msg, sql::native };
 }
