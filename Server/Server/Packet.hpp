@@ -4,18 +4,19 @@
 #pragma pack(push, 1)
 namespace srv
 {
-	template <class Derived>
-		requires std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
+	template <class Derived> requires crtp<Derived>
 	class Packet : public BasicPacket
 	{
 	protected:
-		[[nodiscard]] constexpr Derived& Cast() noexcept
+		[[nodiscard]]
+		inline constexpr Derived& Cast() noexcept
 		{
 			static_assert(std::derived_from<Derived, Packet>);
 			return static_cast<Derived&>(*this);
 		}
 
-		[[nodiscard]] constexpr const Derived& Cast() const noexcept
+		[[nodiscard]]
+		inline constexpr const Derived& Cast() const noexcept
 		{
 			static_assert(std::derived_from<Derived, Packet>);
 			return static_cast<const Derived&>(*this);
@@ -47,12 +48,13 @@ namespace srv
 	class SCPacketServerInfo : public Packet<SCPacketServerInfo>
 	{
 	public:
-		constexpr SCPacketServerInfo(
+		constexpr SCPacketServerInfo
+		(
 			unsigned users,
 			unsigned max_users,
-			const std::wstring_view version)
-			: Packet(Protocol::SC_SERVER_INFO
-			)
+			const std::wstring_view version
+		)
+			: Packet(Protocol::SC_SERVER_INFO)
 			, usersCount(users), usersMax(max_users)
 			, gameVersion()
 		{

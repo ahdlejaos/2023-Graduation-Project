@@ -2,18 +2,19 @@
 
 namespace srv
 {
-	template<typename Derived>
-		requires std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
+	template<typename Derived> requires crtp<Derived>
 	class BasicContext : public WSAOVERLAPPED
 	{
 	protected:
-		[[nodiscard]] constexpr Derived& Cast() noexcept
+		[[nodiscard]]
+		inline constexpr Derived& Cast() noexcept
 		{
 			static_assert(std::derived_from<Derived, Packet>);
 			return static_cast<Derived&>(*this);
 		}
 
-		[[nodiscard]] constexpr const Derived& Cast() const noexcept
+		[[nodiscard]]
+		inline constexpr const Derived& Cast() const noexcept
 		{
 			static_assert(std::derived_from<Derived, Packet>);
 			return static_cast<const Derived&>(*this);
