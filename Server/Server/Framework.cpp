@@ -249,7 +249,7 @@ void Framework::ProceedAccept(srv::Asynchron* context)
 	}
 }
 
-void Framework::ProceedSent(srv::BasicContext* context, ULONG_PTR key, unsigned bytes)
+void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
 {
 	auto& wbuffer = context->myBuffer;
 	auto& buffer = wbuffer.buf;
@@ -284,7 +284,7 @@ void Framework::ProceedSent(srv::BasicContext* context, ULONG_PTR key, unsigned 
 	}
 }
 
-void Framework::ProceedRecv(srv::BasicContext* context, ULONG_PTR key, unsigned bytes)
+void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
 {
 	const auto place = static_cast<const std::size_t>(key);
 	auto session = GetSession(place);
@@ -481,7 +481,7 @@ void Framework::ProceedRecv(srv::BasicContext* context, ULONG_PTR key, unsigned 
 	}
 }
 
-void Framework::ProceedDispose(srv::BasicContext* context, ULONG_PTR key)
+void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 {
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
@@ -501,23 +501,6 @@ void Framework::ProceedDispose(srv::BasicContext* context, ULONG_PTR key)
 
 		numberUsers--;
 	}
-}
-
-void Framework::ProceedBeginDiconnect(ULONG_PTR key)
-{
-	const auto place = static_cast<size_t>(key);
-	auto session = GetSession(place);
-	if (!session) [[unlikely]] {
-		std::cout << "¿¬°áÀ» ²÷À» ¼¼¼ÇÀÌ ¾øÀ½! (Å°: " << key << ")\n";
-		return;
-	};
-
-	BeginDisconnect(session);
-}
-
-void Framework::ProceedBeginDiconnect(shared_ptr<srv::Session> session)
-{
-	BeginDisconnect(session);
 }
 
 void Worker(std::stop_source& stopper, Framework& me, ConnectService& svc)
@@ -660,7 +643,7 @@ void Framework::ProceedBeginDiconnect(ULONG_PTR key)
 	const auto place = static_cast<size_t>(key);
 	auto session = GetSession(place);
 	if (!session) [[unlikely]] {
-		std::cout << "ì—°ê²°ì„ ëŠì„ ì„¸ì…˜ì´ ì—†ìŒ! (í‚¤: " << key << ")\n";
+		std::cout << "¿¬°áÀ» ²÷À» ¼¼¼ÇÀÌ ¾øÀ½! (Å°: " << key << ")\n";
 		return;
 	};
 
