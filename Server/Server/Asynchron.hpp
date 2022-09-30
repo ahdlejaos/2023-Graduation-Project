@@ -3,7 +3,7 @@
 
 namespace srv
 {
-	class Asynchron : public BasicContext
+	class Asynchron : public BasicContext<Asynchron>
 	{
 	public:
 		constexpr Asynchron(const Operations& service)
