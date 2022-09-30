@@ -76,10 +76,11 @@ void Framework::Awake(unsigned short port_tcp)
 	}
 	catch (db::Exception& e)
 	{
-		Println("데이터베이스 오류 발생: ", e.what()
-			, "\n코드: ", e.state
-			, "\nSQL 메시지: ", e.msg
-			, "\n오류의 네이티브 핸들", e.native);
+		Println("데이터베이스 오류 발생: ", e.what());
+		std::wcout << "\n코드: " << e.state;
+		std::wcout << "\nSQL 메시지: " << e.msg;
+		std::wcout << "\n오류의 네이티브 핸들: " << e.native << '\n';
+
 		return;
 	}
 	catch (std::exception& e)

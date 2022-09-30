@@ -234,6 +234,4 @@ namespace sql
 		return 0;
 	}
 }
-
-
 #endif

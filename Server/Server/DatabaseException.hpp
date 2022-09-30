@@ -8,7 +8,9 @@ namespace db
 	public:
 		Exception(const char* const what, std::wstring_view id, std::wstring_view qmsg, SQLINTEGER code)
 			: exception(what)
-			, msg{ qmsg }, state{ id }, native(code)
+			, msg{ qmsg.cbegin(), qmsg.cend() }
+			, state{ id.cbegin(), id.cend() }
+			, native(code)
 		{}
 
 		const SQLINTEGER native;

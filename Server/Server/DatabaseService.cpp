@@ -251,12 +251,12 @@ shared_ptr<db::Query> db::Service::CreateQuery(std::wstring_view statement)
 
 		if (!sql::IsSucceed(sqlcode))
 		{
-			throw std::runtime_error("SQL Error!");
+			RaiseDatabaseError("SQL Error!");
 		}
 	}
 	else
 	{
-		throw std::runtime_error("SQL Error!");
+		RaiseDatabaseError("SQL Error!");
 	}
 
 	return result;

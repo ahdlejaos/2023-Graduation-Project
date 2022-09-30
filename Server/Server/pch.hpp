@@ -316,9 +316,13 @@ namespace db
 {
 	class Serivce;
 	class Query;
-	class Job;
+	class Exception;
+
 	template<crtp Ty> class BasicJob;
+	class Job;
 }
+
+namespace sql{ }
 
 class Framework;
 class TimedJob;
