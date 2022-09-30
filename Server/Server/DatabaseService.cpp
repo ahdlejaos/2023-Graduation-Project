@@ -29,21 +29,21 @@ bool db::Service::Awake()
 {
 	if (!std::filesystem::exists(mySecrets))
 	{
-		std::cerr << "비밀 정보 파일이 없음!\n";
+		RaiseDatabaseError("비밀 정보 파일이 없음!");
 		return false;
 	}
 
 	std::ifstream my_raw_secret{ mySecrets };
 	if (!my_raw_secret)
 	{
-		std::cerr << "비밀 파일을 불러올 수 없음!\n";
+		RaiseDatabaseError("비밀 파일을 불러올 수 없음!");
 		return false;
 	}
 
 	json my_secret = json::parse(my_raw_secret);
 	if (!my_raw_secret)
 	{
-		std::cerr << "JSON에 문제가 있어서 비밀 파일을 불러올 수 없음!\n";
+		RaiseDatabaseError("JSON에 문제가 있어서 비밀 파일을 불러올 수 없음!");
 		return false;
 	}
 
@@ -85,22 +85,41 @@ bool db::Service::Awake()
 			if (sql::IsSucceed(sqlcode))
 			{
 				constexpr std::ptrdiff_t timeout_second = 5;
-				SQLSetConnectAttr(myConnector, SQL_LOGIN_TIMEOUT, SQLPOINTER(timeout_second), 0);
-
-				// Connect to data source
-				sqlcode = SQLConnect(myConnector, entry, SQL_NTS, username, userlen, password, passlen);
-
-				if (!sql::IsSucceed(sqlcode))
+				sqlcode = SQLSetConnectAttr(myConnector, SQL_LOGIN_TIMEOUT, SQLPOINTER(timeout_second), 0);
+				
+				if (sql::IsSucceed(sqlcode))
 				{
-					std::cout << "SQL 서버 로그인 실패!\n";
-					return false;
+					// Connect to data source
+					sqlcode = SQLConnect(myConnector, entry, SQL_NTS, username, userlen, password, passlen);
+
+					if (sql::IsSucceed(sqlcode))
+					{
+						return true;
+					}
+					else
+					{
+						RaiseDatabaseError("SQL 서버 로그인을 실패!");
+						return false;
+					}
 				}
 				else
 				{
-					return true;
+					RaiseDatabaseError("SQL 연결의 재시도 시간을 설정하는데 실패!");
 				}
 			}
+			else
+			{
+				RaiseDatabaseError("SQL 연결자 할당에 실패!");
+			}
 		}
+		else
+		{
+			RaiseDatabaseError("SQL 버전 설정을 실패!");
+		}
+	}
+	else
+	{
+		RaiseDatabaseError("SQL 환경변수 할당에 실패!");
 	}
 
 	return false;
