@@ -123,9 +123,6 @@
     <ClInclude Include="stdafx.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="MD5.hpp">
       <Filter>헤더 파일\Utility</Filter>
     </ClInclude>
@@ -188,6 +185,9 @@
     </ClInclude>
     <ClInclude Include="Room.hpp">
       <Filter>헤더 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.hpp">
+      <Filter>헤더 파일\Contents</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
