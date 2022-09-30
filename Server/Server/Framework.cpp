@@ -822,9 +822,6 @@ void Framework::BuildDatabase()
 
 	if (!myDatabaseService.Awake())
 	{
-		Println("데이터베이스 오류!");
-
-		srv::RaiseSystemError(std::errc::operation_not_permitted);
 	}
 
 	myDatabaseService.Start();

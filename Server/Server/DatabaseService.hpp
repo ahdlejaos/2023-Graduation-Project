@@ -54,6 +54,12 @@ namespace db
 		std::unordered_map<std::wstring_view, std::wstring> myStatements;
 		std::unordered_map<std::wstring_view, shared_ptr<db::Query>> myQueries;
 	};
+
+	class Exception : public std::exception
+	{
+	public:
+
+	};
 }
 
 constexpr std::vector<std::wstring_view> BuildDatabaseTags();

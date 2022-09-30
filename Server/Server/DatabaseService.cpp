@@ -94,6 +94,10 @@ bool db::Service::Awake()
 					std::cout << "SQL 서버 로그인 실패!\n";
 					return false;
 				}
+				else
+				{
+					return true;
+				}
 			}
 		}
 	}
