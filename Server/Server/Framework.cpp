@@ -139,7 +139,7 @@ void Framework::Release()
 
 void Framework::RouteSucceed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes)
 {
-	auto asynchron = static_cast<srv::Asynchron*>(context);
+	auto asynchron = static_cast<srv::BasicContext*>(context);
 	const auto operation = asynchron->myOperation;
 
 	switch (operation)

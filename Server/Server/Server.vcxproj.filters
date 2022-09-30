@@ -25,6 +25,9 @@
     <Filter Include="소스 파일\Database">
       <UniqueIdentifier>{86805f52-ffd6-4b4c-83d8-2485bc841a21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Asynchronizer">
+      <UniqueIdentifier>{5f20524b-bbe5-4464-ab40-ce00d6cfd270}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp">
@@ -120,9 +123,6 @@
     <ClInclude Include="Runnable.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Asynchron.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Packet.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -171,17 +171,20 @@
     <ClInclude Include="BasicDatabaseJob.hpp">
       <Filter>헤더 파일\Database</Filter>
     </ClInclude>
-    <ClInclude Include="BasicPacket.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DatabaseContext.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="StringHasher.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Asynchron.hpp">
+      <Filter>헤더 파일\Asynchronizer</Filter>
+    </ClInclude>
     <ClInclude Include="BasicContext.hpp">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Asynchronizer</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicPacket.hpp">
+      <Filter>헤더 파일\Asynchronizer</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseContext.hpp">
+      <Filter>헤더 파일\Asynchronizer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
