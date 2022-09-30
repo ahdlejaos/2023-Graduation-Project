@@ -75,7 +75,7 @@ void Framework::Awake(unsigned short port_tcp)
 	}
 	catch (std::exception& e)
 	{
-		Println("메모리 할당 중에 오류 발생!");
+		Println("메모리 할당 중에 오류 발생: ", e.what());
 		return;
 	}
 

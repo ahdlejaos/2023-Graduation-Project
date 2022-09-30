@@ -101,7 +101,7 @@ bool db::Service::Awake()
 	return false;
 }
 
-constexpr void db::Service::Start()
+void db::Service::Start()
 {
 	auto prepared_statements = BuildPreparedStatements();
 

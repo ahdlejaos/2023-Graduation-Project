@@ -12,7 +12,7 @@ namespace db
 		~Service();
 
 		bool Awake();
-		constexpr void Start();
+		void Start();
 		bool Disconnect();
 
 		db::Query& PushJob(std::wstring_view&& statement);
