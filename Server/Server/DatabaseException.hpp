@@ -1,4 +1,5 @@
 #pragma once
+#include "MySQL.hpp"
 
 namespace db
 {
