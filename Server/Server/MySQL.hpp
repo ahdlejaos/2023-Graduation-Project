@@ -13,60 +13,55 @@ namespace sql
 	static SQLWCHAR msg[1024]{};
 	static SQLSMALLINT msg_length{};
 
-extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept
-{
-	return (SQL_SUCCEEDED(code));
-}
+	extern "C" let bool IsSucceed(const SQLRETURN code) noexcept
+	{
+		return (SQL_SUCCEEDED(code));
+	}
 
-extern "C" let bool SQLSucceedWithInfo(const SQLRETURN code) noexcept
-{
-	return (code == SQL_SUCCESS_WITH_INFO);
-}
+	extern "C" let bool IsSucceedWithInfo(const SQLRETURN code) noexcept
+	{
+		return (code == SQL_SUCCESS_WITH_INFO);
+	}
 
-extern "C" let bool SQLStatementHasDiagnotics(const SQLRETURN code) noexcept
-{
-	return (code == SQL_ERROR || code == SQL_SUCCESS_WITH_INFO);
-}
+	extern "C" let bool IsStatementHasDiagnotics(const SQLRETURN code) noexcept
+	{
+		return (code == SQL_ERROR || code == SQL_SUCCESS_WITH_INFO);
+	}
 
-extern "C" let bool SQLDiagEmpty(const SQLRETURN code) noexcept
-{
-	return (code == SQL_NO_DATA_FOUND);
-}
+	extern "C" let bool IsFetchEnded(const SQLRETURN code) noexcept
+	{
+		return (code == SQL_NO_DATA_FOUND);
+	}
 
-extern "C" let bool SQLFetchEnded(const SQLRETURN code) noexcept
-{
-	return (code == SQL_NO_DATA_FOUND);
-}
+	extern "C" let bool HasParameters(const SQLRETURN code) noexcept
+	{
+		return (code == SQL_PARAM_DATA_AVAILABLE);
+	}
 
-extern "C" let bool SQLHasParameters(const SQLRETURN code) noexcept
-{
-	return (code == SQL_PARAM_DATA_AVAILABLE);
-}
+	extern "C" let bool IsFailed(const SQLRETURN code) noexcept
+	{
+		return (code == SQL_ERROR);
+	}
 
-extern "C" let bool SQLFailed(const SQLRETURN code) noexcept
-{
-	return (code == SQL_ERROR);
-}
+	extern "C" inline SQLRETURN GrabDiagnostics(const SQLSMALLINT & type, const SQLHANDLE & target)
+	{
+		return SQLGetDiagRecW(type, target
+			, ++records
+			, state, &native
+			, msg, 1024, &msg_length);
+	}
 
-extern "C" inline SQLRETURN SQLDiagnostics(const SQLSMALLINT & type, const SQLHANDLE & target)
-{
-	static SQLSMALLINT records = 0;
-	static SQLINTEGER native{};
-	static SQLWCHAR state[7]{};
-	static SQLWCHAR msg[512]{};
-	static SQLSMALLINT msg_length{};
-
-	SQLRETURN sqlcode = SQLGetDiagRecW(type, target
-		, ++records
-		, state, &native
-		, msg, sizeof(msg), &msg_length);
-
-	if (!SQLDiagEmpty(sqlcode))
+	extern "C" inline void PrintDiagnostics()
 	{
 		const std::wstring temp_state{ state, state + 7 };
 		const std::wstring temp_msg{ msg, msg + 256 };
 
 		std::wcout << "state: " << temp_state << "\nmsg(" << native << "): " << temp_msg << '\n';
+	}
+
+	extern "C" let bool IsDiagEmpty(const SQLRETURN code) noexcept
+	{
+		return (code == SQL_NO_DATA_FOUND);
 	}
 
 	namespace detail
