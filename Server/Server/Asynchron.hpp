@@ -1,9 +1,9 @@
 #pragma once
-#include "BasicContext.hpp"
+#include "Context.hpp"
 
 namespace srv
 {
-	class Asynchron : public BasicContext<Asynchron>
+	class Asynchron : public Context<Asynchron>
 	{
 	public:
 		constexpr Asynchron(const Operations& service)
