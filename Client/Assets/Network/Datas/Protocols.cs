@@ -60,5 +60,3 @@ public enum Protocols : byte
 
 	SC_CHAT, // 메시지 (시스템 알림, 방 대화, 대기실 대화, 1:1대화 등)
 }
-
-
