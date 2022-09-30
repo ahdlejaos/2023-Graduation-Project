@@ -4,6 +4,7 @@
 #include "Session.hpp"
 #include "PlayingSession.hpp"
 #include "Packet.hpp"
+#include "DatabaseException.hpp"
 
 void Worker(std::stop_source& stopper, Framework& me, ConnectService& pool);
 void TimerWorker(std::stop_source& stopper, Framework& me);
@@ -72,6 +73,14 @@ void Framework::Awake(unsigned short port_tcp)
 		BuildSessions();
 		BuildRooms();
 		BuildResources();
+	}
+	catch (db::Exception& e)
+	{
+		Println("데이터베이스 오류 발생: ", e.what()
+			, "\n코드: ", e.state
+			, "\nSQL 메시지: ", e.msg
+			, "\n오류의 네이티브 핸들", e.native);
+		return;
 	}
 	catch (std::exception& e)
 	{
@@ -522,7 +531,8 @@ void Worker(std::stop_source& stopper, Framework& me, ConnectService& svc)
 			break;
 		}
 
-			if (TRUE == result) [[likely]] {
+			if (TRUE == result) [[likely]]
+			{
 				me.RouteSucceed(overlap, key, static_cast<int>(bytes));
 			}
 			else
@@ -820,10 +830,7 @@ void Framework::BuildDatabase()
 {
 	Println("DB 서비스를 준비하는 중...");
 
-	if (!myDatabaseService.Awake())
-	{
-	}
-
+	myDatabaseService.Awake();
 	myDatabaseService.Start();
 }
 
