@@ -322,7 +322,6 @@ class Framework;
 class TimedJob;
 
 class ConnectService;
-class AsyncPoolService;
 
 struct BasicUserBlob;
 struct UserBlob;
