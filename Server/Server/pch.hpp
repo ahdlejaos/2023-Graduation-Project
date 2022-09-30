@@ -4,6 +4,9 @@
 #define __PCH__
 #include "stdafx.hpp"
 
+template<typename Derived>
+concept crtp = std::is_class_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>;
+
 namespace srv
 {
 	constexpr wchar_t GAME_VERSION[] = L"0.0.1";
