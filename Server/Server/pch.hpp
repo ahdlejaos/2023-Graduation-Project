@@ -302,9 +302,11 @@ namespace srv
 		SC_CHAT, // 메시지 (시스템 알림, 방 대화, 대기실 대화, 1:1대화 등)
 	};
 
-	template<typename Derived> class Context;
+	class BasicContext;
+	template<crtp Derived> class Context;
 	class Asynchron;
 	class DatabaseContext;
+
 	class Session;
 	class PlayingSession;
 	class Room;
