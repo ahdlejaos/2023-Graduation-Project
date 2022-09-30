@@ -139,32 +139,32 @@ void Framework::Release()
 
 void Framework::RouteSucceed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes)
 {
-	auto asynchron = static_cast<srv::BasicContext*>(context);
-	const auto operation = asynchron->myOperation;
+	auto wrapper = static_cast<srv::BasicContext*>(context);
+	const auto operation = wrapper->myOperation;
 
 	switch (operation)
 	{
 		case srv::Operations::ACCEPT:
 		{
-			ProceedAccept(asynchron);
+			ProceedAccept(static_cast<srv::Asynchron*>(wrapper));
 		}
 		break;
 
 		case srv::Operations::SEND:
 		{
-			ProceedSent(asynchron, key, bytes);
+			ProceedSent(static_cast<srv::Asynchron*>(wrapper), key, bytes);
 		}
 		break;
 
 		case srv::Operations::RECV:
 		{
-			ProceedRecv(asynchron, key, bytes);
+			ProceedRecv(static_cast<srv::Asynchron*>(wrapper), key, bytes);
 		}
 		break;
 
 		case srv::Operations::DISPOSE:
 		{
-			ProceedDispose(asynchron, key);
+			ProceedDispose(static_cast<srv::Asynchron*>(wrapper), key);
 		}
 		break;
 
