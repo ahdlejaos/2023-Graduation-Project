@@ -10,7 +10,7 @@ public:
 	~DatabaseService();
 
 	bool Awake();
-	void Start();
+	constexpr void Start();
 	bool Disconnect();
 
 	DatabaseQuery& PushJob(std::wstring_view&& statement);
