@@ -1,7 +1,11 @@
 #pragma once
 #include "BasicDatabaseJob.hpp"
 
-class DatabaseJob : BasicDatabaseJob<DatabaseJob>
+namespace db
 {
-public:
-};
+	class Job : BasicJob<Job>
+	{
+	public:
+
+	};
+}

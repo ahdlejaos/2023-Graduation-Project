@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "DatabaseQuery.hpp"
 
-SQLRETURN DatabaseQuery::Execute()
+SQLRETURN db::Query::Execute()
 {
 	SQLRETURN sqlcode{};
 
@@ -22,7 +22,7 @@ SQLRETURN DatabaseQuery::Execute()
 	return sqlcode;
 }
 
-SQLRETURN DatabaseQuery::Fetch()
+SQLRETURN db::Query::Fetch()
 {
 	SQLRETURN sqlcode{};
 

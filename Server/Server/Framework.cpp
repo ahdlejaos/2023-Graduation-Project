@@ -503,7 +503,7 @@ void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 	}
 }
 
-void Framework::ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key)
+void Framework::ProceedBeginDiconnect(srv::BasicContext* context, ULONG_PTR key)
 {
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
@@ -710,7 +710,7 @@ BOOL Framework::PostDatabaseJob(const PID user_id, const srv::DatabaseTasks type
 	return 0;
 }
 
-DatabaseQuery& Framework::DBAddPlayer(BasicUserBlob data)
+db::Query& Framework::DBAddPlayer(BasicUserBlob data)
 {
 	return myDatabaseService.PushJob(std::vformat(L"INSERT INTO [Users] (ID, NICKNAME, PASSWORD) VALUES ({}, '{}', '{}');", std::make_wformat_args(data.id, data.nickname, data.password)));
 
@@ -722,7 +722,7 @@ DatabaseQuery& Framework::DBAddPlayer(BasicUserBlob data)
 	//auto sqlcode = query.Fetch();
 }
 
-DatabaseQuery& Framework::DBFindPlayer(const std::wstring_view& email)
+db::Query& Framework::DBFindPlayer(const std::wstring_view& email)
 {
 	return myDatabaseService.PushJob
 	(
@@ -736,7 +736,7 @@ DatabaseQuery& Framework::DBFindPlayer(const std::wstring_view& email)
 	));
 }
 
-DatabaseQuery& Framework::DBFindPlayerByNickname(const std::wstring_view& nickname)
+db::Query& Framework::DBFindPlayerByNickname(const std::wstring_view& nickname)
 {
 	return myDatabaseService.PushJob
 	(

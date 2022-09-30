@@ -313,9 +313,9 @@ namespace srv
 namespace db
 {
 	class Serivce;
-	class Job;
 	class Query;
-	template<typename Ty> class BasicJob;
+	class Job;
+	template<crtp Ty> class BasicJob;
 }
 
 class Framework;

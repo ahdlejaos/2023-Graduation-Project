@@ -3,74 +3,82 @@
 #include "BasicDatabaseJob.hpp"
 #include "DatabaseJob.hpp"
 
-class DatabaseService
+namespace db
 {
-public:
-	DatabaseService();
-	~DatabaseService();
+	class Service
+	{
+	public:
+		Service();
+		~Service();
 
-	bool Awake();
-	constexpr void Start();
-	bool Disconnect();
+		bool Awake();
+		constexpr void Start();
+		bool Disconnect();
 
-	DatabaseQuery& PushJob(std::wstring_view&& statement);
-	DatabaseQuery& PushJob(shared_ptr<DatabaseQuery> query);
-	DatabaseQuery& PushJobByTag(std::wstring_view&& tag, std::wformat_args&& args);
-	DatabaseQuery& PushJobByTag(std::wstring_view&& tag);
-	shared_ptr<DatabaseQuery> PopJob();
+		db::Query& PushJob(std::wstring_view&& statement);
+		db::Query& PushJob(shared_ptr<db::Query> query);
+		db::Query& PushJobByTag(std::wstring_view&& tag, std::wformat_args&& args);
+		db::Query& PushJobByTag(std::wstring_view&& tag);
+		shared_ptr<db::Query> PopJob();
 
-	DatabaseQuery& RegisterStatement(std::wstring_view tag, std::wstring_view statement);
+		db::Query& RegisterStatement(std::wstring_view tag, std::wstring_view statement);
 
-	const std::pair<const std::wstring&, const shared_ptr<const DatabaseQuery>> GetStatement(std::wstring_view tag) const;
-	const std::pair<std::wstring, shared_ptr<DatabaseQuery>> GetStatement(std::wstring_view tag);
+		const std::pair<const std::wstring&, const shared_ptr<const db::Query>> GetStatement(std::wstring_view tag) const;
+		const std::pair<std::wstring, shared_ptr<db::Query>> GetStatement(std::wstring_view tag);
 
-	DatabaseQuery& GetQuery(std::wstring_view&& tag);
-	const DatabaseQuery& GetQuery(std::wstring_view&& tag) const;
+		db::Query& GetQuery(std::wstring_view&& tag);
+		const db::Query& GetQuery(std::wstring_view&& tag) const;
 
-	bool IsEmpty() const noexcept;
-	bool IsPreparedEmpty() const noexcept;
+		bool IsEmpty() const noexcept;
+		bool IsPreparedEmpty() const noexcept;
 
-	const std::wstring myEntry = L"2023-Graduation-Project";
-	const Filepath mySecrets = ".//data//Secrets.json";
+		const std::wstring myEntry = L"2023-Graduation-Project";
+		const Filepath mySecrets = ".//data//Secrets.json";
 
-	SQLHENV myEnvironment;
-	SQLHDBC myConnector;
-	bool isConnected;
+		SQLHENV myEnvironment;
+		SQLHDBC myConnector;
+		bool isConnected;
 
-private:
-	SQLHSTMT CreateStatement();
-	SQLRETURN CreateStatementAt(SQLHSTMT& place);
-	SQLRETURN PrepareStatement(const SQLHSTMT& statement, const std::wstring_view& query);
-	shared_ptr<DatabaseQuery> CreateQuery(std::wstring_view statement);
+	private:
+		SQLHSTMT CreateStatement();
+		SQLRETURN CreateStatementAt(SQLHSTMT& place);
+		SQLRETURN PrepareStatement(const SQLHSTMT& statement, const std::wstring_view& query);
+		shared_ptr<db::Query> CreateQuery(std::wstring_view statement);
 
-	std::array<DatabaseJob, 100> myJobPool;
+		std::array<Job, 100> myJobPool;
 
-	std::queue<shared_ptr<DatabaseQuery>> myJobQueue;
-	std::mutex JobBarrier;
-	weak_ptr<DatabaseQuery> myLastJob;
+		std::queue<shared_ptr<db::Query>> myJobQueue;
+		std::mutex JobBarrier;
+		weak_ptr<db::Query> myLastJob;
 
-	std::unordered_map<std::wstring_view, std::wstring> myStatements;
-	std::unordered_map<std::wstring_view, shared_ptr<DatabaseQuery>> myQueries;
-};
+		std::unordered_map<std::wstring_view, std::wstring> myStatements;
+		std::unordered_map<std::wstring_view, shared_ptr<db::Query>> myQueries;
+	};
+}
 
 constexpr std::vector<std::wstring_view> BuildDatabaseTags();
 
 constexpr std::vector<std::tuple<std::wstring_view, std::wstring_view>> BuildPreparedStatements();
 
-class JobUserFindByID : BasicDatabaseJob<JobUserFindByID>
+namespace db
 {
-public:
-	PID target_id;
-};
+	class JobUserFindByID;
 
-class JobUserFindByNickname : BasicDatabaseJob<JobUserFindByNickname>
-{
-public:
-	wchar_t nickname[20];
-};
+	class JobUserFindByID : BasicJob<JobUserFindByID>
+	{
+	public:
+		PID target_id;
+	};
 
-class JobUserFindByNicknameIncluded : BasicDatabaseJob<JobUserFindByNicknameIncluded>
-{
-public:
-	wchar_t nickname[20];
-};
+	class JobUserFindByNickname : BasicJob<JobUserFindByNickname>
+	{
+	public:
+		wchar_t nickname[20];
+	};
+
+	class JobUserFindByNicknameIncluded : BasicJob<JobUserFindByNicknameIncluded>
+	{
+	public:
+		wchar_t nickname[20];
+	};
+}

@@ -10,7 +10,7 @@ namespace srv
 	class Session : public std::enable_shared_from_this<Session>
 	{
 	protected:
-		constexpr Session(unsigned place, DatabaseService& db_service)
+		constexpr Session(unsigned place, db::Service& db_service)
 			: myAuthority(), dbService(db_service)
 			, myPlace(place), mySocket(NULL), myID(0), myRoom(nullptr)
 			, isFirstCommunication(false)
@@ -28,7 +28,7 @@ namespace srv
 
 		}
 
-		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place, DatabaseService& db_service) noexcept
+		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place, db::Service& db_service) noexcept
 		{
 			return shared_ptr<Session>(new Session{ place, db_service });
 		}
@@ -404,7 +404,7 @@ namespace srv
 		Asynchron myDisconnector;
 
 	protected:
-		DatabaseService& dbService;
+		db::Service& dbService;
 
 	private:
 		Spinlock myAuthority;

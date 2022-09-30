@@ -1,8 +1,11 @@
 #pragma once
 
-template<typename Ty>
-class BasicDatabaseJob
+namespace db
 {
-public:
-	shared_ptr<DatabaseQuery> query;
-};
+	template<crtp Derived>
+	class BasicJob
+	{
+	public:
+		shared_ptr<db::Query> query;
+	};
+}

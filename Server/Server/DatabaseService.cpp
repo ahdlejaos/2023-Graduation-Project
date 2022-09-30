@@ -2,7 +2,7 @@
 #include "DatabaseService.hpp"
 #include "DatabaseQuery.hpp"
 
-DatabaseService::DatabaseService()
+db::Service::Service()
 	: myJobQueue(), JobBarrier()
 	, myStatements()
 	, myEnvironment(NULL), myConnector(NULL)
@@ -11,7 +11,7 @@ DatabaseService::DatabaseService()
 	myStatements.reserve(20);
 }
 
-DatabaseService::~DatabaseService()
+db::Service::~Service()
 {
 	if (isConnected)
 	{
@@ -24,7 +24,7 @@ DatabaseService::~DatabaseService()
 	}
 }
 
-bool DatabaseService::Awake()
+bool db::Service::Awake()
 {
 	if (!std::filesystem::exists(mySecrets))
 	{
@@ -101,7 +101,7 @@ bool DatabaseService::Awake()
 	return false;
 }
 
-constexpr void DatabaseService::Start()
+constexpr void db::Service::Start()
 {
 	auto prepared_statements = BuildPreparedStatements();
 
@@ -135,7 +135,7 @@ constexpr std::vector<std::tuple<std::wstring_view, std::wstring_view>> BuildPre
 	return result;
 }
 
-bool DatabaseService::Disconnect()
+bool db::Service::Disconnect()
 {
 	std::cout << "DB 관리 객체 정리 중...\n";
 
@@ -158,14 +158,14 @@ bool DatabaseService::Disconnect()
 	return true;
 }
 
-DatabaseQuery& DatabaseService::PushJob(std::wstring_view&& statement)
+db::Query& db::Service::PushJob(std::wstring_view&& statement)
 {
 	std::scoped_lock locken{ JobBarrier };
 
 	return *myJobQueue.emplace(CreateQuery(std::forward<std::wstring_view>(statement)));
 }
 
-DatabaseQuery& DatabaseService::PushJob(shared_ptr<DatabaseQuery> query)
+db::Query& db::Service::PushJob(shared_ptr<db::Query> query)
 {
 	std::scoped_lock locken{ JobBarrier };
 	myJobQueue.push(query);
@@ -173,7 +173,7 @@ DatabaseQuery& DatabaseService::PushJob(shared_ptr<DatabaseQuery> query)
 	return *query;
 }
 
-DatabaseQuery& DatabaseService::PushJobByTag(std::wstring_view&& tag, std::wformat_args&& args)
+db::Query& db::Service::PushJobByTag(std::wstring_view&& tag, std::wformat_args&& args)
 {
 	std::scoped_lock locken{ JobBarrier };
 
@@ -184,7 +184,7 @@ DatabaseQuery& DatabaseService::PushJobByTag(std::wstring_view&& tag, std::wform
 	return PushJob(formatted);
 }
 
-DatabaseQuery& DatabaseService::PushJobByTag(std::wstring_view&& tag)
+db::Query& db::Service::PushJobByTag(std::wstring_view&& tag)
 {
 	std::scoped_lock locken{ JobBarrier };
 
@@ -193,7 +193,7 @@ DatabaseQuery& DatabaseService::PushJobByTag(std::wstring_view&& tag)
 	return PushJob(statement);
 }
 
-shared_ptr<DatabaseQuery> DatabaseService::PopJob()
+shared_ptr<db::Query> db::Service::PopJob()
 {
 	std::scoped_lock locken{ JobBarrier };
 
@@ -205,7 +205,7 @@ shared_ptr<DatabaseQuery> DatabaseService::PopJob()
 	return result;
 }
 
-DatabaseQuery& DatabaseService::RegisterStatement(std::wstring_view tag, std::wstring_view statement)
+db::Query& db::Service::RegisterStatement(std::wstring_view tag, std::wstring_view statement)
 {
 	std::scoped_lock locken{ JobBarrier };
 
@@ -215,9 +215,9 @@ DatabaseQuery& DatabaseService::RegisterStatement(std::wstring_view tag, std::ws
 	return *tagged;
 }
 
-shared_ptr<DatabaseQuery> DatabaseService::CreateQuery(std::wstring_view statement)
+shared_ptr<db::Query> db::Service::CreateQuery(std::wstring_view statement)
 {
-	auto result = make_shared<DatabaseQuery>(std::wstring{ statement });
+	auto result = make_shared<db::Query>(std::wstring{ statement });
 
 	auto sqlcode = CreateStatementAt(result->myQuery);
 
@@ -238,7 +238,7 @@ shared_ptr<DatabaseQuery> DatabaseService::CreateQuery(std::wstring_view stateme
 	return result;
 }
 
-SQLHSTMT DatabaseService::CreateStatement()
+SQLHSTMT db::Service::CreateStatement()
 {
 	SQLHSTMT hstmt{};
 
@@ -247,44 +247,44 @@ SQLHSTMT DatabaseService::CreateStatement()
 	return hstmt;
 }
 
-SQLRETURN DatabaseService::CreateStatementAt(SQLHSTMT& place)
+SQLRETURN db::Service::CreateStatementAt(SQLHSTMT& place)
 {
 	return SQLAllocHandle(SQL_HANDLE_STMT, myConnector, &place);
 }
 
-SQLRETURN DatabaseService::PrepareStatement(const SQLHSTMT& statement, const std::wstring_view& query)
+SQLRETURN db::Service::PrepareStatement(const SQLHSTMT& statement, const std::wstring_view& query)
 {
 	return SQLPrepare(statement, (SQLWCHAR*) (query.data()), SQL_NTS);
 }
 
-const std::pair<const std::wstring&, const shared_ptr<const DatabaseQuery>>
-DatabaseService::GetStatement(std::wstring_view tag) const
+const std::pair<const std::wstring&, const shared_ptr<const db::Query>>
+db::Service::GetStatement(std::wstring_view tag) const
 {
 	return std::make_pair(myStatements.at(tag), myQueries.at(tag));
 }
 
-const std::pair<std::wstring, shared_ptr<DatabaseQuery>>
-DatabaseService::GetStatement(std::wstring_view tag)
+const std::pair<std::wstring, shared_ptr<db::Query>>
+db::Service::GetStatement(std::wstring_view tag)
 {
 	return std::make_pair(myStatements.at(tag), myQueries.at(tag));
 }
 
-bool DatabaseService::IsEmpty() const noexcept
+bool db::Service::IsEmpty() const noexcept
 {
 	return myJobQueue.empty();
 }
 
-bool DatabaseService::IsPreparedEmpty() const noexcept
+bool db::Service::IsPreparedEmpty() const noexcept
 {
 	return myQueries.empty();
 }
 
-DatabaseQuery& DatabaseService::GetQuery(std::wstring_view&& tag)
+db::Query& db::Service::GetQuery(std::wstring_view&& tag)
 {
 	return *(myQueries.at(std::forward<std::wstring_view>(tag)));
 }
 
-const DatabaseQuery& DatabaseService::GetQuery(std::wstring_view&& tag) const
+const db::Query& db::Service::GetQuery(std::wstring_view&& tag) const
 {
 	return *(myQueries.at(std::forward<std::wstring_view>(tag)));
 }

@@ -6,7 +6,7 @@ namespace srv
 	class PlayingSession : public Session
 	{
 	protected:
-		constexpr PlayingSession(unsigned place, DatabaseService& db_service)
+		constexpr PlayingSession(unsigned place, db::Service& db_service)
 			: Session(place, db_service)
 		{}
 
@@ -14,7 +14,7 @@ namespace srv
 		virtual ~PlayingSession()
 		{}
 
-		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place, DatabaseService& db_service) noexcept
+		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place, db::Service& db_service) noexcept
 		{
 			return static_pointer_cast<srv::Session>(shared_ptr<PlayingSession>(new PlayingSession{ place, db_service }));
 		}

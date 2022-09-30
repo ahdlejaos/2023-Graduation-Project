@@ -7,9 +7,9 @@
 #include "Spinlock.inl"
 
 template<>
-struct std::hash<DatabaseJob>
+struct std::hash<db::Job>
 {
-	[[nodiscard]] size_t operator()(const DatabaseJob& _Keyval) const noexcept
+	[[nodiscard]] size_t operator()(const db::Job& _Keyval) const noexcept
 	{
 		return _Hash_representation(reinterpret_cast<const void*>(std::addressof(_Keyval)));
 	}
@@ -59,18 +59,20 @@ public:
 
 	BOOL PostDatabaseJob(const PID user_id, const DWORD data);
 	BOOL PostDatabaseJob(const PID user_id, const srv::DatabaseTasks type, void* blob);
-	DatabaseQuery& DBAddPlayer(BasicUserBlob data);
-	DatabaseQuery& DBFindPlayer(const std::wstring_view& email);
-	DatabaseQuery& DBFindPlayerByNickname(const std::wstring_view& nickname);
-	DatabaseQuery& DBUpdatePlayer(const PID id, BasicUserBlob data);
+	db::Query& DBAddPlayer(BasicUserBlob data);
+	db::Query& DBFindPlayer(const std::wstring_view& email);
+	db::Query& DBFindPlayerByNickname(const std::wstring_view& nickname);
+	db::Query& DBUpdatePlayer(const PID id, BasicUserBlob data);
 
 	void RouteSucceed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes);
 	void RouteFailed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned bytes);
-	void ProceedAccept(srv::Asynchron* context);
-	void ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
-	void ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes);
-	void ProceedDispose(srv::Asynchron* context, ULONG_PTR key);
-	void ProceedBeginDiconnect(srv::Asynchron* context, ULONG_PTR key);
+
+	void ProceedAccept(srv::BasicContext* context);
+	void ProceedSent(srv::BasicContext* context, ULONG_PTR key, unsigned bytes);
+	void ProceedRecv(srv::BasicContext* context, ULONG_PTR key, unsigned bytes);
+	void ProceedDispose(srv::BasicContext* context, ULONG_PTR key);
+	void ProceedBeginDiconnect(ULONG_PTR key);
+	void ProceedBeginDiconnect(srv::Session* session);
 
 	friend void Worker(std::stop_source& stopper, Framework& me, ConnectService& pool);
 	friend void TimerWorker(std::stop_source& stopper, Framework& me);
@@ -116,7 +118,7 @@ private:
 	ULONG_PTR myID;
 
 	ConnectService myEntryPoint;
-	DatabaseService myDatabaseService;
+	db::Service myDatabaseService;
 
 	unsigned int concurrentsNumber;
 	std::latch concurrentWatcher;
