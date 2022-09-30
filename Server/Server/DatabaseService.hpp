@@ -1,6 +1,5 @@
 #pragma once
 #include "MySQL.hpp"
-#include "BasicDatabaseJob.hpp"
 #include "DatabaseJob.hpp"
 
 namespace db
