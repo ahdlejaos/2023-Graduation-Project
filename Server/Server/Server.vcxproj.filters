@@ -28,6 +28,9 @@
     <Filter Include="헤더 파일\Asynchronizer">
       <UniqueIdentifier>{5f20524b-bbe5-4464-ab40-ce00d6cfd270}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Contents">
+      <UniqueIdentifier>{b2b85ba4-4d09-48c4-a039-dd118e462bf6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp">
@@ -120,21 +123,6 @@
     <ClInclude Include="stdafx.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Runnable.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Packet.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Room.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Session.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayingSession.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="GameObject.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -185,6 +173,21 @@
     </ClInclude>
     <ClInclude Include="DatabaseContext.hpp">
       <Filter>헤더 파일\Asynchronizer</Filter>
+    </ClInclude>
+    <ClInclude Include="Packet.hpp">
+      <Filter>헤더 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Session.hpp">
+      <Filter>헤더 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayingSession.hpp">
+      <Filter>헤더 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Runnable.hpp">
+      <Filter>헤더 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Room.hpp">
+      <Filter>헤더 파일\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
