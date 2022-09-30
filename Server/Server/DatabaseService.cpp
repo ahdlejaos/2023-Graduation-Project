@@ -1,6 +1,7 @@
 ﻿#include "pch.hpp"
 #include "DatabaseService.hpp"
 #include "DatabaseQuery.hpp"
+#include "DatabaseException.hpp"
 
 db::Service::Service()
 	: myJobQueue(), JobBarrier()
@@ -71,17 +72,17 @@ bool db::Service::Awake()
 	sqlcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &myEnvironment);
 
 	// Set the ODBC version environment attribute
-	if (SQLSucceed(sqlcode))
+	if (sql::IsSucceed(sqlcode))
 	{
 		sqlcode = SQLSetEnvAttr(myEnvironment, SQL_ATTR_ODBC_VERSION, SQLPOINTER(SQL_OV_ODBC3), 0);
 
 		// Allocate connection handle
-		if (SQLSucceed(sqlcode))
+		if (sql::IsSucceed(sqlcode))
 		{
 			sqlcode = SQLAllocHandle(SQL_HANDLE_DBC, myEnvironment, &myConnector);
 
 			// Set login timeout to 5 seconds
-			if (SQLSucceed(sqlcode))
+			if (sql::IsSucceed(sqlcode))
 			{
 				constexpr std::ptrdiff_t timeout_second = 5;
 				SQLSetConnectAttr(myConnector, SQL_LOGIN_TIMEOUT, SQLPOINTER(timeout_second), 0);
@@ -89,7 +90,7 @@ bool db::Service::Awake()
 				// Connect to data source
 				sqlcode = SQLConnect(myConnector, entry, SQL_NTS, username, userlen, password, passlen);
 
-				if (!SQLSucceed(sqlcode))
+				if (!sql::IsSucceed(sqlcode))
 				{
 					std::cout << "SQL 서버 로그인 실패!\n";
 					return false;
@@ -148,7 +149,7 @@ bool db::Service::Disconnect()
 		isConnected = false;
 
 		auto sqlcode = SQLDisconnect(myConnector);
-		if (SQLSucceed(sqlcode))
+		if (sql::IsSucceed(sqlcode))
 		{
 			SQLFreeHandle(SQL_HANDLE_DBC, myConnector);
 			SQLFreeHandle(SQL_HANDLE_ENV, myEnvironment);
@@ -225,11 +226,11 @@ shared_ptr<db::Query> db::Service::CreateQuery(std::wstring_view statement)
 
 	auto sqlcode = CreateStatementAt(result->myQuery);
 
-	if (SQLSucceed(sqlcode))
+	if (sql::IsSucceed(sqlcode))
 	{
 		sqlcode = PrepareStatement(result->myQuery, statement);
 
-		if (!SQLSucceed(sqlcode))
+		if (!sql::IsSucceed(sqlcode))
 		{
 			throw std::runtime_error("SQL Error!");
 		}

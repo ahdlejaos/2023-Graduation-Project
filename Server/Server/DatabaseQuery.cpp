@@ -9,13 +9,13 @@ SQLRETURN db::Query::Execute()
 	{
 		sqlcode = SQLExecute(myQuery);
 
-		if (SQLSucceed(sqlcode))
+		if (sql::IsSucceed(sqlcode))
 		{
 			return true;
 		}
 		else
 		{
-			SQLDiagnostics(SQL_HANDLE_STMT, myQuery);
+			sql::GrabDiagnostics(SQL_HANDLE_STMT, myQuery);
 		}
 	}
 
@@ -30,18 +30,18 @@ SQLRETURN db::Query::Fetch()
 	{
 		sqlcode = FetchOnce();
 
-		if (SQLStatementHasDiagnotics(sqlcode))
+		if (sql::IsStatementHasDiagnotics(sqlcode))
 		{
-			SQLDiagnostics(SQL_HANDLE_STMT, myQuery);
+			sql::GrabDiagnostics(SQL_HANDLE_STMT, myQuery);
 			break;
 		}
 		else if (SQL_INVALID_HANDLE == sqlcode)
 		{
-			SQLDiagnostics(SQL_HANDLE_STMT, myQuery);
+			sql::GrabDiagnostics(SQL_HANDLE_STMT, myQuery);
 			break;
 		}
 	}
-	while (!SQLFetchEnded(sqlcode));
+	while (!sql::IsFetchEnded(sqlcode));
 
 	return sqlcode;
 }
