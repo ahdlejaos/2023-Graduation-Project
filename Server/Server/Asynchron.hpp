@@ -1,8 +1,9 @@
 #pragma once
+#include "BasicContext.hpp"
 
 namespace srv
 {
-	class Asynchron : public WSAOVERLAPPED
+	class Asynchron : public BasicContext
 	{
 	public:
 		constexpr Asynchron(const Operations& service)
@@ -23,8 +24,8 @@ namespace srv
 			std::copy(wbuffer.buf, wbuffer.buf + wbuffer.len, std::ranges::begin(myData));
 		}
 
-		constexpr Asynchron(const Operations& service, WSABUF&& wbuffer)
-			: myOperation(service)
+		constexpr Asynchron(const Operations& op, WSABUF&& wbuffer)
+			: myOperation(op)
 			, myBuffer(std::forward<WSABUF>(wbuffer)), myData()
 		{
 			myBuffer.buf = myData;

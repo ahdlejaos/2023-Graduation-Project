@@ -2,7 +2,7 @@
 
 namespace srv
 {
-	class Context : public WSAOVERLAPPED
+	class BasicContext : public WSAOVERLAPPED
 	{
 	public:
 	};

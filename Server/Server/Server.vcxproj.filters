@@ -87,10 +87,10 @@
     <ClCompile Include="DatabaseContext.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Context.cpp">
+    <ClCompile Include="StringHasher.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="StringHasher.cpp">
+    <ClCompile Include="BasicContext.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -177,10 +177,10 @@
     <ClInclude Include="DatabaseContext.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Context.hpp">
+    <ClInclude Include="StringHasher.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="StringHasher.hpp">
+    <ClInclude Include="BasicContext.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
