@@ -33,8 +33,7 @@ namespace srv
 
 			std::ranges::copy_n(std::forward<CHAR*>(wbuffer.buf), std::forward<ULONG>(wbuffer.len), std::ranges::begin(myData));
 
-			//std::copy(wbuffer.buf, wbuffer.buf + std::forward<ULONG>(wbuffer.len)
-				, std::ranges::begin(myData));
+			//std::copy(wbuffer.buf, wbuffer.buf + std::forward<ULONG>(wbuffer.len), std::ranges::begin(myData));
 		}
 
 		~Asynchron()
