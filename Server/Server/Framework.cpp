@@ -503,14 +503,25 @@ void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 	}
 }
 
-void Framework::ProceedBeginDiconnect(srv::BasicContext* context, ULONG_PTR key)
+void Framework::ProceedBeginDiconnect(ULONG_PTR key)
 {
-	const auto place = static_cast<unsigned>(key);
+	const auto place = static_cast<size_t>(key);
 	auto session = GetSession(place);
 	if (!session) [[unlikely]] {
 		std::cout << "연결을 끊을 세션이 없음! (키: " << key << ")\n";
+		return;
 	};
 
+	BeginDisconnect(session);
+}
+
+void Framework::ProceedBeginDiconnect(shared_ptr<srv::Session> session)
+{
+	BeginDisconnect(session);
+}
+
+void Framework::ProceedBeginDiconnect(srv::Session* session)
+{
 	BeginDisconnect(session);
 }
 
@@ -728,12 +739,12 @@ db::Query& Framework::DBFindPlayer(const std::wstring_view& email)
 	(
 		std::vformat
 		(
-		L"SELECT [bf_user].[ID], [bf_user].[NICKNAME]"
-		"FROM [Users] AS [bf_user], [UserStaticInfos] AS [bf_info]"
-		"WHERE [bf_info].[EMAIL] = 'iconer'"
+			L"SELECT [bf_user].[ID], [bf_user].[NICKNAME]"
+			"FROM [Users] AS [bf_user], [UserStaticInfos] AS [bf_info]"
+			"WHERE [bf_info].[EMAIL] = 'iconer'"
 
-		, std::make_wformat_args(email)
-	));
+			, std::make_wformat_args(email)
+		));
 }
 
 db::Query& Framework::DBFindPlayerByNickname(const std::wstring_view& nickname)
@@ -743,10 +754,10 @@ db::Query& Framework::DBFindPlayerByNickname(const std::wstring_view& nickname)
 		std::vformat
 		(L""
 
-		, std::make_wformat_args(nickname)
-	));
+			, std::make_wformat_args(nickname)
+		));
 
-	//return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
+		//return myDatabaseService.PushJob(std::vformat(L"SELECT [ID], [NICKNAME] FROM [Users] WHERE [ID] = {};", std::make_wformat_args(100)));
 }
 
 bool Framework::CanAcceptPlayer() const noexcept

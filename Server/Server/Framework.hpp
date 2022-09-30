@@ -72,6 +72,7 @@ public:
 	void ProceedRecv(srv::BasicContext* context, ULONG_PTR key, unsigned bytes);
 	void ProceedDispose(srv::BasicContext* context, ULONG_PTR key);
 	void ProceedBeginDiconnect(ULONG_PTR key);
+	void ProceedBeginDiconnect(shared_ptr<srv::Session> session);
 	void ProceedBeginDiconnect(srv::Session* session);
 
 	friend void Worker(std::stop_source& stopper, Framework& me, ConnectService& pool);
