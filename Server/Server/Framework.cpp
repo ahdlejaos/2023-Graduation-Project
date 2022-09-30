@@ -185,7 +185,7 @@ void Framework::RouteFailed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned byt
 	{
 		case srv::Operations::ACCEPT:
 		{
-			ProceedBeginDiconnect(asynchron, key);
+			ProceedBeginDiconnect(key);
 		}
 		break;
 
@@ -207,7 +207,7 @@ void Framework::RouteFailed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned byt
 				std::cout << "송신 오류 발생: 받는 바이트 수가 0임.\n";
 			}
 
-			ProceedBeginDiconnect(asynchron, key);
+			ProceedBeginDiconnect(key);
 		}
 		break;
 
@@ -225,7 +225,7 @@ void Framework::RouteFailed(LPWSAOVERLAPPED context, ULONG_PTR key, unsigned byt
 	}
 }
 
-void Framework::ProceedAccept(srv::Asynchron* context)
+void Framework::ProceedAccept(srv::BasicContext* context)
 {
 	const SOCKET target = myEntryPoint.Update();
 
@@ -249,7 +249,7 @@ void Framework::ProceedAccept(srv::Asynchron* context)
 	}
 }
 
-void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+void Framework::ProceedSent(srv::BasicContext* context, ULONG_PTR key, unsigned bytes)
 {
 	auto& wbuffer = context->myBuffer;
 	auto& buffer = wbuffer.buf;
@@ -284,7 +284,7 @@ void Framework::ProceedSent(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 	}
 }
 
-void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned bytes)
+void Framework::ProceedRecv(srv::BasicContext* context, ULONG_PTR key, unsigned bytes)
 {
 	const auto place = static_cast<const std::size_t>(key);
 	auto session = GetSession(place);
@@ -481,7 +481,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 	}
 }
 
-void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
+void Framework::ProceedDispose(srv::BasicContext* context, ULONG_PTR key)
 {
 	const auto place = static_cast<unsigned>(key);
 	auto session = GetSession(place);
