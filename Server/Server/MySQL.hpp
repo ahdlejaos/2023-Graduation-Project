@@ -5,6 +5,14 @@
 #ifndef __SQL_UTILITIES__
 #define __SQL_UTILITIES__
 
+namespace sql
+{
+	static SQLSMALLINT records = 0;
+	static SQLINTEGER native{};
+	static SQLWCHAR state[7]{};
+	static SQLWCHAR msg[1024]{};
+	static SQLSMALLINT msg_length{};
+
 extern "C" let bool SQLSucceed(const SQLRETURN code) noexcept
 {
 	return (SQL_SUCCEEDED(code));
@@ -61,11 +69,6 @@ extern "C" inline SQLRETURN SQLDiagnostics(const SQLSMALLINT & type, const SQLHA
 		std::wcout << "state: " << temp_state << "\nmsg(" << native << "): " << temp_msg << '\n';
 	}
 
-	return sqlcode;
-}
-
-namespace sql
-{
 	namespace detail
 	{
 		template<typename Ty>
