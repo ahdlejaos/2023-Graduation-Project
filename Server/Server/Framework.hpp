@@ -196,7 +196,7 @@ namespace srv
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket(datagram);
+		Pk* packet = srv::CreatePacket(datagram);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);
@@ -212,7 +212,7 @@ namespace srv
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket(std::forward<Pk>(datagram));
+		Pk* packet = srv::CreatePacket(std::forward<Pk>(datagram));
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);
@@ -228,7 +228,7 @@ namespace srv
 	{
 		Asynchron* asyncron = CreateAsynchron(Operations::SEND);
 
-		auto packet = srv::CreatePacket<Pk>(std::forward<Ty>(args)...);
+		Pk* packet = srv::CreatePacket<Pk>(std::forward<Ty>(args)...);
 
 		WSABUF wbuffer{};
 		wbuffer.buf = reinterpret_cast<char*>(packet);

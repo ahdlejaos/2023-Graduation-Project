@@ -500,8 +500,8 @@ void Framework::ProceedDispose(srv::Asynchron* context, ULONG_PTR key)
 	}
 	else
 	{
-		auto rit = dictSessions.find(session->GetID());
-		dictSessions.erase(rit);
+		//auto rit = dictSessions.find(session->GetID());
+		//dictSessions.erase(rit);
 
 		myEntryPoint.Push(session->mySocket);
 
