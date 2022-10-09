@@ -7,7 +7,7 @@
 
 namespace srv
 {
-	class Session : public std::enable_shared_from_this<Session>
+	class Session
 	{
 	protected:
 		constexpr Session(unsigned place, db::Service& db_service)
@@ -28,14 +28,9 @@ namespace srv
 
 		}
 
-		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place, db::Service& db_service) noexcept
+		[[nodiscard]] inline static Session* Create(unsigned place, db::Service& db_service) noexcept
 		{
-			return shared_ptr<Session>(new Session{ place, db_service });
-		}
-
-		inline shared_ptr<Session> Handle() noexcept
-		{
-			return shared_from_this();
+			return new Session{ place, db_service };
 		}
 
 		/// <summary>
@@ -325,14 +320,9 @@ namespace srv
 			myID.store(id, std::memory_order_release);
 		}
 
-		inline void AssignRoom(const shared_ptr<Room>& room)
+		inline void AssignRoom(Room* room)
 		{
 			myRoom.store(room, std::memory_order_release);
-		}
-
-		inline void AssignRoom(shared_ptr<Room>&& room)
-		{
-			myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_release);
 		}
 
 		inline void SetReceiveVirgin(const bool flag)
@@ -360,14 +350,9 @@ namespace srv
 			myID.store(id, std::memory_order_relaxed);
 		}
 
-		inline void SetRoom(const shared_ptr<Room>& room)
+		inline void SetRoom(Room* room)
 		{
 			myRoom.store(room, std::memory_order_relaxed);
-		}
-
-		inline void SetRoom(shared_ptr<Room>&& room)
-		{
-			myRoom.store(std::forward<shared_ptr<Room>>(room), std::memory_order_relaxed);
 		}
 
 		inline constexpr virtual bool IsUser() const noexcept
@@ -394,7 +379,7 @@ namespace srv
 		atomic<SessionStates> myState;
 		atomic<SOCKET> mySocket;
 		atomic<PID> myID;
-		atomic<shared_ptr<Room>> myRoom;
+		atomic<Room*> myRoom;
 
 		atomic<bool> isFirstCommunication;
 		Asynchron myReceiver;

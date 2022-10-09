@@ -14,9 +14,9 @@ namespace srv
 		virtual ~PlayingSession()
 		{}
 
-		[[nodiscard]] inline static shared_ptr<Session> Create(unsigned place, db::Service& db_service) noexcept
+		[[nodiscard]] inline static Session* Create(unsigned place, db::Service& db_service) noexcept
 		{
-			return static_pointer_cast<srv::Session>(shared_ptr<PlayingSession>(new PlayingSession{ place, db_service }));
+			return new PlayingSession{ place, db_service };
 		}
 
 		inline constexpr bool IsUser() const noexcept override

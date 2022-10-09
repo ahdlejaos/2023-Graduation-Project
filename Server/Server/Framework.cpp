@@ -250,11 +250,9 @@ void Framework::ProceedAccept(srv::Asynchron* context)
 			// 동기식으로 접속 종료
 			if (FALSE == DisconnectEx(target, nullptr, 0, 0)) [[unlikely]] {
 				std::cout << "연결을 받을 수 없는 와중에 접속 종료가 실패했습니다.\n";
-			}
-			else
-			{
-				myEntryPoint.Push(target);
-			}
+			};
+
+			myEntryPoint.Push(target);
 		}
 	}
 }
@@ -328,7 +326,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 					// 로그인 무조건 실패!
 					login_failure.cause = srv::SIGNIN_CAUSE::FAILURE_WRONG_SINGIN_INFOS;
 
-					SendLoginResult(session.get(), login_failure);
+					SendLoginResult(session, login_failure);
 				}
 				else
 				{
@@ -349,7 +347,7 @@ void Framework::ProceedRecv(srv::Asynchron* context, ULONG_PTR key, unsigned byt
 					query.Bind(1, &result_id, 0, &result_length);
 					query.Bind(2, result_nickname, 30, &result_length);
 
-					SendLoginResult(session.get(), login_succeed);
+					SendLoginResult(session, login_succeed);
 				}
 			}
 			break;
@@ -588,7 +586,7 @@ void DBaseWorker(std::stop_source& stopper, Framework& me)
 	me.Println("DB 작업 스레드 ", std::this_thread::get_id(), " 종료");
 }
 
-shared_ptr<srv::Session> Framework::AcceptPlayer(SOCKET target)
+SessionPtr Framework::AcceptPlayer(SOCKET target)
 {
 	auto newbie = SeekNewbiePlace();
 	if (newbie)
@@ -626,12 +624,12 @@ shared_ptr<srv::Session> Framework::AcceptPlayer(SOCKET target)
 	return newbie;
 }
 
-shared_ptr<srv::Session> Framework::ConnectPlayer(const std::size_t place)
+SessionPtr Framework::ConnectPlayer(const std::size_t place)
 {
 	return ConnectPlayer(GetSession(place));
 }
 
-shared_ptr<srv::Session> Framework::ConnectPlayer(shared_ptr<srv::Session> session)
+SessionPtr Framework::ConnectPlayer(SessionPtr session)
 {
 	session->Acquire();
 
@@ -661,27 +659,17 @@ void Framework::ProceedBeginDiconnect(ULONG_PTR key)
 	BeginDisconnect(session);
 }
 
-void Framework::ProceedBeginDiconnect(shared_ptr<srv::Session> session)
-{
-	BeginDisconnect(session);
-}
-
-void Framework::ProceedBeginDiconnect(srv::Session* session)
+void Framework::ProceedBeginDiconnect(SessionPtr session)
 {
 	BeginDisconnect(session);
 }
 
 void Framework::BeginDisconnect(const std::size_t place)
 {
-	BeginDisconnect(GetSession(place).get());
+	BeginDisconnect(GetSession(place));
 }
 
-void Framework::BeginDisconnect(shared_ptr<srv::Session> session)
-{
-	BeginDisconnect(session.get());
-}
-
-void Framework::BeginDisconnect(srv::Session* session)
+void Framework::BeginDisconnect(SessionPtr session)
 {
 	session->Acquire();
 	session->BeginDisconnect();
@@ -690,7 +678,7 @@ void Framework::BeginDisconnect(srv::Session* session)
 	std::cout << "세션 " << session->myPlace << "의 연결 끊김. (유저 수: " << numberUsers << "명)\n";
 }
 
-int Framework::SendTo(srv::Session* session, void* const data, const std::unsigned_integral auto size)
+int Framework::SendTo(SessionPtr session, void* const data, const std::unsigned_integral auto size)
 {
 	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
 
@@ -701,21 +689,21 @@ int Framework::SendTo(srv::Session* session, void* const data, const std::unsign
 	return session->BeginSend(asynchron);
 }
 
-int Framework::SendServerStatus(srv::Session* session)
+int Framework::SendServerStatus(SessionPtr session)
 {
 	auto asynchron = srv::CreateAsynchron(srv::Operations::SEND);
 
 	return 0;
 }
 
-int Framework::SendLoginResult(srv::Session* session, const login_succeed_t& info)
+int Framework::SendLoginResult(SessionPtr session, const login_succeed_t& info)
 {
 	auto [pk, as] = srv::CreateTicket(srv::SCPacketSignInSucceed{ session->myID });
 
 	return session->BeginSend(as);
 }
 
-int Framework::SendLoginResult(srv::Session* session, const login_failure_t& info)
+int Framework::SendLoginResult(SessionPtr session, const login_failure_t& info)
 {
 	auto [pk, as] = srv::CreateTicket(srv::SCPacketSignInFailed{ info.cause });
 
@@ -781,16 +769,16 @@ bool Framework::CanCreateRoom() const noexcept
 	return numberRooms.load(std::memory_order_consume) < srv::MAX_ROOMS;
 }
 
-shared_ptr<srv::Session> Framework::GetSession(const std::size_t place) const noexcept(false)
+SessionPtr Framework::GetSession(const std::size_t place) const noexcept(false)
 {
 	return everySessions.at(place);
 }
 
-shared_ptr<srv::Session> Framework::FindSession(const PID id) const noexcept(false)
+SessionPtr Framework::FindSession(const PID id) const noexcept(false)
 {
 	auto it = std::find_if(std::execution::par_unseq
 		, everySessions.cbegin(), everySessions.cend()
-		, [id](const shared_ptr<srv::Session>& session) -> bool {
+		, [id](const SessionPtr& session) -> bool {
 		return (id == session->myID.load(std::memory_order_relaxed));
 	});
 
@@ -804,11 +792,11 @@ shared_ptr<srv::Session> Framework::FindSession(const PID id) const noexcept(fal
 	}
 }
 
-shared_ptr<srv::Session> Framework::SeekNewbiePlace() const noexcept
+SessionPtr Framework::SeekNewbiePlace() const noexcept
 {
 	auto players_view = everySessions | std::views::take(srv::MAX_USERS);
 	auto it = std::find_if(std::execution::par, players_view.begin(), players_view.end()
-		, [&](const shared_ptr<srv::Session>& ptr) {
+		, [&](const SessionPtr& ptr) {
 		return ptr->myState == srv::SessionStates::NONE;
 	});
 

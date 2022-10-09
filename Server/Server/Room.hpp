@@ -3,7 +3,7 @@
 
 namespace srv
 {
-	class Room : public std::enable_shared_from_this<Room>
+	class Room
 	{
 	protected:
 		constexpr Room(unsigned place)
@@ -16,14 +16,9 @@ namespace srv
 		virtual ~Room()
 		{}
 
-		[[nodiscard]] inline static shared_ptr<Room> Create(unsigned place) noexcept
+		[[nodiscard]] inline static Room* Create(unsigned place) noexcept
 		{
-			return shared_ptr<Room>(new Room{ place });
-		}
-
-		inline shared_ptr<Room> Handle() noexcept
-		{
-			return shared_from_this();
+			return new Room{ place };
 		}
 
 		void Update(const float delta_time)
@@ -34,7 +29,7 @@ namespace srv
 		const unsigned myPlace;
 		atomic<RoomStates> myState;
 
-		std::array<shared_ptr<Session>, MAX_PLAYERS_PER_ROOM> myPlayers;
-		std::array<shared_ptr<Session>, MAX_NPCS_PER_ROOM> myEntities;
+		std::array<Session*, MAX_PLAYERS_PER_ROOM> myPlayers;
+		std::array<Session*, MAX_NPCS_PER_ROOM> myEntities;
 	};
 }

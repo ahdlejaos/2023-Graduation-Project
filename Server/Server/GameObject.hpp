@@ -12,7 +12,7 @@ public:
 	void Attach(GameObject* pChild);
 	void BuildCollider();
 
-	virtual void Awake(shared_ptr<srv::Room> room, shared_ptr<srv::Session> owner);
+	virtual void Awake(srv::Room* room, srv::Session* owner);
 	void Animate(float delta_time);
 	void Animate(float delta_time, const XMFLOAT4X4& parent);
 	virtual void Update(float delta_time);

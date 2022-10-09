@@ -17,6 +17,7 @@ struct std::hash<db::Job>
 
 struct TimerBlob;
 
+using SessionPtr = srv::Session*;
 class Framework
 {
 private:
@@ -60,8 +61,7 @@ public:
 	void ProceedDispose(srv::Asynchron* context, ULONG_PTR key);
 
 	void ProceedBeginDiconnect(ULONG_PTR key);
-	void ProceedBeginDiconnect(shared_ptr<srv::Session> session);
-	void ProceedBeginDiconnect(srv::Session* session);
+	void ProceedBeginDiconnect(SessionPtr session);
 
 	friend void Worker(std::stop_source& stopper, Framework& me, ConnectService& pool);
 	friend void TimerWorker(std::stop_source& stopper, Framework& me);
@@ -70,8 +70,8 @@ public:
 	bool CanAcceptPlayer() const noexcept;
 	bool CanCreateRoom() const noexcept;
 
-	shared_ptr<srv::Session> GetSession(const std::size_t place) const noexcept(false);
-	shared_ptr<srv::Session> FindSession(const PID id) const noexcept(false);
+	SessionPtr GetSession(const std::size_t place) const noexcept(false);
+	SessionPtr FindSession(const PID id) const noexcept(false);
 
 	template<typename Ty, typename ...RestTy>
 	constexpr void Print(Ty&& first, RestTy&& ...rests);
@@ -86,19 +86,18 @@ private:
 	void BuildRooms();
 	void BuildResources();
 
-	shared_ptr<srv::Session> AcceptPlayer(SOCKET target);
-	shared_ptr<srv::Session> ConnectPlayer(const std::size_t place);
-	shared_ptr<srv::Session> ConnectPlayer(shared_ptr<srv::Session> session);
+	SessionPtr AcceptPlayer(SOCKET target);
+	SessionPtr ConnectPlayer(const std::size_t place);
+	SessionPtr ConnectPlayer(SessionPtr session);
 	void BeginDisconnect(const std::size_t place);
-	void BeginDisconnect(shared_ptr<srv::Session> session);
-	void BeginDisconnect(srv::Session* session);
+	void BeginDisconnect(SessionPtr session);
 
-	int SendTo(srv::Session* session, void* const data, const std::unsigned_integral auto size);
-	int SendServerStatus(srv::Session* session);
-	int SendLoginResult(srv::Session* session, const login_succeed_t& info);
-	int SendLoginResult(srv::Session* session, const login_failure_t& info);
+	int SendTo(SessionPtr session, void* const data, const std::unsigned_integral auto size);
+	int SendServerStatus(SessionPtr session);
+	int SendLoginResult(SessionPtr session, const login_succeed_t& info);
+	int SendLoginResult(SessionPtr session, const login_failure_t& info);
 
-	shared_ptr<srv::Session> SeekNewbiePlace() const noexcept;
+	srv::Session* SeekNewbiePlace() const noexcept;
 	unsigned long long MakeNewbieID() noexcept;
 
 	template<typename Ty, typename ...RestTy>
@@ -121,10 +120,10 @@ private:
 	unique_ptr<Thread> databaseWorker;
 	srv::Asynchron databaseAsyncer;
 
-	std::array<shared_ptr<srv::Room>, srv::MAX_ROOMS> everyRooms;
-	std::array<shared_ptr<srv::Session>, srv::MAX_ENTITIES> everySessions;
-	std::array<shared_ptr<srv::Session>, srv::MAX_USERS> lobbySessions;
-	std::unordered_map<PID, shared_ptr<srv::Session>> dictSessions;
+	std::array<srv::Room*, srv::MAX_ROOMS> everyRooms;
+	std::array<SessionPtr, srv::MAX_ENTITIES> everySessions;
+	std::array<SessionPtr, srv::MAX_USERS> lobbySessions;
+	std::unordered_map<PID, SessionPtr> dictSessions;
 	atomic<unsigned> numberRooms;
 	atomic<unsigned> numberUsers;
 
