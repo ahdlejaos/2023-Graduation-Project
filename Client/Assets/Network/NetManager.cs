@@ -19,6 +19,11 @@ public class NetManager : MonoBehaviour
 
 	public NetUser mySelf;
 
+	public static void Main(int argc, char[] argv)
+	{
+
+	}
+
 	void Awake()
 	{
 		myConnector = new(IPAddress.Loopback);

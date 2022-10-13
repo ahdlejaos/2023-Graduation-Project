@@ -52,6 +52,35 @@ public class NetConnector
 	{
 		myOption = NetConnectionStates.FirstContact;
 
+
+		myOption = NetConnectionStates.FirstRetrying;
+
+		while (true)
+		{
+			try
+			{
+				tcpClient.Connect(serverAddress);
+			}
+			catch (SocketException e)
+			{
+				myOption = NetConnectionStates.FailedAtFirst;
+
+				Debug.LogError("처음의 TCP 소켓 연결이 실패함.\n오류: " + e);
+				break;
+			}
+
+			if (IsConnected())
+			{
+				Debug.Log("서버로 접속 성공함.");
+				break;
+			}
+			else
+			{
+				Debug.LogError("알 수 없는 이유로 인해 처음의 TCP 소켓 연결이 실패함.");
+				break;
+			}
+		}
+
 		connectionThread = new(TryFirstConnect);
 		connectionThread.Start();
 		connectionThread.Join();
@@ -108,32 +137,5 @@ public class NetConnector
 	// 
 	private void TryFirstConnect()
 	{
-		myOption = NetConnectionStates.FirstRetrying;
-
-		while (true)
-		{
-			try
-			{
-				tcpClient.Connect(serverAddress);
-			}
-			catch (SocketException e)
-			{
-				myOption = NetConnectionStates.FailedAtFirst;
-
-				Debug.LogError("처음의 TCP 소켓 연결이 실패함.\n오류: " + e);
-				break;
-			}
-
-			if (IsConnected())
-			{
-				Debug.Log("서버로 접속 성공함.");
-				break;
-			}
-			else
-			{
-				Debug.LogError("알 수 없는 이유로 인해 처음의 TCP 소켓 연결이 실패함.");
-				break;
-			}
-		}
 	}
 }
